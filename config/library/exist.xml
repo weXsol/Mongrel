@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://exist-db.org/ns/expath-pkg">
+    <jar>exist-mongodb-@VERSION@.jar</jar>
+    <jar>mongo-java-driver-2.12.2.jar</jar>
+    <java>
+        <namespace>http://exist-db.org/xquery/mongodb</namespace>
+        <class>org.exist.mongodb.MongodbModule</class>
+    </java>
+    <java>
+        <namespace>http://exist-db.org/xquery/gridfs</namespace>
+        <class>org.exist.mongodb.GridfsModule</class>
+    </java>
+</package>

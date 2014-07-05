@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta xmlns="http://exist-db.org/xquery/repo">
+    <description>@TITLE@ - UI</description>
+    <author>Dannes Wessels</author>
+    <website>https://github.com/eXist-db/messaging-replication</website>
+    <status>beta</status>
+    <license>GNU-LGPL</license>
+    <copyright>true</copyright>
+    <type>application</type>
+    <target>mongodb</target>
+    <prepare>pre-install.xql</prepare>
+    <finish/>
+</meta>

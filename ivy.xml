@@ -1,0 +1,15 @@
+<!--
+    Ivy module to retrieve the required jar files
+-->
+<ivy-module version="2.0">
+
+    <info organisation="org.exist" module="mongodb-gridfs"/>
+    <dependencies>
+
+
+        <dependency org="org.mongodb" name="mongo-java-driver" rev="2.12.2"/>
+
+        
+    </dependencies>
+    
+</ivy-module>
