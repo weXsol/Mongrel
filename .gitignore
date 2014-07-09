@@ -1,5 +1,3 @@
 build
 dist
-java/lib/mongo-java-driver-2.12.2-javadoc.jar
-java/lib/mongo-java-driver-2.12.2-sources.jar
-java/lib/mongo-java-driver-2.12.2.jar
+java/lib
