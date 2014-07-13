@@ -19,11 +19,15 @@
  */
 package org.exist.mongodb.xquery.gridfs;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
@@ -40,18 +44,17 @@ import org.exist.xquery.value.*;
 
 public class Connect extends BasicFunction {
     
+    
+    
     public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
         new QName("connect", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Connect to GridFS server",
         new SequenceType[]{
-            new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
-//                        ,
-//            new FunctionParameterSequenceType("jmsMessageProperties", Type.MAP, Cardinality.ZERO_OR_ONE, "Application-defined property values"),
-//            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.ONE, "JMS configuration settings")
+                new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Database connection token")
         ),
         
     };
@@ -72,24 +75,28 @@ public class Connect extends BasicFunction {
             throw ex;
         }
 
-        // Get content
+        // Get connection URL
         String url = args[0].itemAt(0).getStringValue();
-        String database = args[1].itemAt(0).getStringValue();
-
 
         try {
+            // Construct client
             MongoClientURI uri = new MongoClientURI(url);
             MongoClient client = new MongoClient(uri);
-            DB db = client.getDB(database);
-            //client.
 
+            // Create unique identifier
+            String token = UUID.randomUUID().toString();
+            
+            // Store Client
+            MongodbClientStore.getInstance().add(token, client);
+            
+            // Report identifier
+            return new StringValue(token);
 
-        } catch (Throwable t) {
+        } catch (UnknownHostException t) {
             LOG.error(t.getMessage());
             XPathException ex = new XPathException(this, t);
             throw ex;
         }
 
-        return null;
     }    
 }
