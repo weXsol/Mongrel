@@ -19,10 +19,10 @@
  */
 package org.exist.mongodb.xquery.gridfs;
 
+import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import java.net.UnknownHostException;
-import java.util.UUID;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -32,7 +32,12 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.*;
+import org.exist.xquery.value.FunctionParameterSequenceType;
+import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.Type;
 
 /**
  * Implementation gridfs:connect() functions
@@ -40,24 +45,29 @@ import org.exist.xquery.value.*;
  * @author Dannes Wessels
  */
 
-public class Connect extends BasicFunction {
+public class Store extends BasicFunction {
     
     
     
     public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-        new QName("connect", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Connect to GridFS server",
+        new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        "Store document into Gridfs",
         new SequenceType[]{
-                new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
+            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
+            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ONE, "COntent type"),
+            new FunctionParameterSequenceType("content", Type.STRING, Cardinality.ONE, "Content TODO")
             },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Database connection token")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "an ID")
         ),
         
     };
 
-    public Connect(XQueryContext context, FunctionSignature signature) {
+    public Store(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -73,28 +83,31 @@ public class Connect extends BasicFunction {
             throw ex;
         }
 
-        // Get connection URL
-        String url = args[0].itemAt(0).getStringValue();
+        // Get parameters
+        // TODO handle (), etc
+        String id = args[0].itemAt(0).getStringValue();
+        String dbname = args[1].itemAt(0).getStringValue();
+        String collection = args[2].itemAt(0).getStringValue();
+        String documentName = args[3].itemAt(0).getStringValue();
+        String contentType = args[4].itemAt(0).getStringValue();
+        String content = args[5].itemAt(0).getStringValue();
 
-        try {
-            // Construct client
-            MongoClientURI uri = new MongoClientURI(url);
-            MongoClient client = new MongoClient(uri);
+        // Get
+        MongoClient client = MongodbClientStore.getInstance().get(id);
+        DB db = client.getDB(dbname);
 
-            // Create unique identifier
-            String token = UUID.randomUUID().toString();
-            
-            // Store Client
-            MongodbClientStore.getInstance().add(token, client);
-            
-            // Report identifier
-            return new StringValue(token);
+        GridFS gfs = new GridFS(db, collection);
 
-        } catch (UnknownHostException t) {
-            LOG.error(t.getMessage());
-            XPathException ex = new XPathException(this, t);
-            throw ex;
-        }
+        GridFSInputFile gfsFile = gfs.createFile(content.getBytes());
+
+        gfsFile.setFilename(documentName);
+        gfsFile.setContentType(contentType);
+        gfsFile.save();
+
+        // Report identifier
+        return new StringValue(gfsFile.getId().toString());
+
+
 
     }    
 }
