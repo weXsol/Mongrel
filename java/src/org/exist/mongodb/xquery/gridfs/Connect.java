@@ -23,8 +23,8 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.exist.dom.QName;
-import org.exist.messaging.xquery.*;
 import org.exist.mongodb.shared.Constants;
+import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
@@ -43,7 +43,7 @@ public class Connect extends BasicFunction {
     public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-        new QName("connect", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+        new QName("connect", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Connect to GridFS server",
         new SequenceType[]{
             new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
