@@ -4,6 +4,7 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.mongodb.xquery.gridfs.Close;
 import org.exist.mongodb.xquery.gridfs.Connect;
 import org.exist.mongodb.xquery.gridfs.Store;
 import org.exist.xquery.AbstractInternalModule;
@@ -25,6 +26,7 @@ public class GridfsModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = {
         new FunctionDef(Connect.signatures[0], Connect.class),
+        new FunctionDef(Close.signatures[0], Close.class),
         // close
         // list
         new FunctionDef(Store.signatures[0], Store.class)
