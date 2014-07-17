@@ -95,10 +95,6 @@ public class ContentSerializer {
                 sax.startDocument();
                 serializer.toSAX(node);
 
-//            while(node.hasNext()) {
-//                NodeValue next = (NodeValue)node.nextItem();
-//                serializer.toSAX(next);
-//            }
                 sax.endDocument();
                 writer.close();
 
