@@ -114,6 +114,9 @@ public class ContentSerializer {
             final BinaryValue binary = (BinaryValue) item;
             binary.streamTo(os);
 
+         } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
+            LOG.debug("Streaming text");
+            IOUtils.write(item.getStringValue(), os, "UTF-8");
 
         } else {
             LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
