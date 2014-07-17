@@ -85,18 +85,18 @@ public class ContentSerializer {
             final SAXSerializer sax = (SAXSerializer) SerializerPool.getInstance().borrowObject(SAXSerializer.class);
             try {
                 final String encoding = "UTF-8";
-                final Writer writer = new OutputStreamWriter(os, encoding);
-                sax.setOutput(writer, outputProperties);
-
-                serializer.reset();
-                serializer.setProperties(outputProperties);
-                serializer.setSAXHandlers(sax, sax);
-
-                sax.startDocument();
-                serializer.toSAX(node);
-
-                sax.endDocument();
-                writer.close();
+                try (Writer writer = new OutputStreamWriter(os, encoding)) {
+                    sax.setOutput(writer, outputProperties);
+                    
+                    serializer.reset();
+                    serializer.setProperties(outputProperties);
+                    serializer.setSAXHandlers(sax, sax);
+                    
+                    sax.startDocument();
+                    serializer.toSAX(node);
+                    
+                    sax.endDocument();
+                }
 
             } catch (final Exception e) {
                 final String txt = "A problem occurred while serializing the node set";
@@ -110,7 +110,6 @@ public class ContentSerializer {
 
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
             LOG.debug("Streaming base64 binary");
-
             final BinaryValue binary = (BinaryValue) item;            
             binary.streamTo(os);
             
