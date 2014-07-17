@@ -24,6 +24,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
+import java.io.OutputStream;
 import java.util.List;
 import javax.jms.JMSException;
 import javax.naming.Context;
@@ -36,6 +37,7 @@ import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 import org.exist.messaging.shared.Report;
 import org.exist.mongodb.shared.Constants;
+import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
@@ -105,8 +107,6 @@ public class Store extends BasicFunction {
             // content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
 
-            StreamSource ss = Shared.getStreamSource(content, context);
-
             // Get appropriate Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(id);
 
@@ -115,20 +115,26 @@ public class Store extends BasicFunction {
 
             // Creates a GridFS instance for the specified bucket
             GridFS gfs = new GridFS(db, bucket);
-
-            // Create file entry
-            GridFSInputFile gfsFile = gfs.createFile(ss.getInputStream());
-
+            
+            // Create file
+            GridFSInputFile gfsFile = gfs.createFile();
+            
             // Set meta data
             gfsFile.setFilename(documentName);
             gfsFile.setContentType(contentType);
-
-            // Save and persist
-            gfsFile.save();
+            
+            // Write data
+            OutputStream stream = gfsFile.getOutputStream();
+            ContentSerializer.serialize(content, context, stream);
+            
+            // Make persitent ; save() is not to be used
+            stream.close();
 
             // Report identifier
             return getReport(gfsFile);
+            
         } catch (Throwable ex) {
+            LOG.error(ex);
             throw new XPathException(this, ex);
         }
 
