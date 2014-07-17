@@ -26,16 +26,11 @@ import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.OutputStream;
 import java.util.List;
-import javax.jms.JMSException;
-import javax.naming.Context;
-import javax.xml.datatype.Duration;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.shared.Report;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -47,14 +42,12 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.functions.validation.Shared;
 import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
@@ -73,7 +66,7 @@ public class Store extends BasicFunction {
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ONE, "Document Content type, use () for mime-type based on file extension"),
+            new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
             new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")
         },
         new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "an ID")
@@ -96,13 +89,12 @@ public class Store extends BasicFunction {
         }
 
         try {
-
             // Get parameters
             String id = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
-            String contentType = "aaa"; //args[4].itemAt(0).getStringValue();
+            String contentType = getMimeType(args[4],documentName);
 
             // content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
@@ -124,11 +116,9 @@ public class Store extends BasicFunction {
             gfsFile.setContentType(contentType);
             
             // Write data
-            OutputStream stream = gfsFile.getOutputStream();
-            ContentSerializer.serialize(content, context, stream);
-            
-            // Make persitent ; save() is not to be used
-            stream.close();
+            try ( OutputStream stream = gfsFile.getOutputStream() ) {
+                ContentSerializer.serialize(content, context, stream);
+            }
 
             // Report identifier
             return getReport(gfsFile);
@@ -189,14 +179,25 @@ public class Store extends BasicFunction {
     }
 
     private String getMimeType(Sequence inputValue, String filename) throws XPathException {
+        
+        String mimeType = null;
 
+        // Use input when provided
         if (inputValue.hasOne()) {
-            return inputValue.itemAt(0).getStringValue();
-        } else {
-
+            mimeType = inputValue.itemAt(0).getStringValue();
+        } 
+        
+        // When no data is found  get from filename
+        if(StringUtils.isBlank(mimeType)){
             MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
-            return mime.getName();
+            mimeType =  mime.getName();
+        }
+        
+        // Nothing could be found
+        if(StringUtils.isBlank(mimeType)){
+            throw new XPathException(this,"Content type could not be retrieved from parameter or document name.");
         }
 
+        return mimeType;
     }
 }

@@ -111,19 +111,18 @@ public class ContentSerializer {
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
             LOG.debug("Streaming base64 binary");
 
-            final BinaryValue binary = (BinaryValue) item;
+            final BinaryValue binary = (BinaryValue) item;            
             binary.streamTo(os);
-
+            
          } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
             LOG.debug("Streaming text");
             IOUtils.write(item.getStringValue(), os, "UTF-8");
-
+            
         } else {
             LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
-            throw new XPathException("wrong item type " + Type.getTypeName(item.getType()));
+            throw new XPathException( "wrong item type " + Type.getTypeName(item.getType()));
         }
 
-        //return streamSource;
     }
 
 }
