@@ -52,7 +52,6 @@ public class ContentSerializer {
             final File inputFile = (File) obj;
             final InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
             IOUtils.copyLarge(is, os);
-            IOUtils.closeQuietly(os);
             IOUtils.closeQuietly(is);
 
         } else if (item.getType() == Type.ANY_URI) {
@@ -68,7 +67,6 @@ public class ContentSerializer {
 
             final InputStream is = new BufferedInputStream(new URL(url).openStream());
             IOUtils.copyLarge(is, os);
-            IOUtils.closeQuietly(os);
             IOUtils.closeQuietly(is);
 
         } else if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
@@ -118,10 +116,8 @@ public class ContentSerializer {
             LOG.debug("Streaming base64 binary");
 
             final BinaryValue binary = (BinaryValue) item;
-            
             binary.streamTo(os);
 
-            IOUtils.closeQuietly(os);
 
         } else {
             LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
