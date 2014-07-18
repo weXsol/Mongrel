@@ -65,21 +65,21 @@ public class Close extends BasicFunction {
         }
 
         // Get connection URL
-        String token = args[0].itemAt(0).getStringValue();
+        String driverId = args[0].itemAt(0).getStringValue();
 
         // Handle ()
         try {
-            MongoClient client = MongodbClientStore.getInstance().get(token);
+            MongoClient client = MongodbClientStore.getInstance().get(driverId);
 
             if (client == null) {
-                throw new XPathException(this, String.format("Mongoclient %s could not be found.", token));
+                throw new XPathException(this, String.format("Mongoclient %s could not be found.", driverId));
             }
 
             // CLose connector with all connections
             client.close();
             
             // Remove from cache
-            MongodbClientStore.getInstance().remove(token);
+            MongodbClientStore.getInstance().remove(driverId);
 
             // Report identifier
             return EmptySequence.EMPTY_SEQUENCE;

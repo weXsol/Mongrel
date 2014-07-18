@@ -111,7 +111,7 @@ public class ContentSerializer {
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
             LOG.debug("Streaming base64 binary");
             final BinaryValue binary = (BinaryValue) item;            
-            binary.streamTo(os);
+            binary.streamBinaryTo(os);
             
          } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
             LOG.debug("Streaming text");

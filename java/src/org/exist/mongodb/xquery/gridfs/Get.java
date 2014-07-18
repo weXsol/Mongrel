@@ -23,16 +23,10 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
 import java.io.OutputStream;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.MemTreeBuilder;
-import org.exist.memtree.NodeImpl;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
@@ -45,7 +39,6 @@ import org.exist.xquery.Variable;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.response.ResponseModule;
-import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.JavaObjectValue;
@@ -91,14 +84,14 @@ public class Get extends BasicFunction {
 
         try {
             // Get parameters
-            String id = args[0].itemAt(0).getStringValue();
+            String driverId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
             Boolean setDisposition = args[4].itemAt(0).toJavaObject(Boolean.class);
 
             // Get appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(id);
+            MongoClient client = MongodbClientStore.getInstance().get(driverId);
 
             // Get database
             DB db = client.getDB(dbname);
@@ -144,10 +137,10 @@ public class Get extends BasicFunction {
 
     private String getMimeType(String stored, String filename) throws XPathException {
 
-        String mimeType = null;
+        String mimeType = stored;
 
         // When no data is found  get from filename
-        if (StringUtils.isBlank(stored)) {
+        if (StringUtils.isBlank(mimeType)) {
             MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
             mimeType = mime.getName();
         }

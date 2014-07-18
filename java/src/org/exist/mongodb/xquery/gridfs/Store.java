@@ -90,7 +90,7 @@ public class Store extends BasicFunction {
 
         try {
             // Get parameters
-            String id = args[0].itemAt(0).getStringValue();
+            String driverId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
@@ -100,7 +100,7 @@ public class Store extends BasicFunction {
             Item content = args[5].itemAt(0);
 
             // Get appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(id);
+            MongoClient client = MongodbClientStore.getInstance().get(driverId);
 
             // Get database
             DB db = client.getDB(dbname);
