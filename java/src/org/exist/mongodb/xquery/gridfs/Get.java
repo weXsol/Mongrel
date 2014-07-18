@@ -25,6 +25,7 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import java.io.OutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
 import org.exist.mongodb.shared.Constants;
@@ -52,24 +53,35 @@ import org.exist.xquery.value.Type;
  * @author Dannes Wessels
  */
 public class Get extends BasicFunction {
-
+    
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName("stream", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        new QName("stream-findone-by-filename", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Store document into Gridfs",
         new SequenceType[]{
             new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("set-attachment,em", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
+            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
+        ),
+        new FunctionSignature(
+        new QName("stream-findone-by-objectid", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        "Store document into Gridfs",
+        new SequenceType[]{
+            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
+            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
         ),};
-
+    
     public Get(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
-
+    
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
@@ -81,13 +93,13 @@ public class Get extends BasicFunction {
             LOG.error(txt, ex);
             throw ex;
         }
-
+        
         try {
             // Get parameters
             String driverId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
-            String documentName = args[3].itemAt(0).getStringValue();
+            String documentId = args[3].itemAt(0).getStringValue();
             Boolean setDisposition = args[4].itemAt(0).toJavaObject(Boolean.class);
 
             // Get appropriate Mongodb client
@@ -99,11 +111,13 @@ public class Get extends BasicFunction {
             // Creates a GridFS instance for the specified bucket
             GridFS gfs = new GridFS(db, bucket);
 
-            // Create file
-            GridFSDBFile gfsFile = gfs.findOne(documentName);
+            // Find one document by id or by filename
+            GridFSDBFile gfsFile = (isCalledAs("stream-findone-by-objectid")) 
+                    ? gfs.findOne(new ObjectId(documentId))
+                    : gfs.findOne(documentId);
 
             // Set meta data
-            String contentType = getMimeType(gfsFile.getContentType(), documentName);
+            String contentType = getMimeType(gfsFile.getContentType(), documentId);
             long length = gfsFile.getLength();
 
             // Get response stream
@@ -112,16 +126,18 @@ public class Get extends BasicFunction {
             // Set Headers
             rw.setContentType(contentType);
             rw.addHeader("Content-Length", "" + length);
-
-            if (setDisposition) {
-                rw.addHeader("Content-Disposition", "attachment;filename=" + documentName);
+            
+            String filename = determineFilename(documentId, gfsFile);
+            
+            if (setDisposition && StringUtils.isNotBlank(filename)) {
+                rw.addHeader("Content-Disposition", "attachment;filename=" + filename);
             }
 
             // Stream data
             try (OutputStream os = rw.getOutputStream()) {
                 gfsFile.writeTo(os);
             }
-
+            
         } catch (XPathException ex) {
             LOG.error(ex);
             throw ex;
@@ -130,13 +146,29 @@ public class Get extends BasicFunction {
             LOG.error(ex);
             throw new XPathException(this, ex);
         }
-
+        
         return Sequence.EMPTY_SEQUENCE;
-
+        
     }
 
+    private String determineFilename(String documentId, GridFSDBFile gfsFile) {
+        String documentName = null;
+        
+        // Use filename when it is passed to method
+        if(isCalledAs("stream-findone-by-filename") && StringUtils.isNotBlank(documentId)){
+            documentName=documentId;
+        }
+        
+        // If documentname is not set, retrieve from database
+        if(StringUtils.isBlank(documentName)){
+            documentName = gfsFile.getFilename();
+        }
+        
+        return documentName;
+    }
+    
     private String getMimeType(String stored, String filename) throws XPathException {
-
+        
         String mimeType = stored;
 
         // When no data is found  get from filename
@@ -149,7 +181,7 @@ public class Get extends BasicFunction {
         if (StringUtils.isBlank(mimeType)) {
             throw new XPathException(this, "Content type could not be retrieved from database or document name.");
         }
-
+        
         return mimeType;
     }
 
@@ -174,7 +206,7 @@ public class Get extends BasicFunction {
                     + " can only be used within the EXistServlet or XQueryServlet");
         }
         ResponseWrapper response = (ResponseWrapper) respValue.getObject();
-
+        
         return response;
     }
 }
