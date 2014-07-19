@@ -36,7 +36,7 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
 /**
- * Implementation gridfs:connect() functions
+ * Implementation of the gridfs:connect() function
  * 
  * @author Dannes Wessels
  */
@@ -53,7 +53,7 @@ public class Connect extends BasicFunction {
         new SequenceType[]{
                 new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
             },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Database connection token")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "MongoDB client id")
         ),
         
     };
@@ -82,13 +82,13 @@ public class Connect extends BasicFunction {
             MongoClient client = new MongoClient(uri);
 
             // Create unique identifier
-            String token = UUID.randomUUID().toString();
+            String mongodbClientId = UUID.randomUUID().toString();
             
             // Store Client
-            MongodbClientStore.getInstance().add(token, client);
+            MongodbClientStore.getInstance().add(mongodbClientId, client);
             
             // Report identifier
-            return new StringValue(token);
+            return new StringValue(mongodbClientId);
 
         } catch (UnknownHostException ex) {
             LOG.error(ex.getMessage());

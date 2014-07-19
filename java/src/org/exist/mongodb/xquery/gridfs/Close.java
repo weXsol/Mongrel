@@ -33,7 +33,7 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
 /**
- * Implementation gridfs:close() functions
+ * Implementation of the gridfs:close() function
  *
  * @author Dannes Wessels
  */
@@ -44,7 +44,7 @@ public class Close extends BasicFunction {
         new QName("close", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Close MongoDB connector",
         new SequenceType[]{
-            new FunctionParameterSequenceType("token", Type.STRING, Cardinality.ONE, "token")
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id")
         },
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
         ),};

@@ -54,9 +54,9 @@ public class Remove extends BasicFunction {
         new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Remove document from gridFS",
         new SequenceType[]{
-            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
         ),
@@ -66,7 +66,7 @@ public class Remove extends BasicFunction {
         new SequenceType[]{
             new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
         ),};

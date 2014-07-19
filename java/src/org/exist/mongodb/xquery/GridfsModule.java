@@ -14,8 +14,9 @@ import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
 /**
- *
- * @author wessels
+ * Module for functions to work with a MongoDB GridFS server.
+ * 
+ * @author Dannes Wessels
  */
 
 

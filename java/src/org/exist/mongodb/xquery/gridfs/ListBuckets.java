@@ -20,14 +20,12 @@
 package org.exist.mongodb.xquery.gridfs;
 
 import com.mongodb.DB;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.gridfs.GridFS;
-import org.bson.types.ObjectId;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -39,30 +37,30 @@ import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 
 /**
- * Functions to remove documents from GridFS
+ * Function to list all GridFS buckets
  *
  * @author Dannes Wessels
  */
-public class List extends BasicFunction {
+public class ListBuckets extends BasicFunction {
 
-    private static final String REMOVE_BY_OBJECTID = "list";
+    private static final String LIST_DOCUMENTS = "list-buckets";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "List documents",
+        new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        "List buckets",
         new SequenceType[]{
-            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
-        },
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "n/a")
         ),};
 
-    public List(XQueryContext context, FunctionSignature signature) {
+    public ListBuckets(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -81,7 +79,6 @@ public class List extends BasicFunction {
             // Stream parameters
             String driverId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
 
             // Stream appropriate Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(driverId);
@@ -89,10 +86,20 @@ public class List extends BasicFunction {
             // Stream database
             DB db = client.getDB(dbname);
 
-            // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            Set<String> collectionNames = db.getCollectionNames();
+            
+            ValueSequence valueSequence = new ValueSequence();
+           
+            for (String collName : collectionNames) {
+                if (collName.endsWith(".chunks")) {
+                    String bucketName = StringUtils.removeEnd(collName, ".chunks");
+                    if (collectionNames.contains(bucketName + ".files")) {
+                        valueSequence.add(new StringValue(bucketName));
+                    }
+                }
+            }
 
-            return ContentSerializer.getDocuments(gfs);
+            return valueSequence;
 
         } catch (XPathException ex) {
             LOG.error(ex);
@@ -108,7 +115,6 @@ public class List extends BasicFunction {
         }
 
         //return Sequence.EMPTY_SEQUENCE;
-
     }
 
 }

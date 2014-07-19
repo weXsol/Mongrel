@@ -23,15 +23,10 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.OutputStream;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.MemTreeBuilder;
-import org.exist.memtree.NodeImpl;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -43,7 +38,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
@@ -63,9 +57,9 @@ public class Store extends BasicFunction {
         new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Store document into Gridfs",
         new SequenceType[]{
-            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
             new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
             new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")

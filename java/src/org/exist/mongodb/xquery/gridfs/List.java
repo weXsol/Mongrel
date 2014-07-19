@@ -20,11 +20,9 @@
 package org.exist.mongodb.xquery.gridfs;
 
 import com.mongodb.DB;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
-import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.ContentSerializer;
@@ -48,16 +46,16 @@ import org.exist.xquery.value.Type;
  */
 public class List extends BasicFunction {
 
-    private static final String REMOVE_BY_OBJECTID = "list";
+    private static final String LIST_DOCUMENTS = "list";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "List documents",
         new SequenceType[]{
-            new FunctionParameterSequenceType("id", Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("collection", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
         },
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
         ),};
