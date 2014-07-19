@@ -6,9 +6,10 @@ import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.gridfs.Close;
 import org.exist.mongodb.xquery.gridfs.Connect;
-import org.exist.mongodb.xquery.gridfs.Get;
 import org.exist.mongodb.xquery.gridfs.Store;
+import org.exist.mongodb.xquery.gridfs.Stream;
 import org.exist.xquery.AbstractInternalModule;
+import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
@@ -28,15 +29,15 @@ public class GridfsModule extends AbstractInternalModule {
     public final static FunctionDef[] functions = {
         new FunctionDef(Connect.signatures[0], Connect.class),
         new FunctionDef(Close.signatures[0], Close.class),
-        // close
-        // list
+        new FunctionDef(org.exist.mongodb.xquery.gridfs.List.signatures[0], org.exist.mongodb.xquery.gridfs.List.class),
         new FunctionDef(Store.signatures[0], Store.class),
-        new FunctionDef(Get.signatures[0], Get.class)
-        // get
-    // list
-    // delete
+        new FunctionDef(Stream.signatures[0], Stream.class),
+        new FunctionDef(Stream.signatures[1], Stream.class)
 
     };
+    
+    public final static ErrorCode GRFS0001 = new GridfsErrorCode("GRFS0001", "Document not found");
+
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);
@@ -66,5 +67,13 @@ public class GridfsModule extends AbstractInternalModule {
     @Override
     public String getReleaseVersion() {
         return RELEASED_IN_VERSION;
+    }
+    
+    protected final static class GridfsErrorCode extends ErrorCode {
+
+		public GridfsErrorCode(String code, String description) {
+			super(new QName(code, NAMESPACE_URI, PREFIX), description);
+		}
+    	
     }
 }

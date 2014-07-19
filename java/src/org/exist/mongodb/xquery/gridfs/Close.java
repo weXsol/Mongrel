@@ -1,6 +1,6 @@
 /*
  *  eXist Open Source Native XML Database
- *  Copyright (C) 2013 The eXist Project
+ *  Copyright (C) 2014 The eXist Project
  *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 package org.exist.mongodb.xquery.gridfs;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -59,9 +60,8 @@ public class Close extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
             String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.MONGODB_GROUP);
-            XPathException ex = new XPathException(this, txt);
-            LOG.error(txt, ex);
-            throw ex;
+            LOG.error(txt);
+            throw new XPathException(this, txt);
         }
 
         // Get connection URL
@@ -77,17 +77,24 @@ public class Close extends BasicFunction {
 
             // CLose connector with all connections
             client.close();
-            
+
             // Remove from cache
             MongodbClientStore.getInstance().remove(driverId);
 
             // Report identifier
             return EmptySequence.EMPTY_SEQUENCE;
 
-        } catch (Exception t) {
-            LOG.error(t.getMessage(), t);
-            XPathException ex = new XPathException(this, t);
+        } catch (XPathException ex) {
+            LOG.error(ex);
             throw ex;
+
+        } catch (MongoException ex) {
+            LOG.error(ex);
+            throw new XPathException(this, ex);
+
+        } catch (Throwable ex) {
+            LOG.error(ex);
+            throw new XPathException(this, ex);
         }
 
     }

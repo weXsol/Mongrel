@@ -1,7 +1,10 @@
 package org.exist.mongodb.shared;
 
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSFile;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,20 +14,22 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.exist.dom.NodeProxy;
+import org.exist.memtree.DocumentImpl;
+import org.exist.memtree.MemTreeBuilder;
+import org.exist.memtree.NodeImpl;
 import org.exist.storage.serializers.Serializer;
 import org.exist.util.serializer.SAXSerializer;
 import org.exist.util.serializer.SerializerPool;
-import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.Base64BinaryDocument;
 import org.exist.xquery.value.BinaryValue;
+import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.JavaObjectValue;
 import org.exist.xquery.value.NodeValue;
@@ -40,7 +45,6 @@ public class ContentSerializer {
 
     public static void serialize(Item item, XQueryContext context, OutputStream os) throws XPathException, MalformedURLException, IOException {
 
-        final StreamSource streamSource = new StreamSource();
         if (item.getType() == Type.JAVA_OBJECT) {
             LOG.debug("Streaming Java object");
 
@@ -87,21 +91,21 @@ public class ContentSerializer {
                 final String encoding = "UTF-8";
                 try (Writer writer = new OutputStreamWriter(os, encoding)) {
                     sax.setOutput(writer, outputProperties);
-                    
+
                     serializer.reset();
                     serializer.setProperties(outputProperties);
                     serializer.setSAXHandlers(sax, sax);
-                    
+
                     sax.startDocument();
                     serializer.toSAX(node);
-                    
+
                     sax.endDocument();
                 }
 
             } catch (final Exception e) {
-                final String txt = "A problem occurred while serializing the node set";
-                LOG.debug(txt + ".", e);
-                throw new IOException(txt + ": " + e.getMessage(), e);
+                final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
+                LOG.debug(txt, e);
+                throw new IOException(txt, e);
 
             } finally {
                 LOG.debug("Serializing done.");
@@ -110,16 +114,92 @@ public class ContentSerializer {
 
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
             LOG.debug("Streaming base64 binary");
-            final BinaryValue binary = (BinaryValue) item;            
+            final BinaryValue binary = (BinaryValue) item;
             binary.streamBinaryTo(os);
-            
-         } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
+
+        } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
             LOG.debug("Streaming text");
             IOUtils.write(item.getStringValue(), os, "UTF-8");
-            
+
         } else {
             LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
-            throw new XPathException( "wrong item type " + Type.getTypeName(item.getType()));
+            throw new XPathException("wrong item type " + Type.getTypeName(item.getType()));
+        }
+
+    }
+
+    public static NodeImpl getReport(GridFSFile gfsFile) throws XPathException {
+
+        MemTreeBuilder builder = new MemTreeBuilder();
+        builder.startDocument();
+
+        int nodeNr = addGridFSFileEntry(builder, gfsFile);
+
+        // return result
+        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+    }
+
+    public static NodeImpl getDocuments(GridFS gfs) throws XPathException {
+        MemTreeBuilder builder = new MemTreeBuilder();
+        builder.startDocument();
+        
+        int nodeNr = builder.startElement("", "GridFSFiles", "GridFSFiles", null);
+
+        DBCursor cursor = gfs.getFileList();
+        while (cursor.hasNext()) {
+            DBObject next = cursor.next();
+            if (next instanceof GridFSFile) {
+                addGridFSFileEntry(builder, (GridFSFile) next);
+            }
+        }
+        
+        builder.endElement();
+        
+        builder.endDocument();
+
+        // return result
+        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+    }
+
+    public static int addGridFSFileEntry(MemTreeBuilder builder, GridFSFile gfsFile) throws XPathException {
+        // start root element
+        int nodeNr = builder.startElement("", "GridFSFile", "GridFSFile", null);
+
+        // Some identities
+        addElementValue(builder, "id", "" + gfsFile.getId());
+        addElementValue(builder, "filename", gfsFile.getFilename());
+
+        List<String> aliases = gfsFile.getAliases();
+        if (aliases != null) {
+            for (String alias : gfsFile.getAliases()) {
+                addElementValue(builder, "alias", alias);
+            }
+        }
+
+        // mimetype
+        addElementValue(builder, "contentType", gfsFile.getContentType());
+
+        // sizes
+        addElementValue(builder, "length", "" + gfsFile.getLength());
+        addElementValue(builder, "chunkSize", "" + gfsFile.getChunkSize());
+        addElementValue(builder, "numberOfChunks", "" + gfsFile.numChunks());
+
+        // more meta data
+        addElementValue(builder, "uploadDate", "" + (new DateTimeValue(gfsFile.getUploadDate()).getStringValue()));
+        addElementValue(builder, "md5", gfsFile.getMD5());
+
+        // finish root element
+        builder.endElement();
+
+        return nodeNr;
+    }
+
+    private static void addElementValue(MemTreeBuilder builder, String elementName, String value) {
+
+        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(elementName)) {
+            builder.startElement("", elementName, elementName, null);
+            builder.characters(value);
+            builder.endElement();
         }
 
     }
