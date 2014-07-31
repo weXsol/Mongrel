@@ -17,50 +17,49 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.gridfs;
+package org.exist.mongodb.xquery.mongodb;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-import com.mongodb.gridfs.GridFS;
+import java.net.UnknownHostException;
+import java.util.UUID;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
+import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.value.*;
 
 /**
- * Functions to remove documents from GridFS
- *
+ * Implementation of the gridfs:connect() function
+ * 
  * @author Dannes Wessels
  */
-public class List extends BasicFunction {
 
-    private static final String LIST_DOCUMENTS = "list";
-
+public class Connect extends BasicFunction {
+    
+    
+    
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "List documents",
-        new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-        },
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
-        ),};
 
-    public List(XQueryContext context, FunctionSignature signature) {
+        new FunctionSignature(
+        new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+        "Connect to GridFS server",
+        new SequenceType[]{
+                new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "MongoDB client id")
+        ),
+        
+    };
+
+    public Connect(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -75,38 +74,36 @@ public class List extends BasicFunction {
             throw new XPathException(this, txt);
         }
 
+        // Get connection URL
+        String url = args[0].itemAt(0).getStringValue();
+
         try {
-            // Stream parameters
-            String driverId = args[0].itemAt(0).getStringValue();
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
+            // Construct client
+            MongoClientURI uri = new MongoClientURI(url);
+            MongoClient client = new MongoClient(uri);
 
-            // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(driverId);
+            // Create unique identifier
+            String mongodbClientId = UUID.randomUUID().toString();
+            
+            // Store Client
+            MongodbClientStore.getInstance().add(mongodbClientId, client);
+            
+            // Report identifier
+            return new StringValue(mongodbClientId);
 
-            // Stream database
-            DB db = client.getDB(dbname);
-
-            // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
-
-            return ContentSerializer.getDocuments(gfs);
-
-        } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
-
+        } catch (UnknownHostException ex) {
+            LOG.error(ex.getMessage());
+            throw new XPathException(this, ex);
+            
         } catch (MongoException ex) {
             LOG.error(ex);
-            throw new XPathException(this, ex);
-
+            throw new XPathException(this, ex);       
+            
         } catch (Throwable ex) {
             LOG.error(ex);
             throw new XPathException(this, ex);
         }
 
-        //return Sequence.EMPTY_SEQUENCE;
 
-    }
-
+    }    
 }

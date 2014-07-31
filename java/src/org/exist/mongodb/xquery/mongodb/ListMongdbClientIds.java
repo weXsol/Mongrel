@@ -17,39 +17,46 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.gridfs;
+package org.exist.mongodb.xquery.mongodb;
 
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
+import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.*;
+import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 
 /**
- * Implementation of the gridfs:close() function
+ * Function to list all GridFS buckets
  *
  * @author Dannes Wessels
  */
-public class Close extends BasicFunction {
+public class ListMongdbClientIds extends BasicFunction {
+
+    private static final String LIST_DOCUMENTS = "list-buckets";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName("close", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Close MongoDB connector",
+        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+        "List documents",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id")
-        },
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
+            ,},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of clientIds")
         ),};
 
-    public Close(XQueryContext context, FunctionSignature signature) {
+    public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -64,29 +71,17 @@ public class Close extends BasicFunction {
             throw new XPathException(this, txt);
         }
 
-        // Get connection URL
-        String driverId = args[0].itemAt(0).getStringValue();
-
-        // Handle ()
         try {
-            MongoClient client = MongodbClientStore.getInstance().get(driverId);
-
-            if (client == null) {
-                throw new XPathException(this, String.format("Mongoclient %s could not be found.", driverId));
+            Set<String> clientIds = MongodbClientStore.getInstance().list();
+            
+            ValueSequence valueSequence = new ValueSequence();
+           
+            for (String clientId : clientIds) {
+                valueSequence.add(new StringValue(clientId));
             }
 
-            // CLose connector with all connections
-            client.close();
+            return valueSequence;
 
-            // Remove from cache
-            MongodbClientStore.getInstance().remove(driverId);
-
-            // Report identifier
-            return EmptySequence.EMPTY_SEQUENCE;
-
-        } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
 
         } catch (MongoException ex) {
             LOG.error(ex);
@@ -97,5 +92,7 @@ public class Close extends BasicFunction {
             throw new XPathException(this, ex);
         }
 
+        //return Sequence.EMPTY_SEQUENCE;
     }
+
 }

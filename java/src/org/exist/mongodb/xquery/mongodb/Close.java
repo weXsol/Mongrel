@@ -17,17 +17,15 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.gridfs;
+package org.exist.mongodb.xquery.mongodb;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-import java.net.UnknownHostException;
-import java.util.UUID;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
+import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
@@ -36,29 +34,23 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
 /**
- * Implementation of the gridfs:connect() function
- * 
+ * Implementation of the gridfs:close() function
+ *
  * @author Dannes Wessels
  */
+public class Close extends BasicFunction {
 
-public class Connect extends BasicFunction {
-    
-    
-    
     public final static FunctionSignature signatures[] = {
-
         new FunctionSignature(
-        new QName("connect", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Connect to GridFS server",
+        new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+        "Close MongoDB connector",
         new SequenceType[]{
-                new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "MongoDB client id")
-        ),
-        
-    };
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id")
+        },
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
+        ),};
 
-    public Connect(XQueryContext context, FunctionSignature signature) {
+    public Close(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -74,35 +66,37 @@ public class Connect extends BasicFunction {
         }
 
         // Get connection URL
-        String url = args[0].itemAt(0).getStringValue();
+        String driverId = args[0].itemAt(0).getStringValue();
 
+        // Handle ()
         try {
-            // Construct client
-            MongoClientURI uri = new MongoClientURI(url);
-            MongoClient client = new MongoClient(uri);
+            MongoClient client = MongodbClientStore.getInstance().get(driverId);
 
-            // Create unique identifier
-            String mongodbClientId = UUID.randomUUID().toString();
-            
-            // Store Client
-            MongodbClientStore.getInstance().add(mongodbClientId, client);
-            
+            if (client == null) {
+                throw new XPathException(this, String.format("Mongoclient %s could not be found.", driverId));
+            }
+
+            // CLose connector with all connections
+            client.close();
+
+            // Remove from cache
+            MongodbClientStore.getInstance().remove(driverId);
+
             // Report identifier
-            return new StringValue(mongodbClientId);
+            return EmptySequence.EMPTY_SEQUENCE;
 
-        } catch (UnknownHostException ex) {
-            LOG.error(ex.getMessage());
-            throw new XPathException(this, ex);
-            
+        } catch (XPathException ex) {
+            LOG.error(ex);
+            throw ex;
+
         } catch (MongoException ex) {
             LOG.error(ex);
-            throw new XPathException(this, ex);       
-            
+            throw new XPathException(this, ex);
+
         } catch (Throwable ex) {
             LOG.error(ex);
             throw new XPathException(this, ex);
         }
 
-
-    }    
+    }
 }

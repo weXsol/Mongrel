@@ -4,8 +4,6 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
-import org.exist.mongodb.xquery.gridfs.Close;
-import org.exist.mongodb.xquery.gridfs.Connect;
 import org.exist.mongodb.xquery.gridfs.Store;
 import org.exist.mongodb.xquery.gridfs.Stream;
 import org.exist.xquery.AbstractInternalModule;
@@ -24,13 +22,12 @@ public class GridfsModule extends AbstractInternalModule {
 
     public final static String NAMESPACE_URI = "http://exist-db.org/xquery/gridfs";
     public final static String PREFIX = "gridfs";
-    public final static String INCLUSION_DATE = "2013-11-01";
+    public final static String INCLUSION_DATE = "2014-08-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
 
     public final static FunctionDef[] functions = {
-        new FunctionDef(Connect.signatures[0], Connect.class),
-        new FunctionDef(Close.signatures[0], Close.class),
-        new FunctionDef(org.exist.mongodb.xquery.gridfs.List.signatures[0], org.exist.mongodb.xquery.gridfs.List.class),
+
+        new FunctionDef(org.exist.mongodb.xquery.gridfs.ListDocuments.signatures[0], org.exist.mongodb.xquery.gridfs.ListDocuments.class),
         new FunctionDef(Store.signatures[0], Store.class),
         new FunctionDef(Stream.signatures[0], Stream.class),
         new FunctionDef(Stream.signatures[1], Stream.class)

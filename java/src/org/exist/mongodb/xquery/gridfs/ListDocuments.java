@@ -22,10 +22,10 @@ package org.exist.mongodb.xquery.gridfs;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
+import com.mongodb.gridfs.GridFS;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -37,29 +37,30 @@ import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
 
 /**
- * Function to list all GridFS buckets
+ * Functions to remove documents from GridFS
  *
  * @author Dannes Wessels
  */
-public class ListMongdbClientIds extends BasicFunction {
+public class ListDocuments extends BasicFunction {
 
-    private static final String LIST_DOCUMENTS = "list-buckets";
+    private static final String LIST_DOCUMENTS = "list-documents";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
         new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "List documents",
         new SequenceType[]{
-            ,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of clientIds")
+            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
+            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
+        },
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
         ),};
 
-    public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
+    public ListDocuments(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -75,16 +76,25 @@ public class ListMongdbClientIds extends BasicFunction {
         }
 
         try {
-            Set<String> clientIds = MongodbClientStore.getInstance().list();
-            
-            ValueSequence valueSequence = new ValueSequence();
-           
-            for (String clientId : clientIds) {
-                valueSequence.add(new StringValue(clientId));
-            }
+            // Stream parameters
+            String driverId = args[0].itemAt(0).getStringValue();
+            String dbname = args[1].itemAt(0).getStringValue();
+            String bucket = args[2].itemAt(0).getStringValue();
 
-            return valueSequence;
+            // Stream appropriate Mongodb client
+            MongoClient client = MongodbClientStore.getInstance().get(driverId);
 
+            // Stream database
+            DB db = client.getDB(dbname);
+
+            // Creates a GridFS instance for the specified bucket
+            GridFS gfs = new GridFS(db, bucket);
+
+            return ContentSerializer.getDocuments(gfs);
+
+        } catch (XPathException ex) {
+            LOG.error(ex);
+            throw ex;
 
         } catch (MongoException ex) {
             LOG.error(ex);
@@ -96,6 +106,7 @@ public class ListMongdbClientIds extends BasicFunction {
         }
 
         //return Sequence.EMPTY_SEQUENCE;
+
     }
 
 }
