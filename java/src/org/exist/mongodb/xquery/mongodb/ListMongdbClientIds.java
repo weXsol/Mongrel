@@ -45,12 +45,12 @@ import org.exist.xquery.value.ValueSequence;
  */
 public class ListMongdbClientIds extends BasicFunction {
 
-    private static final String LIST_DOCUMENTS = "list-buckets";
+    private static final String LIST_CLIENT_IDS = "list-mongodb-clientids";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "List documents",
+        new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+        "List all mongoid clientids",
         new SequenceType[]{
             ,},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of clientIds")
