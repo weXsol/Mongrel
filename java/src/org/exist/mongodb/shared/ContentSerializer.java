@@ -7,12 +7,12 @@ import com.mongodb.gridfs.GridFSFile;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -42,92 +42,134 @@ public class ContentSerializer {
 
     private final static Logger LOG = Logger.getLogger(ContentSerializer.class);
 
-    public static void serialize(Item item, XQueryContext context, OutputStream os) throws XPathException, MalformedURLException, IOException {
+    /**
+     * Stream content of item to output stream
+     *
+     * @param item The Item
+     * @param context The XQUery context
+     * @param os The output stream
+     * @throws XPathException Thrown when an something unexpected happened
+     * @throws IOException An error occurred during serialization
+     */
+    public static void serialize(Item item, XQueryContext context, OutputStream os) throws XPathException, IOException {
 
-        if (item.getType() == Type.JAVA_OBJECT) {
-            LOG.debug("Streaming Java object");
-
-            final Object obj = ((JavaObjectValue) item).getObject();
-            if (!(obj instanceof File)) {
-                throw new XPathException("Passed java object should be a File");
-            }
-
-            final File inputFile = (File) obj;
-            final InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
-            IOUtils.copyLarge(is, os);
-            IOUtils.closeQuietly(is);
-
-        } else if (item.getType() == Type.ANY_URI) {
-            LOG.debug("Streaming xs:anyURI");
-
-            // anyURI provided
-            String url = item.getStringValue();
-
-            // Fix URL
-            if (url.startsWith("/")) {
-                url = "xmldb:exist://" + url;
-            }
-
-            final InputStream is = new BufferedInputStream(new URL(url).openStream());
-            IOUtils.copyLarge(is, os);
-            IOUtils.closeQuietly(is);
-
-        } else if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
-            LOG.debug("Streaming element or document node");
-
-            final Serializer serializer = context.getBroker().newSerializer();
-
-            final NodeValue node = (NodeValue) item;
-
-            //parse serialization options
-            final Properties outputProperties = new Properties();
-            outputProperties.setProperty(OutputKeys.INDENT, "yes");
-            outputProperties.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-
-            LOG.debug("Serializing started.");
-            final SAXSerializer sax = (SAXSerializer) SerializerPool.getInstance().borrowObject(SAXSerializer.class);
-            try {
-                final String encoding = "UTF-8";
-                try (Writer writer = new OutputStreamWriter(os, encoding)) {
-                    sax.setOutput(writer, outputProperties);
-
-                    serializer.reset();
-                    serializer.setProperties(outputProperties);
-                    serializer.setSAXHandlers(sax, sax);
-
-                    sax.startDocument();
-                    serializer.toSAX(node);
-
-                    sax.endDocument();
-                }
-
-            } catch (final Exception e) {
-                final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
-                LOG.debug(txt, e);
-                throw new IOException(txt, e);
-
-            } finally {
-                LOG.debug("Serializing done.");
-                SerializerPool.getInstance().returnObject(sax);
-            }
-
-        } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
-            LOG.debug("Streaming base64 binary");
-            final BinaryValue binary = (BinaryValue) item;
-            binary.streamBinaryTo(os);
-
-        } else if (item.getType() == Type.TEXT || item.getType() == Type.STRING) {
-            LOG.debug("Streaming text");
-            IOUtils.write(item.getStringValue(), os, "UTF-8");
-
-        } else {
-            LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
-            throw new XPathException("wrong item type " + Type.getTypeName(item.getType()));
+        switch (item.getType()) {
+            case Type.JAVA_OBJECT:
+                streamJavaObject(item, os);
+                break;
+            case Type.ANY_URI:
+                streamAnyURI(item, os);
+                break;
+            case Type.ELEMENT:
+            case Type.DOCUMENT:
+                streamElement(context, item, os);
+                break;
+            case Type.BASE64_BINARY:
+            case Type.HEX_BINARY:
+                streamBase64Binary(item, os);
+                break;
+            case Type.TEXT:
+            case Type.STRING:
+                streamText(item, os);
+                break;
+            default:
+                LOG.error("Wrong item type " + Type.getTypeName(item.getType()));
+                throw new XPathException("wrong item type " + Type.getTypeName(item.getType()));
         }
 
     }
 
-    public static NodeImpl getReport(GridFSFile gfsFile) throws XPathException {
+    private static void streamText(Item item, OutputStream os) throws IOException, XPathException {
+        LOG.debug("Streaming text");
+        IOUtils.write(item.getStringValue(), os, "UTF-8");
+    }
+
+    private static void streamBase64Binary(Item item, OutputStream os) throws IOException {
+        LOG.debug("Streaming base64 binary");
+        final BinaryValue binary = (BinaryValue) item;
+        binary.streamBinaryTo(os);
+    }
+
+    private static void streamElement(XQueryContext context, Item item, OutputStream os) throws IOException {
+        LOG.debug("Streaming element or document node");
+        
+        final Serializer serializer = context.getBroker().newSerializer();
+        
+        final NodeValue node = (NodeValue) item;
+        
+        // Setup serialization options
+        // TODO: get global serialization options
+        final Properties outputProperties = new Properties();
+        outputProperties.setProperty(OutputKeys.INDENT, "yes");
+        outputProperties.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        
+        SerializerPool serializerPool = SerializerPool.getInstance();
+        
+        LOG.debug("Serializing started.");
+        final SAXSerializer sax = (SAXSerializer) serializerPool.borrowObject(SAXSerializer.class);
+        try {
+            final String encoding = "UTF-8";
+            try (Writer writer = new OutputStreamWriter(os, encoding)) {
+                sax.setOutput(writer, outputProperties);
+                
+                serializer.reset();
+                serializer.setProperties(outputProperties);
+                serializer.setSAXHandlers(sax, sax);
+                
+                sax.startDocument();
+                serializer.toSAX(node);
+                
+                sax.endDocument();
+            }
+            
+        } catch (final Exception e) {
+            final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
+            LOG.debug(txt, e);
+            throw new IOException(txt, e);
+            
+        } finally {
+            LOG.debug("Serializing done.");
+            serializerPool.returnObject(sax);
+        }
+    }
+
+    private static void streamAnyURI(Item item, OutputStream os) throws IOException, XPathException {
+        LOG.debug("Streaming xs:anyURI");
+        
+        // anyURI provided
+        String url = item.getStringValue();
+        
+        // Fix URL
+        if (url.startsWith("/")) {
+            url = "xmldb:exist://" + url;
+        }
+        
+        final InputStream is = new BufferedInputStream(new URL(url).openStream());
+        IOUtils.copyLarge(is, os);
+        IOUtils.closeQuietly(is);
+    }
+
+    private static void streamJavaObject(Item item, OutputStream os) throws XPathException, FileNotFoundException, IOException {
+        LOG.debug("Streaming Java object");
+        
+        final Object obj = ((JavaObjectValue) item).getObject();
+        if (!(obj instanceof File)) {
+            throw new XPathException("Passed java object should be a File");
+        }
+        
+        final File inputFile = (File) obj;
+        final InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
+        IOUtils.copyLarge(is, os);
+        IOUtils.closeQuietly(is);
+    }
+
+    /**
+     * Get simple report for the Gridfs file
+     *
+     * @param gfsFile The GridFS fle
+     * @return in-memory structure describing the file
+     */
+    static NodeImpl getReport(GridFSFile gfsFile) {
 
         MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
@@ -138,12 +180,20 @@ public class ContentSerializer {
         return builder.getDocument().getNode(nodeNr);
     }
 
-    public static NodeImpl getDocuments(GridFS gfs) throws XPathException {
+    /**
+     * Get list of documents in gridFS
+     *
+     * @param gfs GridFS object
+     * @return in-memory structure describing all documents
+     */
+    public static NodeImpl getDocuments(GridFS gfs) {
         MemTreeBuilder builder = new MemTreeBuilder();
-        builder.startDocument();
         
+        // Start document
+        builder.startDocument();
         int nodeNr = builder.startElement("", "GridFSFiles", "GridFSFiles", null);
 
+        // Iterate over all files, write report
         DBCursor cursor = gfs.getFileList();
         while (cursor.hasNext()) {
             DBObject next = cursor.next();
@@ -151,16 +201,19 @@ public class ContentSerializer {
                 addGridFSFileEntry(builder, (GridFSFile) next);
             }
         }
-        
+
+        // Finish document
         builder.endElement();
-        
         builder.endDocument();
 
-        // return result
+        // Return result
         return builder.getDocument().getNode(nodeNr);
     }
 
-    public static int addGridFSFileEntry(MemTreeBuilder builder, GridFSFile gfsFile) throws XPathException {
+    /**
+     * Add element describing GridFSFile to in-memory structure
+     */
+    static int addGridFSFileEntry(final MemTreeBuilder builder, final GridFSFile gfsFile) {
         // start root element
         int nodeNr = builder.startElement("", "GridFSFile", "GridFSFile", null);
 
@@ -184,7 +237,11 @@ public class ContentSerializer {
         addElementValue(builder, "numberOfChunks", "" + gfsFile.numChunks());
 
         // more meta data
-        addElementValue(builder, "uploadDate", "" + (new DateTimeValue(gfsFile.getUploadDate()).getStringValue()));
+        try {   
+            addElementValue(builder, "uploadDate", "" + (new DateTimeValue(gfsFile.getUploadDate()).getStringValue()));
+        } catch (XPathException ex) {
+            LOG.error("Error adding upload date. " + ex.getMessage());
+        }
         addElementValue(builder, "md5", gfsFile.getMD5());
 
         // finish root element
@@ -193,12 +250,17 @@ public class ContentSerializer {
         return nodeNr;
     }
 
-    private static void addElementValue(MemTreeBuilder builder, String elementName, String value) {
+    /**
+     * Add simple element with value to XML structure.
+     */
+    static void addElementValue(final MemTreeBuilder builder, final String elementName, final String value) {
 
         if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(elementName)) {
             builder.startElement("", elementName, elementName, null);
             builder.characters(value);
             builder.endElement();
+        } else {
+            LOG.debug(String.format("Skipping element '%s' with value '%s'.", elementName, value));
         }
 
     }
