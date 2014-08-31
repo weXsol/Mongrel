@@ -24,7 +24,6 @@ import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
-import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
@@ -50,10 +49,10 @@ public class ListMongdbClientIds extends BasicFunction {
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
         new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "List all mongoid clientids",
+        "Get all MongoDB client ids",
         new SequenceType[]{
             ,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of clientIds")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of client Ids")
         ),};
 
     public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {

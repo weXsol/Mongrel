@@ -24,7 +24,6 @@ import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
-import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;

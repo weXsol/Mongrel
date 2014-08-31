@@ -27,14 +27,18 @@ import java.util.UUID;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
-import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.*;
+import org.exist.xquery.value.FunctionParameterSequenceType;
+import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.Type;
 
 /**
  * Implementation of the gridfs:connect() function
@@ -79,8 +83,10 @@ public class Connect extends BasicFunction {
 
         try {
             // Construct client
-            MongoClientURI uri = new MongoClientURI(url);
+            MongoClientURI uri = new MongoClientURI(url);         
             MongoClient client = new MongoClient(uri);
+            
+            LOG.debug(String.format("client=%s", client));
 
             // Create unique identifier
             String mongodbClientId = UUID.randomUUID().toString();

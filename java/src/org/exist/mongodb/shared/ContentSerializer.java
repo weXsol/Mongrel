@@ -20,7 +20,6 @@ import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 import org.exist.storage.serializers.Serializer;
@@ -136,7 +135,7 @@ public class ContentSerializer {
         int nodeNr = addGridFSFileEntry(builder, gfsFile);
 
         // return result
-        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+        return builder.getDocument().getNode(nodeNr);
     }
 
     public static NodeImpl getDocuments(GridFS gfs) throws XPathException {
@@ -158,7 +157,7 @@ public class ContentSerializer {
         builder.endDocument();
 
         // return result
-        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+        return builder.getDocument().getNode(nodeNr);
     }
 
     public static int addGridFSFileEntry(MemTreeBuilder builder, GridFSFile gfsFile) throws XPathException {

@@ -124,21 +124,24 @@ public class Stream extends BasicFunction {
                 throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
             }
 
-            // Get meta data
-            String contentType = getMimeType(gfsFile.getContentType(), documentId);
-            long length = gfsFile.getLength();
-
             // Stream response stream
             ResponseWrapper rw = getResponseWrapper(context);
 
             // Set HTTP Headers
-            rw.setContentType(contentType);
+            
+            
+            long length = gfsFile.getLength();
             rw.addHeader("Content-Length", "" + length);
 
             // Set filename when required
             String filename = determineFilename(documentId, gfsFile);
             if (setDisposition && StringUtils.isNotBlank(filename)) {
                 rw.addHeader("Content-Disposition", "attachment;filename=" + filename);
+            }
+            
+            String contentType = getMimeType(gfsFile.getContentType(), filename);
+            if(contentType!=null){
+                rw.setContentType(contentType);
             }
 
             // Stream data
@@ -163,6 +166,10 @@ public class Stream extends BasicFunction {
 
     }
 
+    /**
+     * Get filename from the provided filename, or as stored in the database when blank e.g 
+     * because document is referenced by documentID
+     */
     private String determineFilename(String documentId, GridFSDBFile gfsFile) {
         String documentName = null;
 
@@ -179,19 +186,23 @@ public class Stream extends BasicFunction {
         return documentName;
     }
 
-    private String getMimeType(String stored, String filename) throws XPathException {
+    /**
+     * Get mime-type: from stored value or from file name. Value NULL has not existent or blank.
+     */
+    private String getMimeType(String storedType, String filename) throws XPathException {
 
-        String mimeType = stored;
+        String mimeType = storedType;
 
         // When no data is found  get from filename
-        if (StringUtils.isBlank(mimeType)) {
+        if (StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)) {
             MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
             mimeType = mime.getName();
         }
 
         // Nothing could be found
         if (StringUtils.isBlank(mimeType)) {
-            throw new XPathException(this, "Content type could not be retrieved from database or document name.");
+            LOG.debug(String.format("Content type for %s could not be retrieved from database or document name.", filename));
+            mimeType=null; // force NULL
         }
 
         return mimeType;

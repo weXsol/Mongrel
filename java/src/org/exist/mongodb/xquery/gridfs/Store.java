@@ -147,7 +147,7 @@ public class Store extends BasicFunction {
         } 
         
         // When no data is found  get from filename
-        if(StringUtils.isBlank(mimeType)){
+        if(StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)){
             MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
             mimeType =  mime.getName();
         }
