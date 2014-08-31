@@ -48,8 +48,6 @@ import org.exist.xquery.value.Type;
 
 public class Connect extends BasicFunction {
     
-    
-    
     public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
@@ -81,18 +79,9 @@ public class Connect extends BasicFunction {
         // Get connection URL
         String url = args[0].itemAt(0).getStringValue();
 
-        try {
-            // Construct client
-            MongoClientURI uri = new MongoClientURI(url);         
-            MongoClient client = new MongoClient(uri);
-            
-            LOG.debug(String.format("client=%s", client));
-
-            // Create unique identifier
-            String mongodbClientId = UUID.randomUUID().toString();
-            
+        try {            
             // Store Client
-            MongodbClientStore.getInstance().add(mongodbClientId, client);
+            String mongodbClientId = MongodbClientStore.getInstance().create(url, context.getSubject().getUsername());
             
             // Report identifier
             return new StringValue(mongodbClientId);

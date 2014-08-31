@@ -27,7 +27,7 @@ public class MongodbModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = { 
         new FunctionDef(ListMongdbClientIds.signatures[0], ListMongdbClientIds.class),   
-        new FunctionDef(ListDatabases.signatures[0], ListDatabases.class),        
+        new FunctionDef(ListDatabases.signatures[0], ListDatabases.class),
         new FunctionDef(Connect.signatures[0], Connect.class),
         new FunctionDef(Close.signatures[0], Close.class),
         
@@ -55,7 +55,7 @@ public class MongodbModule extends AbstractInternalModule {
 
     @Override
     public String getDescription() {
-        return "GridFS module";
+        return "MongoDB module";
     }
 
     @Override

@@ -67,29 +67,36 @@ public class ListBuckets extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-        // User must either be DBA or in the JMS group
-        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-            LOG.error(txt);
-            throw new XPathException(this, txt);
-        }
+//        // User must either be DBA or in the JMS group
+//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
+//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
+//            LOG.error(txt);
+//            throw new XPathException(this, txt);
+//        }
 
         try {
-            // Stream parameters
-            String driverId = args[0].itemAt(0).getStringValue();
+            // Ftech parameters
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
+                  
+            // Check id
+            MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(driverId);
+            // Retrieve Mongodb client
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Stream database
+            // Retrieve database          
             DB db = client.getDB(dbname);
 
+            // Retrieve collection names
             Set<String> collectionNames = db.getCollectionNames();
             
+            // Storage for results
             ValueSequence valueSequence = new ValueSequence();
            
+            // Iterate over collection names ; only pairs of collections
+            // with names ending .chunks and .files are buckets
             for (String collName : collectionNames) {
                 if (collName.endsWith(".chunks")) {
                     String bucketName = StringUtils.removeEnd(collName, ".chunks");

@@ -74,27 +74,30 @@ public class Store extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-        // User must either be DBA or in the JMS group
-        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-            LOG.error(txt);
-            throw new XPathException(this, txt);
-        }
+//        // User must either be DBA or in the JMS group
+//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
+//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
+//            LOG.error(txt);
+//            throw new XPathException(this, txt);
+//        }
 
         try {
             // Get parameters
-            String driverId = args[0].itemAt(0).getStringValue();
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
             String contentType = getMimeType(args[4],documentName);
 
-            // content: File object, doc() element, base64...
+            // Actual content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
+            
+            // Check id
+            MongodbClientStore.getInstance().validate(mongodbClientId);
 
             // Get appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(driverId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);

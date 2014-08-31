@@ -4,6 +4,9 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.mongodb.xquery.gridfs.ListBuckets;
+import org.exist.mongodb.xquery.gridfs.ListDocuments;
+import org.exist.mongodb.xquery.gridfs.Remove;
 import org.exist.mongodb.xquery.gridfs.Store;
 import org.exist.mongodb.xquery.gridfs.Stream;
 import org.exist.xquery.AbstractInternalModule;
@@ -27,7 +30,10 @@ public class GridfsModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = {
 
-        new FunctionDef(org.exist.mongodb.xquery.gridfs.ListDocuments.signatures[0], org.exist.mongodb.xquery.gridfs.ListDocuments.class),
+        new FunctionDef(ListBuckets.signatures[0], ListBuckets.class),
+        new FunctionDef(ListDocuments.signatures[0], ListDocuments.class),
+        new FunctionDef(Remove.signatures[0], Remove.class),
+        new FunctionDef(Remove.signatures[1], Remove.class),
         new FunctionDef(Store.signatures[0], Store.class),
         new FunctionDef(Stream.signatures[0], Stream.class),
         new FunctionDef(Stream.signatures[1], Stream.class)

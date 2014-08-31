@@ -67,24 +67,27 @@ public class ListDocuments extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-        // User must either be DBA or in the JMS group
-        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-            LOG.error(txt);
-            throw new XPathException(this, txt);
-        }
+//        // User must either be DBA or in the JMS group
+//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
+//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
+//            LOG.error(txt);
+//            throw new XPathException(this, txt);
+//        }
 
         try {
-            // Stream parameters
-            String driverId = args[0].itemAt(0).getStringValue();
+            // Fetch parameters
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
+            
+             // Check id
+            MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(driverId);
+            // Get Mongodb client
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Stream database
+            // Get database
             DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket

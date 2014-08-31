@@ -75,8 +75,8 @@ public class ListMongdbClientIds extends BasicFunction {
             
             ValueSequence valueSequence = new ValueSequence();
            
-            for (String clientId : clientIds) {
-                valueSequence.add(new StringValue(clientId));
+            for (String mongodbClientId : clientIds) {
+                valueSequence.add(new StringValue(mongodbClientId));
             }
 
             return valueSequence;

@@ -149,12 +149,12 @@ public class ContentSerializer {
         IOUtils.closeQuietly(is);
     }
 
-    private static void streamJavaObject(Item item, OutputStream os) throws XPathException, FileNotFoundException, IOException {
+    private static void streamJavaObject(Item item, OutputStream os) throws XPathException, IOException {
         LOG.debug("Streaming Java object");
         
         final Object obj = ((JavaObjectValue) item).getObject();
         if (!(obj instanceof File)) {
-            throw new XPathException("Passed java object should be a File");
+            throw new XPathException("Passed java object should be a File object");
         }
         
         final File inputFile = (File) obj;
@@ -169,7 +169,7 @@ public class ContentSerializer {
      * @param gfsFile The GridFS fle
      * @return in-memory structure describing the file
      */
-    static NodeImpl getReport(GridFSFile gfsFile) {
+    public static NodeImpl getReport(GridFSFile gfsFile) {
 
         MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
