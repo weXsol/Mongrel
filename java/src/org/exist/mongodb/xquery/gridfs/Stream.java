@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
-import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;

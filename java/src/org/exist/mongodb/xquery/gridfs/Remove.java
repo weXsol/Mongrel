@@ -25,7 +25,6 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;

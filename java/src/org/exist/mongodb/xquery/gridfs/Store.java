@@ -27,7 +27,6 @@ import com.mongodb.gridfs.GridFSInputFile;
 import java.io.OutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;

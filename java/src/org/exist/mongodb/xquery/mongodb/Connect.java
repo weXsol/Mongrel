@@ -19,11 +19,8 @@
  */
 package org.exist.mongodb.xquery.mongodb;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 import java.net.UnknownHostException;
-import java.util.UUID;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
