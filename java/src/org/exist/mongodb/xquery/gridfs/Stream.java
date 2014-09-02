@@ -25,7 +25,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
@@ -121,14 +124,16 @@ public class Stream extends BasicFunction {
             }
             
             DBObject metadata = gfsFile.getMetaData();
+            String compression = (String) metadata.get("compression");
+            Long originalSize = (Long) metadata.get("original_size");
+
+            // Detrermine actual size
+            long length = (compression == null) ? gfsFile.getLength() : originalSize;
 
             // Stream response stream
             ResponseWrapper rw = getResponseWrapper(context);
 
             // Set HTTP Headers
-            
-            
-            long length = gfsFile.getLength();
             rw.addHeader("Content-Length", "" + length);
 
             // Set filename when required
@@ -143,9 +148,21 @@ public class Stream extends BasicFunction {
             }
 
             // Stream data
-            try (OutputStream os = rw.getOutputStream()) {
-                gfsFile.writeTo(os);
+            if ((compression == null)) {
+                // Write data as-is
+                try (OutputStream os = rw.getOutputStream()) {
+                    gfsFile.writeTo(os);
+                }
+            } else {
+                // Write data uncompressed
+                try (OutputStream os = rw.getOutputStream()) {
+                    InputStream is = gfsFile.getInputStream();
+                    try (GZIPInputStream gzis = new GZIPInputStream(is)) {
+                        IOUtils.copyLarge(gzis, os);
+                    }
+                }
             }
+            
 
         } catch (XPathException ex) {
             LOG.error(ex);
