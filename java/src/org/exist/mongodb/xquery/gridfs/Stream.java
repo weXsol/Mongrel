@@ -20,6 +20,7 @@
 package org.exist.mongodb.xquery.gridfs;
 
 import com.mongodb.DB;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
@@ -88,13 +89,6 @@ public class Stream extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-//        // User must either be DBA or in the JMS group
-//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-//            LOG.error(txt);
-//            throw new XPathException(this, txt);
-//        }
 
         try {
             // Stream parameters
@@ -125,6 +119,8 @@ public class Stream extends BasicFunction {
                 // TODO make catchable with try0catch
                 throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
             }
+            
+            DBObject metadata = gfsFile.getMetaData();
 
             // Stream response stream
             ResponseWrapper rw = getResponseWrapper(context);

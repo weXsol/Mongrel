@@ -19,13 +19,20 @@
  */
 package org.exist.mongodb.xquery.gridfs;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 import java.io.OutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.util.zip.GZIPOutputStream;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -73,14 +80,6 @@ public class Store extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-//        // User must either be DBA or in the JMS group
-//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-//            LOG.error(txt);
-//            throw new XPathException(this, txt);
-//        }
-
         try {
             // Get parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
@@ -110,10 +109,34 @@ public class Store extends BasicFunction {
             // Set meta data
             gfsFile.setFilename(documentName);
             gfsFile.setContentType(contentType);
-            
+                       
             // Write data
             try ( OutputStream stream = gfsFile.getOutputStream() ) {
-                ContentSerializer.serialize(content, context, stream);
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                GZIPOutputStream gos = new GZIPOutputStream(stream);
+                DigestOutputStream dos = new DigestOutputStream(gos, md);
+                CountingOutputStream cos = new CountingOutputStream(dos);
+                
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                ContentSerializer.serialize(content, context, cos);
+                cos.flush();
+                stopWatch.stop();
+                
+                long nrBytes=cos.getByteCount();
+                String checksum = Hex.encodeHexString( dos.getMessageDigest().digest() );
+                long duration = stopWatch.getTime();
+                
+                LOG.info("#bytes="+nrBytes);
+                LOG.info("md5sum="+checksum);
+                LOG.info("time="+duration);
+                
+                BasicDBObject info = new BasicDBObject();
+                info.put("compression", "gzip");
+                info.put("original_size", nrBytes);
+                info.put("original_md5", checksum);
+   
+                gfsFile.setMetaData(info);
             }
 
             // Report identifier
