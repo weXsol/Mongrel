@@ -77,14 +77,6 @@ public class Remove extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-//        // User must either be DBA or in the JMS group
-//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-//            LOG.error(txt);
-//            throw new XPathException(this, txt);
-//        }
-
         try {
             // Fetch parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
