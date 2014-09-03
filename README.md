@@ -5,7 +5,7 @@ This extention provides access to services provided by the MongoDB database.
 
 The first version implements GridFS access.
 
-Preliminary documentation can be found on the [WIKI(https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki)
+Preliminary documentation can be found on the [WIKI](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki)
 
 
 
