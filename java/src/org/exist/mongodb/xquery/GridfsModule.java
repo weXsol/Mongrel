@@ -4,6 +4,7 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.mongodb.xquery.gridfs.Get;
 import org.exist.mongodb.xquery.gridfs.ListBuckets;
 import org.exist.mongodb.xquery.gridfs.ListDocuments;
 import org.exist.mongodb.xquery.gridfs.Remove;
@@ -32,6 +33,8 @@ public class GridfsModule extends AbstractInternalModule {
 
         new FunctionDef(ListBuckets.signatures[0], ListBuckets.class),
         new FunctionDef(ListDocuments.signatures[0], ListDocuments.class),
+        new FunctionDef(Get.signatures[0], Get.class),
+        new FunctionDef(Get.signatures[1], Get.class),
         new FunctionDef(Remove.signatures[0], Remove.class),
         new FunctionDef(Remove.signatures[1], Remove.class),
         new FunctionDef(Store.signatures[0], Store.class),
@@ -41,7 +44,8 @@ public class GridfsModule extends AbstractInternalModule {
     };
     
     public final static ErrorCode GRFS0001 = new GridfsErrorCode("GRFS0001", "Document not found");
-
+    public final static ErrorCode GRFS0002 = new GridfsErrorCode("GRFS0002", "Mongodb exception");
+ public final static ErrorCode GRFS0003 = new GridfsErrorCode("GRFS0003", "Generic exception");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);

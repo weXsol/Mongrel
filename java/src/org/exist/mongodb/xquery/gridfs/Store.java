@@ -87,9 +87,10 @@ public class Store extends BasicFunction {
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
             String contentType = getMimeType(args[4],documentName);
-
+            
             // Actual content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
+            int dataType = content.getType();
             
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -121,6 +122,7 @@ public class Store extends BasicFunction {
                 stopWatch.start();
                 ContentSerializer.serialize(content, context, cos);
                 cos.flush();
+                cos.close();
                 stopWatch.stop();
                 
                 long nrBytes=cos.getByteCount();
@@ -135,7 +137,9 @@ public class Store extends BasicFunction {
                 info.put("compression", "gzip");
                 info.put("original_size", nrBytes);
                 info.put("original_md5", checksum);
-   
+                info.put("exist_datatype", dataType);
+                info.put("exist_datatype_text", Type.getTypeName(dataType));
+                  
                 gfsFile.setMetaData(info);
             }
 
@@ -152,7 +156,7 @@ public class Store extends BasicFunction {
             throw new XPathException(this, ex);       
             
         } catch (Throwable ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex);
         }
 
