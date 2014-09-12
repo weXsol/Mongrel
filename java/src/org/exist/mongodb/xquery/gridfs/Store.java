@@ -58,6 +58,10 @@ import org.exist.xquery.value.Type;
  */
 public class Store extends BasicFunction {
 
+    private final static CharSequence[] nonCompressables
+            = {".zip", ".rar", ".gz", ".bz", ".bz2", ".dmg", "gif", ".jpg", ".png", ".svgz",
+                ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv"};
+
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
         new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
@@ -86,12 +90,14 @@ public class Store extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
             String documentName = args[3].itemAt(0).getStringValue();
-            String contentType = getMimeType(args[4],documentName);
-            
+            String contentType = getMimeType(args[4], documentName);
+
+            LOG.info(String.format("Storing document %s (%s)", documentName, contentType));
+
             // Actual content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
             int dataType = content.getType();
-            
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
@@ -103,58 +109,72 @@ public class Store extends BasicFunction {
 
             // Creates a GridFS instance for the specified bucket
             GridFS gfs = new GridFS(db, bucket);
-            
+
             // Create file
             GridFSInputFile gfsFile = gfs.createFile();
-            
+
             // Set meta data
             gfsFile.setFilename(documentName);
             gfsFile.setContentType(contentType);
-                       
+
+            StopWatch stopWatch = new StopWatch();
+
             // Write data
-            try ( OutputStream stream = gfsFile.getOutputStream() ) {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                GZIPOutputStream gos = new GZIPOutputStream(stream);
-                DigestOutputStream dos = new DigestOutputStream(gos, md);
-                CountingOutputStream cos = new CountingOutputStream(dos);
-                
-                StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-                ContentSerializer.serialize(content, context, cos);
-                cos.flush();
-                cos.close();
-                stopWatch.stop();
-                
-                long nrBytes=cos.getByteCount();
-                String checksum = Hex.encodeHexString( dos.getMessageDigest().digest() );
-                long duration = stopWatch.getTime();
-                
-                LOG.info("#bytes="+nrBytes);
-                LOG.info("md5sum="+checksum);
-                LOG.info("time="+duration);
-                
-                BasicDBObject info = new BasicDBObject();
-                info.put("compression", "gzip");
-                info.put("original_size", nrBytes);
-                info.put("original_md5", checksum);
-                info.put("exist_datatype", dataType);
-                info.put("exist_datatype_text", Type.getTypeName(dataType));
-                  
-                gfsFile.setMetaData(info);
+            if (StringUtils.endsWithAny(documentName, nonCompressables)) {
+
+                // Write data as is
+                try (OutputStream stream = gfsFile.getOutputStream()) {
+                    stopWatch.start();
+                    ContentSerializer.serialize(content, context, stream);
+                    stream.flush();
+                    stopWatch.stop();
+                }
+
+            } else {
+                // Store data compressed, add statistics
+                try (OutputStream stream = gfsFile.getOutputStream()) {
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    CountingOutputStream cosGZ = new CountingOutputStream(stream);
+                    GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
+                    DigestOutputStream dos = new DigestOutputStream(gos, md);
+                    CountingOutputStream cosRaw = new CountingOutputStream(dos);
+
+                    stopWatch.start();
+                    ContentSerializer.serialize(content, context, cosRaw);
+                    cosRaw.flush();
+                    cosRaw.close();
+                    stopWatch.stop();
+
+                    long nrBytesRaw = cosRaw.getByteCount();
+                    long nrBytesGZ = cosGZ.getByteCount();
+                    String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
+
+                    LOG.info("md5sum=" + checksum);
+                    LOG.info("Compression=" + ((100l * nrBytesGZ) / nrBytesRaw));
+
+                    BasicDBObject info = new BasicDBObject();
+                    info.put("compression", "gzip");
+                    info.put("original_size", nrBytesRaw);
+                    info.put("original_md5", checksum);
+                    info.put("exist_datatype", dataType);
+                    info.put("exist_datatype_text", Type.getTypeName(dataType));
+
+                    gfsFile.setMetaData(info);
+                }
             }
+            LOG.info(String.format("time=%s", stopWatch.getTime()));
 
             // Report identifier
             return ContentSerializer.getReport(gfsFile);
-            
-        
+
         } catch (XPathException ex) {
             LOG.error(ex);
             throw ex;
-            
+
         } catch (MongoException ex) {
             LOG.error(ex);
-            throw new XPathException(this, ex);       
-            
+            throw new XPathException(this, ex);
+
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex);
@@ -162,28 +182,26 @@ public class Store extends BasicFunction {
 
     }
 
-    
-
-
-
     private String getMimeType(Sequence inputValue, String filename) throws XPathException {
-        
+
         String mimeType = null;
 
         // Use input when provided
         if (inputValue.hasOne()) {
             mimeType = inputValue.itemAt(0).getStringValue();
-        } 
-        
-        // When no data is found  get from filename
-        if(StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)){
-            MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
-            mimeType =  mime.getName();
         }
-        
+
+        // When no data is found  get from filename
+        if (StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)) {
+            MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
+            if (mime != null) {
+                mimeType = mime.getName();
+            }
+        }
+
         // Nothing could be found
-        if(StringUtils.isBlank(mimeType)){
-            throw new XPathException(this,"Content type could not be retrieved from parameter or document name.");
+        if (StringUtils.isBlank(mimeType)) {
+            throw new XPathException(this, "Content type could not be retrieved from parameter or document name.");
         }
 
         return mimeType;
