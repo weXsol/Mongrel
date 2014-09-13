@@ -25,10 +25,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
@@ -36,7 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.Namespaces;
@@ -52,7 +47,6 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.Base64BinaryDocument;
-import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
@@ -81,8 +75,7 @@ public class Get extends BasicFunction {
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "Name of database"),
             new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Name of collection"),
             new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),
-        },
+            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),
         new FunctionSignature(
@@ -93,8 +86,7 @@ public class Get extends BasicFunction {
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),
-        },
+            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),};
 
@@ -105,7 +97,6 @@ public class Get extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-
         try {
             // Stream parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
@@ -113,7 +104,7 @@ public class Get extends BasicFunction {
             String bucket = args[2].itemAt(0).getStringValue();
             String documentId = args[3].itemAt(0).getStringValue();
             boolean forceBinary = args[4].itemAt(0).toJavaObject(Boolean.class);
-            
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
@@ -132,29 +123,27 @@ public class Get extends BasicFunction {
                     : gfs.findOne(documentId);
 
             if (gfsFile == null) {
-                // TODO make catchable with try0catch
+                // TODO make catchable with try-catch
                 throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
             }
 
             DBObject metadata = gfsFile.getMetaData();
-            
-            
 
             // Decompress when needed
-            String compression = (String) metadata.get("compression");
+            String compression = (metadata == null) ? null : (String) metadata.get("compression");
             boolean isGzipped = StringUtils.equals(compression, "gzip");
             InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream();
 
             // Find what kind of data is stored
-            Integer datatype = (Integer) metadata.get("exist_datatype");
+            int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get("exist_datatype");
             boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
             boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
 
             Sequence retVal;
             if (forceBinary || !isXMLtype) {
-                
+
                 retVal = Base64BinaryDocument.getInstance(context, is);
-                
+
             } else {
                 retVal = processXML(context, is);
             }
@@ -162,15 +151,15 @@ public class Get extends BasicFunction {
             return retVal;
 
         } catch (XPathException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
         } catch (Throwable ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
@@ -196,14 +185,13 @@ public class Get extends BasicFunction {
 //        
 //        return retval;
 //    }
-   
-   /**
-     * Parse an byte-array containing (compressed) XML data into
-     * an eXist-db document.
-     * 
-     * @param data      Byte array containing the XML data.
-     * @return  Sequence containing the XML as DocumentImpl
-     * 
+    /**
+     * Parse an byte-array containing (compressed) XML data into an eXist-db
+     * document.
+     *
+     * @param data Byte array containing the XML data.
+     * @return Sequence containing the XML as DocumentImpl
+     *
      * @throws XPathException Something bad happened.
      */
     private Sequence processXML(XQueryContext xqueryContext, InputStream is) throws XPathException {

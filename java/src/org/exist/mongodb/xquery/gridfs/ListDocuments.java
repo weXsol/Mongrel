@@ -39,7 +39,7 @@ import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to remove documents from GridFS
+ * Functions list documents stored in GridFS
  *
  * @author Dannes Wessels
  */
@@ -87,16 +87,16 @@ public class ListDocuments extends BasicFunction {
             return ContentSerializer.getDocuments(gfs);
 
         } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
         } catch (Throwable ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
         //return Sequence.EMPTY_SEQUENCE;

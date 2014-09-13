@@ -81,8 +81,7 @@ public class Stream extends BasicFunction {
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
             new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),
-        },
+            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
         ),};
 
@@ -93,7 +92,6 @@ public class Stream extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-
         try {
             // Stream parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
@@ -101,7 +99,7 @@ public class Stream extends BasicFunction {
             String bucket = args[2].itemAt(0).getStringValue();
             String documentId = args[3].itemAt(0).getStringValue();
             Boolean setDisposition = args[4].itemAt(0).toJavaObject(Boolean.class);
-            
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
@@ -123,13 +121,17 @@ public class Stream extends BasicFunction {
                 // TODO make catchable with try0catch
                 throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
             }
-            
-            DBObject metadata = gfsFile.getMetaData();
-            String compression = (String) metadata.get("compression");
-            Long originalSize = (Long) metadata.get("original_size");
 
-            // Detrermine actual size
-            long length = (compression == null) ? gfsFile.getLength() : originalSize;
+            DBObject metadata = gfsFile.getMetaData();
+
+            // Determine actual size
+            String compression = (metadata == null) ? null : (String) metadata.get("compression");
+            Long originalSize = (metadata == null) ? null : (Long) metadata.get("original_size");
+            
+            long length = gfsFile.getLength();
+            if (originalSize != null) {
+                length = originalSize;
+            };
 
             // Stream response stream
             ResponseWrapper rw = getResponseWrapper(context);
@@ -142,9 +144,9 @@ public class Stream extends BasicFunction {
             if (setDisposition && StringUtils.isNotBlank(filename)) {
                 rw.addHeader("Content-Disposition", "attachment;filename=" + filename);
             }
-            
+
             String contentType = getMimeType(gfsFile.getContentType(), filename);
-            if(contentType!=null){
+            if (contentType != null) {
                 rw.setContentType(contentType);
             }
 
@@ -163,19 +165,18 @@ public class Stream extends BasicFunction {
                     }
                 }
             }
-            
 
         } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
         } catch (Throwable ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
         return Sequence.EMPTY_SEQUENCE;
@@ -183,8 +184,8 @@ public class Stream extends BasicFunction {
     }
 
     /**
-     * Get filename from the provided filename, or as stored in the database when blank e.g 
-     * because document is referenced by documentID
+     * Get filename from the provided filename, or as stored in the database
+     * when blank e.g because document is referenced by documentID
      */
     private String determineFilename(String documentId, GridFSDBFile gfsFile) {
         String documentName = null;
@@ -203,7 +204,8 @@ public class Stream extends BasicFunction {
     }
 
     /**
-     * Get mime-type: from stored value or from file name. Value NULL has not existent or blank.
+     * Get mime-type: from stored value or from file name. Value NULL has not
+     * existent or blank.
      */
     private String getMimeType(String storedType, String filename) throws XPathException {
 
@@ -218,14 +220,15 @@ public class Stream extends BasicFunction {
         // Nothing could be found
         if (StringUtils.isBlank(mimeType)) {
             LOG.debug(String.format("Content type for %s could not be retrieved from database or document name.", filename));
-            mimeType=null; // force NULL
+            mimeType = null; // force NULL
         }
 
         return mimeType;
     }
 
     /**
-     * Stream HTTP response wrapper which provides access to the servlet outputstream.
+     * Stream HTTP response wrapper which provides access to the servlet
+     * outputstream.
      *
      * @throws XPathException Thrown when something bad happens.
      */

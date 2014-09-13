@@ -52,15 +52,16 @@ import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
 
 /**
- * Implementation gridfs:connect() functions
+ * Implementation gridfs:store() functions
  *
  * @author Dannes Wessels
  */
 public class Store extends BasicFunction {
 
-    private final static CharSequence[] nonCompressables
-            = {".zip", ".rar", ".gz", ".bz", ".bz2", ".dmg", "gif", ".jpg", ".png", ".svgz",
-                ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv"};
+    private final static CharSequence[] nonCompressables = {
+        ".zip", ".rar", ".gz", ".7z", ".bz", ".bz2", ".dmg", "gif", ".jpg", ".png", ".svgz",
+        ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv", ".wav", ".ogg", ".mov", ".flv", ".wmv"
+    };
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
@@ -144,13 +145,10 @@ public class Store extends BasicFunction {
                     cosRaw.flush();
                     cosRaw.close();
                     stopWatch.stop();
-
+                    
                     long nrBytesRaw = cosRaw.getByteCount();
                     long nrBytesGZ = cosGZ.getByteCount();
                     String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
-
-                    LOG.info("md5sum=" + checksum);
-                    LOG.info("Compression=" + ((100l * nrBytesGZ) / nrBytesRaw));
 
                     BasicDBObject info = new BasicDBObject();
                     info.put("compression", "gzip");
@@ -160,24 +158,28 @@ public class Store extends BasicFunction {
                     info.put("exist_datatype_text", Type.getTypeName(dataType));
 
                     gfsFile.setMetaData(info);
+                                                          
+                    LOG.info("original_md5:" + checksum);
+                    LOG.info("compression ratio:" + ((100l * nrBytesGZ) / nrBytesRaw));
+                    
                 }
             }
-            LOG.info(String.format("time=%s", stopWatch.getTime()));
+            LOG.info(String.format("serialization time: %s", stopWatch.getTime()));
 
             // Report identifier
             return ContentSerializer.getReport(gfsFile);
 
         } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex);
+            throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
     }

@@ -104,16 +104,16 @@ public class Remove extends BasicFunction {
             }
 
         } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
-            
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
+
         } catch (MongoException ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);       
-            
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
+
         } catch (Throwable ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
 
