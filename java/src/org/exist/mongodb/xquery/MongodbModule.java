@@ -9,6 +9,7 @@ import org.exist.mongodb.xquery.mongodb.Connect;
 import org.exist.mongodb.xquery.mongodb.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.ListMongdbClientIds;
 import org.exist.xquery.AbstractInternalModule;
+import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
@@ -32,6 +33,10 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Close.signatures[0], Close.class),
         
     };
+    
+    //public final static ErrorCode GRFS0001 = new MongodbErrorCode("GRFS0001", "Document not found");
+    public final static ErrorCode MONG0002 = new MongodbErrorCode("GRFS0002", "Mongodb exception");
+    public final static ErrorCode MONG0003 = new MongodbErrorCode("GRFS0003", "Generic exception");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
@@ -61,5 +66,13 @@ public class MongodbModule extends AbstractInternalModule {
     @Override
     public String getReleaseVersion() {
         return RELEASED_IN_VERSION;
+    }
+    
+    protected final static class MongodbErrorCode extends ErrorCode {
+
+        public MongodbErrorCode(String code, String description) {
+            super(new QName(code, NAMESPACE_URI, PREFIX), description);
+        }
+
     }
 }

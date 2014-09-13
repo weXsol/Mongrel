@@ -63,14 +63,6 @@ public class ListDatabases extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-//        // User must either be DBA or in the JMS group
-//        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-//            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-//                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-//            LOG.error(txt);
-//            throw new XPathException(this, txt);
-//        }
-
         try {
             // Stream parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
@@ -88,19 +80,18 @@ public class ListDatabases extends BasicFunction {
             return seq;
 
         } catch (XPathException ex) {
-            LOG.error(ex);
-            throw ex;
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
         } catch (Throwable ex) {
-            LOG.error(ex);
-            throw new XPathException(this, ex);
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
-        //return Sequence.EMPTY_SEQUENCE;
 
     }
 

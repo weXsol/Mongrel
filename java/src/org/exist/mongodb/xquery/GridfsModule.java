@@ -1,4 +1,3 @@
-
 package org.exist.mongodb.xquery;
 
 import java.util.List;
@@ -17,11 +16,9 @@ import org.exist.xquery.XPathException;
 
 /**
  * Module for functions to work with a MongoDB GridFS server.
- * 
+ *
  * @author Dannes Wessels
  */
-
-
 public class GridfsModule extends AbstractInternalModule {
 
     public final static String NAMESPACE_URI = "http://exist-db.org/xquery/gridfs";
@@ -30,7 +27,6 @@ public class GridfsModule extends AbstractInternalModule {
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
 
     public final static FunctionDef[] functions = {
-
         new FunctionDef(ListBuckets.signatures[0], ListBuckets.class),
         new FunctionDef(ListDocuments.signatures[0], ListDocuments.class),
         new FunctionDef(Get.signatures[0], Get.class),
@@ -42,10 +38,10 @@ public class GridfsModule extends AbstractInternalModule {
         new FunctionDef(Stream.signatures[1], Stream.class)
 
     };
-    
+
     public final static ErrorCode GRFS0001 = new GridfsErrorCode("GRFS0001", "Document not found");
     public final static ErrorCode GRFS0002 = new GridfsErrorCode("GRFS0002", "Mongodb exception");
- public final static ErrorCode GRFS0003 = new GridfsErrorCode("GRFS0003", "Generic exception");
+    public final static ErrorCode GRFS0003 = new GridfsErrorCode("GRFS0003", "Generic exception");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);
@@ -76,12 +72,12 @@ public class GridfsModule extends AbstractInternalModule {
     public String getReleaseVersion() {
         return RELEASED_IN_VERSION;
     }
-    
+
     protected final static class GridfsErrorCode extends ErrorCode {
 
-		public GridfsErrorCode(String code, String description) {
-			super(new QName(code, NAMESPACE_URI, PREFIX), description);
-		}
-    	
+        public GridfsErrorCode(String code, String description) {
+            super(new QName(code, NAMESPACE_URI, PREFIX), description);
+        }
+
     }
 }
