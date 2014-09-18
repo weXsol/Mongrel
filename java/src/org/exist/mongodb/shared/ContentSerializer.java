@@ -236,12 +236,24 @@ public class ContentSerializer {
         addElementValue(builder, "numberOfChunks", "" + gfsFile.numChunks());
 
         // more meta data
-        try {   
+        try {
             addElementValue(builder, "uploadDate", "" + (new DateTimeValue(gfsFile.getUploadDate()).getStringValue()));
         } catch (XPathException ex) {
             LOG.error("Error adding upload date. " + ex.getMessage());
         }
         addElementValue(builder, "md5", gfsFile.getMD5());
+        
+        DBObject metaData = gfsFile.getMetaData();
+        if (metaData != null && !metaData.keySet().isEmpty()) {
+            builder.startElement("", "metaData", "metaData", null);
+            
+            for(String key :metaData.keySet()){
+                String value = metaData.get(key).toString();
+                addElementValue(builder, key, value);
+            }
+            
+            builder.endElement();
+        }
 
         // finish root element
         builder.endElement();
