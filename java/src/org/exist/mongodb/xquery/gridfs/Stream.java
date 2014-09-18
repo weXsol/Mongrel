@@ -58,8 +58,8 @@ import org.exist.xquery.value.Type;
  */
 public class Stream extends BasicFunction {
 
-    private static final String FIND_BY_OBJECTID = "stream-findone-by-objectid";
-    private static final String FIND_BY_FILENAME = "stream-findone-by-filename";
+    private static final String FIND_BY_OBJECTID = "stream-by-objectid";
+    private static final String FIND_BY_FILENAME = "stream-by-filename";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
@@ -80,7 +80,7 @@ public class Stream extends BasicFunction {
             new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "Mongo driver id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "ObjectID of document"),
             new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
         ),};

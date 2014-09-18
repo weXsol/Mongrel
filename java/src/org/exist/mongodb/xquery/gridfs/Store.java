@@ -49,6 +49,7 @@ import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
@@ -75,7 +76,7 @@ public class Store extends BasicFunction {
             new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
             new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")
         },
-        new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "an ID")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
         ),};
 
     public Store(XQueryContext context, FunctionSignature signature) {
@@ -167,7 +168,7 @@ public class Store extends BasicFunction {
             LOG.info(String.format("serialization time: %s", stopWatch.getTime()));
 
             // Report identifier
-            return ContentSerializer.getReport(gfsFile);
+            return new StringValue(gfsFile.getId().toString());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);

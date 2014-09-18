@@ -63,8 +63,8 @@ import org.xml.sax.XMLReader;
  */
 public class Get extends BasicFunction {
 
-    private static final String FIND_BY_OBJECTID = "get-findone-by-objectid";
-    private static final String FIND_BY_FILENAME = "get-findone-by-filename";
+    private static final String FIND_BY_OBJECTID = "get-by-objectid";
+    private static final String FIND_BY_FILENAME = "get-by-filename";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
@@ -85,7 +85,7 @@ public class Get extends BasicFunction {
             new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "Mongo driver id"),
             new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
             new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "ObjectID of document"),
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),};

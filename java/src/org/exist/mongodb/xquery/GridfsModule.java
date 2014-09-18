@@ -6,6 +6,7 @@ import org.exist.dom.QName;
 import org.exist.mongodb.xquery.gridfs.Get;
 import org.exist.mongodb.xquery.gridfs.ListBuckets;
 import org.exist.mongodb.xquery.gridfs.ListDocuments;
+import org.exist.mongodb.xquery.gridfs.Properties;
 import org.exist.mongodb.xquery.gridfs.Remove;
 import org.exist.mongodb.xquery.gridfs.Store;
 import org.exist.mongodb.xquery.gridfs.Stream;
@@ -29,6 +30,7 @@ public class GridfsModule extends AbstractInternalModule {
     public final static FunctionDef[] functions = {
         new FunctionDef(ListBuckets.signatures[0], ListBuckets.class),
         new FunctionDef(ListDocuments.signatures[0], ListDocuments.class),
+        new FunctionDef(Properties.signatures[0], Properties.class),
         new FunctionDef(Get.signatures[0], Get.class),
         new FunctionDef(Get.signatures[1], Get.class),
         new FunctionDef(Remove.signatures[0], Remove.class),
