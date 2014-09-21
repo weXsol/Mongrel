@@ -78,12 +78,8 @@ public class Store extends BasicFunction {
             new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
             "Store document into Gridfs",
             new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT,
-                PARAMETER_DATABASE,
-                PARAMETER_BUCKET,
-                PARAMETER_FILENAME,
-                PARAMETER_CONTENT_TYPE,
-                PARAMETER_CONTENT
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
+                PARAMETER_CONTENT_TYPE, PARAMETER_CONTENT
             },
             new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
         ),
