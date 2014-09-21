@@ -11,6 +11,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.log4j.Logger;
+import static org.exist.mongodb.xquery.MongodbModule.MONG0001;
 import org.exist.xquery.XPathException;
 
 /**
@@ -82,7 +83,7 @@ public class MongodbClientStore {
             } catch (InterruptedException ex) {
                 LOG.error(ex);
             }
-            throw new XPathException("The provided MongoDB clientid is not valid.");
+            throw new XPathException(MONG0001, "The provided MongoDB clientid is not valid.");
         }
     }
 

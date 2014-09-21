@@ -17,22 +17,19 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.gridfs;
+package org.exist.mongodb.xquery.mongodb;
+
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSDBFile;
-import org.bson.types.ObjectId;
+import java.util.Set;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ContentSerializer;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
+import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
@@ -41,28 +38,30 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Function to list all GridFS collections
  *
  * @author Dannes Wessels
  */
-public class Properties extends BasicFunction {
+public class ListCollections extends BasicFunction {
 
-    private static final String PROPS_BY_OBJECTID = "properties-by-objectid";
+    private static final String LIST_DOCUMENTS = "list-collections";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-            new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve properties and metadata of a document",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,},
-            new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
+            new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+        "List names of available collections",            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
         ),
     };
 
-    public Properties(XQueryContext context, FunctionSignature signature) {
+    public ListCollections(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -70,34 +69,31 @@ public class Properties extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            // Stream parameters
+            // Fetch parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
-            String documentId = args[3].itemAt(0).getStringValue();
-
+                  
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Get Mongodb client
+            // Retrieve Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Get database
+            // Retrieve database          
             DB db = client.getDB(dbname);
 
-            // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
-
-            // Find one document by id or by filename
-            GridFSDBFile gfsFile = (isCalledAs(PROPS_BY_OBJECTID))
-                    ? gfs.findOne(new ObjectId(documentId))
-                    : gfs.findOne(documentId);
-
-            if (gfsFile == null) {
-                throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
+            // Retrieve collection names
+            Set<String> collectionNames = db.getCollectionNames();
+            
+            // Storage for results
+            ValueSequence valueSequence = new ValueSequence();
+           
+            // Iterate over collection names 
+            for (String collName : collectionNames) {
+                valueSequence.add(new StringValue(collName));
             }
-         
-            return ContentSerializer.getReport(gfsFile);
+
+            return valueSequence;
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -105,12 +101,13 @@ public class Properties extends BasicFunction {
 
         } catch (MongoException ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
+
 
     }
 

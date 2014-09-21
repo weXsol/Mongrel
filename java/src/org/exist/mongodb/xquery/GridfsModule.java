@@ -41,9 +41,9 @@ public class GridfsModule extends AbstractInternalModule {
 
     };
 
-    public final static ErrorCode GRFS0001 = new GridfsErrorCode("GRFS0001", "Document not found");
-    public final static ErrorCode GRFS0002 = new GridfsErrorCode("GRFS0002", "Mongodb exception");
-    public final static ErrorCode GRFS0003 = new GridfsErrorCode("GRFS0003", "Generic exception");
+    public final static ErrorCode GRFS0002 = MongodbModule.MONG0002; // new GridfsErrorCode("GRFS0002", "Mongodb exception");
+    public final static ErrorCode GRFS0003 = MongodbModule.MONG0003; //new GridfsErrorCode("GRFS0003", "Generic exception");
+    public final static ErrorCode GRFS0004 = new GridfsErrorCode("GRFS0004", "Document not found");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);

@@ -145,7 +145,7 @@ public class Stream extends BasicFunction {
      */
     void stream(GridFSDBFile gfsFile, String documentId, Boolean setDisposition) throws IOException, XPathException {
         if (gfsFile == null) {
-            throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
+            throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
         }
         
         DBObject metadata = gfsFile.getMetaData();

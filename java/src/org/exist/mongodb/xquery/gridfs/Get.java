@@ -125,11 +125,10 @@ public class Get extends BasicFunction {
             // Find one document by id or by filename
             GridFSDBFile gfsFile = (isCalledAs(FIND_BY_OBJECTID))
                     ? gfs.findOne(new ObjectId(documentId))
-                    : gfs.findOne(documentId);
+                    : gfs.findOne(documentId); // TODO: find latest
 
             if (gfsFile == null) {
-                // TODO make catchable with try-catch
-                throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
+                throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
             }
 
             Sequence retVal = get(gfsFile, forceBinary);

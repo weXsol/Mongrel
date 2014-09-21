@@ -28,6 +28,13 @@ public class FunctionDefinitions {
     public static final FunctionParameterSequenceType PARAMETER_BUCKET
             = new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET);
 
+    public static final String PARAM_COLLECTION = "collection";
+    public static final String DESCR_COLLECTION = "Name of collection";
+
+    public static final FunctionParameterSequenceType PARAMETER_COLLECTION
+            = new FunctionParameterSequenceType(PARAM_COLLECTION, Type.STRING, Cardinality.ONE, DESCR_COLLECTION);
+
+
     public static final String PARAM_OBJECT_ID = "objectid";
     public static final String DESCR_OBJECT_ID = "ObjectID of document";
 
@@ -57,4 +64,10 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_AS_ATTACHMENT
             = new FunctionParameterSequenceType(PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, DESCR_AS_ATTACHMENT);
+
+    public static final String PARAM_QUERY = "query";
+    public static final String DESCR_QUERY = "The mongodb query";
+
+    public static final FunctionParameterSequenceType PARAMETER_QUERY
+            = new FunctionParameterSequenceType(PARAM_QUERY, Type.STRING, Cardinality.ONE, DESCR_QUERY);
 }

@@ -6,8 +6,10 @@ import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.mongodb.Close;
 import org.exist.mongodb.xquery.mongodb.Connect;
+import org.exist.mongodb.xquery.mongodb.ListCollections;
 import org.exist.mongodb.xquery.mongodb.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.ListMongdbClientIds;
+import org.exist.mongodb.xquery.mongodb.Query;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
@@ -29,14 +31,17 @@ public class MongodbModule extends AbstractInternalModule {
     public final static FunctionDef[] functions = { 
         new FunctionDef(ListMongdbClientIds.signatures[0], ListMongdbClientIds.class),   
         new FunctionDef(ListDatabases.signatures[0], ListDatabases.class),
+        new FunctionDef(ListCollections.signatures[0], ListCollections.class),
         new FunctionDef(Connect.signatures[0], Connect.class),
+        new FunctionDef(Query.signatures[0], Query.class),
         new FunctionDef(Close.signatures[0], Close.class),
         
     };
     
-    //public final static ErrorCode GRFS0001 = new MongodbErrorCode("GRFS0001", "Document not found");
-    public final static ErrorCode MONG0002 = new MongodbErrorCode("GRFS0002", "Mongodb exception");
-    public final static ErrorCode MONG0003 = new MongodbErrorCode("GRFS0003", "Generic exception");
+    public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
+    public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
+    public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Generic exception");
+
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
