@@ -20,7 +20,6 @@
 package org.exist.mongodb.xquery.mongodb;
 
 import com.mongodb.MongoException;
-import java.net.UnknownHostException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -46,16 +45,14 @@ import org.exist.xquery.value.Type;
 public class Connect extends BasicFunction {
     
     public final static FunctionSignature signatures[] = {
-
         new FunctionSignature(
-        new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "Connect to GridFS server",
-        new SequenceType[]{
+            new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "Connect to GridFS server",
+            new SequenceType[]{
                 new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
             },
             new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "MongoDB client id")
-        ),
-        
+        ),       
     };
 
     public Connect(XQueryContext context, FunctionSignature signature) {

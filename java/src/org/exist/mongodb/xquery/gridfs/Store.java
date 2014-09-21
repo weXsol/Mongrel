@@ -37,18 +37,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
 import static org.exist.mongodb.shared.Constants.GZIP;
-import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
-import static org.exist.mongodb.shared.Constants.PARAM_CONTENT;
-import static org.exist.mongodb.shared.Constants.PARAM_CONTENT_TYPE;
-import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
-import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.ContentSerializer;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_CONTENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_CONTENT_TYPE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
@@ -58,7 +54,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
@@ -80,18 +75,19 @@ public class Store extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Store document into Gridfs",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
-            new FunctionParameterSequenceType(PARAM_CONTENT_TYPE, Type.STRING, Cardinality.ZERO_OR_ONE, Constants.DESCR_CONTENT_TYPE),
-            new FunctionParameterSequenceType(PARAM_CONTENT, Type.ITEM, Cardinality.ONE, Constants.DESCR_CONTENT)
-        },
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
-        ),};
+            new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Store document into Gridfs",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT,
+                PARAMETER_DATABASE,
+                PARAMETER_BUCKET,
+                PARAMETER_FILENAME,
+                PARAMETER_CONTENT_TYPE,
+                PARAMETER_CONTENT
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
+        ),
+    };
 
     public Store(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

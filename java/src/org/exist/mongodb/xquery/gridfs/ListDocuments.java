@@ -24,13 +24,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
-import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.ContentSerializer;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -38,7 +35,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
@@ -55,15 +51,14 @@ public class ListDocuments extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "List documents",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-        },
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
-        ),};
+            new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "List documents",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET,
+            },
+            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Listing of documents")
+        ),
+    };
 
     public ListDocuments(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

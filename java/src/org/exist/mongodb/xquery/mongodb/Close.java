@@ -23,7 +23,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -32,7 +32,6 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.EmptySequence;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
@@ -48,13 +47,14 @@ public class Close extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "Close MongoDB connector",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(Constants.PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
-        },
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
-        ),};
+            new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "Close MongoDB connector",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT
+            },
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
+        ),
+    };
 
     public Close(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

@@ -40,17 +40,12 @@ import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
 import static org.exist.mongodb.shared.Constants.EXIST_DATATYPE;
-import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
-import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
-import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_OBJECT_ID;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.validation.ValidationReport;
@@ -78,30 +73,27 @@ public class Get extends BasicFunction {
 
     private static final String FIND_BY_OBJECTID = "get-by-objectid";
     private static final String FIND_BY_FILENAME = "get-by-filename";
+    
+    private static final FunctionParameterSequenceType PARAMETER_FORCE_BINARY = 
+            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data.");
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
-            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
-        new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
-        ),
+            new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Retrieve document",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_FORCE_BINARY
+            },
+            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
+        ),     
         new FunctionSignature(
-        new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),
-            new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
-        new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
-        ),};
+            new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Retrieve document",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_FORCE_BINARY,},
+            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
+        ),
+    };
 
     public Get(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

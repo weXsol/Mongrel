@@ -25,16 +25,11 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
-import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
-import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_OBJECT_ID;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -42,7 +37,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
@@ -61,24 +55,20 @@ public class Remove extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Remove document from gridFS",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Filename of removed document")
+            new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Remove document from gridFS",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Filename of removed document")
         ),
         new FunctionSignature(
-        new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Remove document from gridFS",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "ObjectID of removed document.")
+            new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Remove document from gridFS",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "ObjectID of removed document.")
         ),};
 
     public Remove(XQueryContext context, FunctionSignature signature) {

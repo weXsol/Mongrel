@@ -36,13 +36,13 @@ import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import static org.exist.mongodb.shared.Constants.EXIST_ORIGINAL_SIZE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_AS_ATTACHMENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
@@ -54,7 +54,6 @@ import org.exist.xquery.Variable;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.response.ResponseModule;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.JavaObjectValue;
 import org.exist.xquery.value.Sequence;
@@ -73,27 +72,22 @@ public class Stream extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document by filename as stream",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(Constants.PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
-            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, Constants.DESCR_AS_ATTACHMENT),},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
+            new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Retrieve document by filename as stream",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_AS_ATTACHMENT
+            },
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
         ),
         new FunctionSignature(
-        new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document by objectid as stream",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(Constants.PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),
-            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, Constants.DESCR_AS_ATTACHMENT),},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
-        ),};
+            new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Retrieve document by objectid as stream",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_AS_ATTACHMENT
+            },
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
+        ),
+    };
 
     public Stream(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

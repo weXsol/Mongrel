@@ -48,12 +48,12 @@ public class ListMongdbClientIds extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "Get all MongoDB client ids",
-        new SequenceType[]{
-            ,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of client Ids")
-        ),};
+            new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "Get all MongoDB client ids",
+            new SequenceType[]{ /* No Parameters */ },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of client Ids")
+        ),
+    };
 
     public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
         super(context, signature);

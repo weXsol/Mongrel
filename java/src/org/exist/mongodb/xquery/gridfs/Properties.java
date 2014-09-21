@@ -26,15 +26,11 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
-import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
-import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
-import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
-import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.PARAM_OBJECT_ID;
 import org.exist.mongodb.shared.ContentSerializer;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -42,7 +38,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
@@ -59,15 +54,13 @@ public class Properties extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve properties and metadata of document",
-        new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
-            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),},
-        new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
-        ),};
+            new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+            "Retrieve properties and metadata of a document",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,},
+            new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
+        ),
+    };
 
     public Properties(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
