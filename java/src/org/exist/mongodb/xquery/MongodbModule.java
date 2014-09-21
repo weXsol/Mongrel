@@ -6,6 +6,7 @@ import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.mongodb.Close;
 import org.exist.mongodb.xquery.mongodb.Connect;
+import org.exist.mongodb.xquery.mongodb.Count;
 import org.exist.mongodb.xquery.mongodb.Insert;
 import org.exist.mongodb.xquery.mongodb.ListCollections;
 import org.exist.mongodb.xquery.mongodb.ListDatabases;
@@ -37,8 +38,8 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Query.signatures[0], Query.class),
         new FunctionDef(Insert.signatures[0], Insert.class),
         new FunctionDef(Close.signatures[0], Close.class),
-        
-    };
+        new FunctionDef(Count.signatures[0], Count.class),
+        new FunctionDef(Count.signatures[1], Count.class),    };
     
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
     public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
