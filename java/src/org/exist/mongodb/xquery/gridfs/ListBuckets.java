@@ -53,7 +53,7 @@ public class ListBuckets extends BasicFunction {
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
             new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "List buckets",
+            "List names of available buckets",
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,
             },

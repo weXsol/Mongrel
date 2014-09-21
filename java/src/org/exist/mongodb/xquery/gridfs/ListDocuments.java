@@ -56,7 +56,7 @@ public class ListDocuments extends BasicFunction {
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET,
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Listing of documents")
+            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fregment containing information of documents")
         ),
     };
 

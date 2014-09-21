@@ -53,7 +53,7 @@ public class ListDatabases extends BasicFunction {
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT,
             },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of databases")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of names of databases")
         ),
     };
 

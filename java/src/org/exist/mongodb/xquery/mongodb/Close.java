@@ -52,7 +52,7 @@ public class Close extends BasicFunction {
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT
             },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
         ),
     };
 

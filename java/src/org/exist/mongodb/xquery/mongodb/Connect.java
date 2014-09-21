@@ -22,6 +22,7 @@ package org.exist.mongodb.xquery.mongodb;
 import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -51,7 +52,7 @@ public class Connect extends BasicFunction {
             new SequenceType[]{
                 new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
             },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "MongoDB client id")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
         ),       
     };
 

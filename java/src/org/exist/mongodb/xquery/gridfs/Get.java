@@ -84,14 +84,14 @@ public class Get extends BasicFunction {
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_FORCE_BINARY
             },
-            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
+            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
         ),     
         new FunctionSignature(
             new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
             "Retrieve document",
             new SequenceType[]{
                 PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_FORCE_BINARY,},
-            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
+            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
         ),
     };
 

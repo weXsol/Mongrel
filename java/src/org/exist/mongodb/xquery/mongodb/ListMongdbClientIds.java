@@ -23,6 +23,7 @@ import com.mongodb.MongoException;
 import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -51,7 +52,7 @@ public class ListMongdbClientIds extends BasicFunction {
             new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
             "Get all MongoDB client ids",
             new SequenceType[]{ /* No Parameters */ },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of client Ids")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, String.format("Sequence of %ss", DESCR_MONGODB_CLIENT_ID))
         ),
     };
 
