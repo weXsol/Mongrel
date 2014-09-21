@@ -25,6 +25,11 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
+import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
+import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.PARAM_OBJECT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -54,20 +59,20 @@ public class Remove extends BasicFunction {
         new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Remove document from gridFS",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),},
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Filename of document"),},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Filename of removed document")
         ),
         new FunctionSignature(
         new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Remove document from gridFS",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "ObjectID of document"),},
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "ObjectID of removed document.")
         ),};
 

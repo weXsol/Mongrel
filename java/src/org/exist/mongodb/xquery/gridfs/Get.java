@@ -38,6 +38,14 @@ import org.exist.Namespaces;
 import org.exist.dom.QName;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
+import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.COMPRESSION;
+import static org.exist.mongodb.shared.Constants.EXIST_DATATYPE;
+import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
+import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
+import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.PARAM_OBJECT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.validation.ValidationReport;
@@ -71,10 +79,10 @@ public class Get extends BasicFunction {
         new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Name of collection"),
-            new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Filename of document"),
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),
@@ -82,10 +90,10 @@ public class Get extends BasicFunction {
         new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "Mongo driver id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "ObjectID of document"),
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "Mongo driver id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),};
@@ -127,26 +135,7 @@ public class Get extends BasicFunction {
                 throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
             }
 
-            DBObject metadata = gfsFile.getMetaData();
-
-            // Decompress when needed
-            String compression = (metadata == null) ? null : (String) metadata.get("compression");
-            boolean isGzipped = StringUtils.equals(compression, "gzip");
-            InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream();
-
-            // Find what kind of data is stored
-            int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get("exist_datatype");
-            boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
-            boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
-
-            Sequence retVal;
-            if (forceBinary || !isXMLtype) {
-
-                retVal = Base64BinaryDocument.getInstance(context, is);
-
-            } else {
-                retVal = processXML(context, is);
-            }
+            Sequence retVal = get(gfsFile, forceBinary);
 
             return retVal;
 
@@ -165,26 +154,35 @@ public class Get extends BasicFunction {
 
     }
 
-//    private Sequence processBinary(XQueryContext context, InputStream is, long size) throws IOException, XPathException{
-//        
-//        Sequence retval;
-//        
-//        if(size>100*1024){
-//            File tmp = File.createTempFile("GETGRIDFS", null);
-//            FileOutputStream fos = new FileOutputStream(tmp);
-//            IOUtils.copyLarge(is, fos);
-//            fos.close();
-//            retval = Base64BinaryDocument.getInstance(context, new FileInputStream(tmp));
-//            
-//        } else {
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            IOUtils.copyLarge(is, baos);
-//            baos.close();
-//            retval = Base64BinaryDocument.getInstance(context, new ByteArrayInputStream(baos.toByteArray()));
-//        }
-//        
-//        return retval;
-//    }
+    /**
+     *  Get document from GridFS
+     */
+    Sequence get(GridFSDBFile gfsFile, boolean forceBinary) throws IOException, XPathException {
+        
+        // Obtain meta-data
+        DBObject metadata = gfsFile.getMetaData();
+        
+        // Decompress when needed
+        String compression = (metadata == null) ? null : (String) metadata.get(COMPRESSION);
+        boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
+        InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream();
+        
+        // Find what kind of data is stored
+        int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get(EXIST_DATATYPE);
+        boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
+        boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
+        
+        // Convert input stream to eXist-db object
+        Sequence retVal;
+        if (forceBinary || !isXMLtype) {
+            retVal = Base64BinaryDocument.getInstance(context, is);
+
+        } else {
+            retVal = processXML(context, is);
+        }
+        return retVal;
+    }
+
     /**
      * Parse an byte-array containing (compressed) XML data into an eXist-db
      * document.

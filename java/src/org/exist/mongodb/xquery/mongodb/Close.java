@@ -43,13 +43,14 @@ import org.exist.xquery.value.Type;
  * @author Dannes Wessels
  */
 public class Close extends BasicFunction {
+    
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
         new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
         "Close MongoDB connector",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id")
+            new FunctionParameterSequenceType(Constants.PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id")
         },
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
         ),};

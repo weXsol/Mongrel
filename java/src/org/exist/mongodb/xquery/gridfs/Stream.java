@@ -25,6 +25,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
@@ -33,6 +34,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
+import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.COMPRESSION;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.ORIGINAL_SIZE;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
@@ -64,24 +69,24 @@ public class Stream extends BasicFunction {
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
         new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document as stream",
+        "Retrieve document by filename as stream",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(Constants.PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Name of document"),
+            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
         ),
         new FunctionSignature(
         new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-        "Retrieve document as stream",
+        "Retrieve document by objectid as stream",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "Mongo driver id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("objectid", Type.STRING, Cardinality.ONE, "ObjectID of document"),
-            new FunctionParameterSequenceType("as-attachment", Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(Constants.PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),
+            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
         ),};
 
@@ -117,54 +122,7 @@ public class Stream extends BasicFunction {
                     ? gfs.findOne(new ObjectId(documentId))
                     : gfs.findOne(documentId);
 
-            if (gfsFile == null) {
-                // TODO make catchable with try0catch
-                throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
-            }
-
-            DBObject metadata = gfsFile.getMetaData();
-
-            // Determine actual size
-            String compression = (metadata == null) ? null : (String) metadata.get("compression");
-            Long originalSize = (metadata == null) ? null : (Long) metadata.get("original_size");
-            
-            long length = gfsFile.getLength();
-            if (originalSize != null) {
-                length = originalSize;
-            };
-
-            // Stream response stream
-            ResponseWrapper rw = getResponseWrapper(context);
-
-            // Set HTTP Headers
-            rw.addHeader("Content-Length", "" + length);
-
-            // Set filename when required
-            String filename = determineFilename(documentId, gfsFile);
-            if (setDisposition && StringUtils.isNotBlank(filename)) {
-                rw.addHeader("Content-Disposition", "attachment;filename=" + filename);
-            }
-
-            String contentType = getMimeType(gfsFile.getContentType(), filename);
-            if (contentType != null) {
-                rw.setContentType(contentType);
-            }
-
-            // Stream data
-            if ((compression == null)) {
-                // Write data as-is
-                try (OutputStream os = rw.getOutputStream()) {
-                    gfsFile.writeTo(os);
-                }
-            } else {
-                // Write data uncompressed
-                try (OutputStream os = rw.getOutputStream()) {
-                    InputStream is = gfsFile.getInputStream();
-                    try (GZIPInputStream gzis = new GZIPInputStream(is)) {
-                        IOUtils.copyLarge(gzis, os);
-                    }
-                }
-            }
+            stream(gfsFile, documentId, setDisposition);
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -181,6 +139,59 @@ public class Stream extends BasicFunction {
 
         return Sequence.EMPTY_SEQUENCE;
 
+    }
+
+    /**
+     * Stream document to HTTP agent
+     */
+    void stream(GridFSDBFile gfsFile, String documentId, Boolean setDisposition) throws IOException, XPathException {
+        if (gfsFile == null) {
+            throw new XPathException(this, GridfsModule.GRFS0001, String.format("Document '%s' could not be found.", documentId));
+        }
+        
+        DBObject metadata = gfsFile.getMetaData();
+        
+        // Determine actual size
+        String compression = (metadata == null) ? null : (String) metadata.get(COMPRESSION);
+        Long originalSize = (metadata == null) ? null : (Long) metadata.get(ORIGINAL_SIZE);
+        
+        long length = gfsFile.getLength();
+        if (originalSize != null) {
+            length = originalSize;
+        };
+        
+        // Stream response stream
+        ResponseWrapper rw = getResponseWrapper(context);
+        
+        // Set HTTP Headers
+        rw.addHeader(Constants.CONTENT_LENGTH, String.format("%s", length));
+        
+        // Set filename when required
+        String filename = determineFilename(documentId, gfsFile);
+        if (setDisposition && StringUtils.isNotBlank(filename)) {
+            rw.addHeader(Constants.CONTENT_DISPOSITION, String.format("attachment;filename=%s", filename));
+        }
+        
+        String contentType = getMimeType(gfsFile.getContentType(), filename);
+        if (contentType != null) {
+            rw.setContentType(contentType);
+        }
+        
+        // Stream data
+        if ((compression == null)) {
+            // Write data as-is
+            try (OutputStream os = rw.getOutputStream()) {
+                gfsFile.writeTo(os);
+            }
+        } else {
+            // Write data uncompressed
+            try (OutputStream os = rw.getOutputStream()) {
+                InputStream is = gfsFile.getInputStream();
+                try (GZIPInputStream gzis = new GZIPInputStream(is)) {
+                    IOUtils.copyLarge(gzis, os);
+                }
+            }
+        }
     }
 
     /**

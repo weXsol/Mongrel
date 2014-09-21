@@ -25,15 +25,25 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.GZIP;
+import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
+import static org.exist.mongodb.shared.Constants.PARAM_CONTENT;
+import static org.exist.mongodb.shared.Constants.PARAM_CONTENT_TYPE;
+import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
+import static org.exist.mongodb.shared.Constants.PARAM_FILENAME;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
@@ -69,12 +79,12 @@ public class Store extends BasicFunction {
         new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Store document into Gridfs",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
-            new FunctionParameterSequenceType("filename", Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType("contentType", Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
-            new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
+            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Filename of document"),
+            new FunctionParameterSequenceType(PARAM_CONTENT_TYPE, Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
+            new FunctionParameterSequenceType(PARAM_CONTENT, Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")
         },
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
         ),};
@@ -98,7 +108,7 @@ public class Store extends BasicFunction {
 
             // Actual content: File object, doc() element, base64...
             Item content = args[5].itemAt(0);
-            int dataType = content.getType();
+            
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -123,48 +133,12 @@ public class Store extends BasicFunction {
 
             // Write data
             if (StringUtils.endsWithAny(documentName, nonCompressables)) {
-
-                // Write data as is
-                try (OutputStream stream = gfsFile.getOutputStream()) {
-                    stopWatch.start();
-                    ContentSerializer.serialize(content, context, stream);
-                    stream.flush();
-                    stopWatch.stop();
-                }
-
+                writeRaw(gfsFile, stopWatch, content);
             } else {
-                // Store data compressed, add statistics
-                try (OutputStream stream = gfsFile.getOutputStream()) {
-                    MessageDigest md = MessageDigest.getInstance("MD5");
-                    CountingOutputStream cosGZ = new CountingOutputStream(stream);
-                    GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
-                    DigestOutputStream dos = new DigestOutputStream(gos, md);
-                    CountingOutputStream cosRaw = new CountingOutputStream(dos);
-
-                    stopWatch.start();
-                    ContentSerializer.serialize(content, context, cosRaw);
-                    cosRaw.flush();
-                    cosRaw.close();
-                    stopWatch.stop();
-                    
-                    long nrBytesRaw = cosRaw.getByteCount();
-                    long nrBytesGZ = cosGZ.getByteCount();
-                    String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
-
-                    BasicDBObject info = new BasicDBObject();
-                    info.put("compression", "gzip");
-                    info.put("original_size", nrBytesRaw);
-                    info.put("original_md5", checksum);
-                    info.put("exist_datatype", dataType);
-                    info.put("exist_datatype_text", Type.getTypeName(dataType));
-
-                    gfsFile.setMetaData(info);
-                                                          
-                    LOG.info("original_md5:" + checksum);
-                    LOG.info("compression ratio:" + ((100l * nrBytesGZ) / nrBytesRaw));
-                    
-                }
+                int dataType = content.getType();
+                writeCompressed(gfsFile, stopWatch, content, dataType);
             }
+            
             LOG.info(String.format("serialization time: %s", stopWatch.getTime()));
 
             // Report identifier
@@ -183,6 +157,50 @@ public class Store extends BasicFunction {
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
+    }
+
+    void writeCompressed(GridFSInputFile gfsFile, StopWatch stopWatch, Item content, int dataType) throws NoSuchAlgorithmException, IOException, XPathException {
+        // Store data compressed, add statistics
+        try (OutputStream stream = gfsFile.getOutputStream()) {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            CountingOutputStream cosGZ = new CountingOutputStream(stream);
+            GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
+            DigestOutputStream dos = new DigestOutputStream(gos, md);
+            CountingOutputStream cosRaw = new CountingOutputStream(dos);
+            
+            stopWatch.start();
+            ContentSerializer.serialize(content, context, cosRaw);
+            cosRaw.flush();
+            cosRaw.close();
+            stopWatch.stop();
+            
+            long nrBytesRaw = cosRaw.getByteCount();
+            long nrBytesGZ = cosGZ.getByteCount();
+            String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
+            
+            BasicDBObject info = new BasicDBObject();
+            info.put(Constants.COMPRESSION, GZIP);
+            info.put(Constants.ORIGINAL_SIZE, nrBytesRaw);
+            info.put(Constants.ORIGINAL_MD5, checksum);
+            info.put(Constants.EXIST_DATATYPE, dataType);
+            info.put(Constants.EXIST_DATATYPE_TEXT, Type.getTypeName(dataType));
+            
+            gfsFile.setMetaData(info);
+            
+            LOG.info("original_md5:" + checksum);
+            LOG.info("compression ratio:" + ((100l * nrBytesGZ) / nrBytesRaw));
+            
+        }
+    }
+
+    void writeRaw(GridFSInputFile gfsFile, StopWatch stopWatch, Item content) throws XPathException, IOException {
+        // Write data as is
+        try (OutputStream stream = gfsFile.getOutputStream()) {
+            stopWatch.start();
+            ContentSerializer.serialize(content, context, stream);
+            stream.flush();
+            stopWatch.stop();
+        }
     }
 
     private String getMimeType(Sequence inputValue, String filename) throws XPathException {

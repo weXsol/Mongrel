@@ -24,6 +24,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
+import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.ContentSerializer;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
@@ -52,9 +55,9 @@ public class ListDocuments extends BasicFunction {
         new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "List documents",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),
-            new FunctionParameterSequenceType("bucket", Type.STRING, Cardinality.ONE, "Collection"),
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
         },
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "n/a")
         ),};

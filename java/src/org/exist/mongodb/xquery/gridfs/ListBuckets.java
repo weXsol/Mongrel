@@ -25,6 +25,8 @@ import com.mongodb.MongoException;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
+import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.xquery.BasicFunction;
@@ -54,9 +56,9 @@ public class ListBuckets extends BasicFunction {
         new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "List buckets",
         new SequenceType[]{
-            new FunctionParameterSequenceType("mongodbClientId", Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType("database", Type.STRING, Cardinality.ONE, "database"),},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "n/a")
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
         ),};
 
     public ListBuckets(XQueryContext context, FunctionSignature signature) {
