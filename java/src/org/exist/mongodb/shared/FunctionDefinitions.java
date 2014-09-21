@@ -70,4 +70,10 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_QUERY
             = new FunctionParameterSequenceType(PARAM_QUERY, Type.STRING, Cardinality.ONE, DESCR_QUERY);
+
+    public static final String PARAM_JSONCONTENT = "content";
+    public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
+
+    public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
+            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ONE, DESCR_JSONCONTENT);
 }

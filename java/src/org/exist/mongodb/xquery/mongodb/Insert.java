@@ -19,12 +19,17 @@
  */
 package org.exist.mongodb.xquery.mongodb;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import java.util.Set;
+import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
@@ -38,27 +43,25 @@ import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
 
 /**
- * Function to list all GridFS collections
+ * Functions to retrieve documents from GridFS as a stream.
  *
  * @author Dannes Wessels
  */
-public class ListCollections extends BasicFunction {
+public class Insert extends BasicFunction {
 
-    private static final String LIST_DOCUMENTS = "list-collections";
-
+    private static final String QUERY = "insert";
+    
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "List names of available collections",
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "")
         ),};
 
-    public ListCollections(XQueryContext context, FunctionSignature signature) {
+    public Insert(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -66,31 +69,25 @@ public class ListCollections extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            // Fetch parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-                  
+            String collection = args[2].itemAt(0).getStringValue();
+            String content = args[3].itemAt(0).getStringValue();
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Retrieve Mongodb client
+            // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Retrieve database          
+            // Get database
             DB db = client.getDB(dbname);
+            DBCollection dbcol = db.getCollection(collection);
 
-            // Retrieve collection names
-            Set<String> collectionNames = db.getCollectionNames();
-            
-            // Storage for results
-            ValueSequence valueSequence = new ValueSequence();
-           
-            // Iterate over collection names 
-            for (String collName : collectionNames) {
-                valueSequence.add(new StringValue(collName));
-            }
+            BasicDBObject bsonContent = (BasicDBObject) JSON.parse(content);
+            WriteResult result = dbcol.insert(bsonContent);
 
-            return valueSequence;
+            return new StringValue(result.toString());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -104,7 +101,6 @@ public class ListCollections extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
-
 
     }
 

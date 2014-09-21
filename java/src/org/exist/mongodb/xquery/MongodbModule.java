@@ -6,6 +6,7 @@ import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.mongodb.Close;
 import org.exist.mongodb.xquery.mongodb.Connect;
+import org.exist.mongodb.xquery.mongodb.Insert;
 import org.exist.mongodb.xquery.mongodb.ListCollections;
 import org.exist.mongodb.xquery.mongodb.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.ListMongdbClientIds;
@@ -34,6 +35,7 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(ListCollections.signatures[0], ListCollections.class),
         new FunctionDef(Connect.signatures[0], Connect.class),
         new FunctionDef(Query.signatures[0], Query.class),
+        new FunctionDef(Insert.signatures[0], Insert.class),
         new FunctionDef(Close.signatures[0], Close.class),
         
     };
