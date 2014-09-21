@@ -26,6 +26,10 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
+import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
+import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
 import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
 import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
 import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
@@ -58,10 +62,10 @@ public class Properties extends BasicFunction {
         new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve properties and metadata of document",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "Mongo driver id"),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),},
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),},
         new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
         ),};
 

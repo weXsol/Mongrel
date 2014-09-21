@@ -23,6 +23,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -50,7 +51,7 @@ public class Close extends BasicFunction {
         new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
         "Close MongoDB connector",
         new SequenceType[]{
-            new FunctionParameterSequenceType(Constants.PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id")
+            new FunctionParameterSequenceType(Constants.PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
         },
         new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "none")
         ),};

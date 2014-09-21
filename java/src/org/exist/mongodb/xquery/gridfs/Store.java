@@ -37,6 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
+import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
+import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
+import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
 import static org.exist.mongodb.shared.Constants.GZIP;
 import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
 import static org.exist.mongodb.shared.Constants.PARAM_CONTENT;
@@ -79,12 +83,12 @@ public class Store extends BasicFunction {
         new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Store document into Gridfs",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Filename of document"),
-            new FunctionParameterSequenceType(PARAM_CONTENT_TYPE, Type.STRING, Cardinality.ZERO_OR_ONE, "Document Content type, use () for mime-type based on file extension"),
-            new FunctionParameterSequenceType(PARAM_CONTENT, Type.ITEM, Cardinality.ONE, "Document content as node() or  base64-binary")
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
+            new FunctionParameterSequenceType(PARAM_CONTENT_TYPE, Type.STRING, Cardinality.ZERO_OR_ONE, Constants.DESCR_CONTENT_TYPE),
+            new FunctionParameterSequenceType(PARAM_CONTENT, Type.ITEM, Cardinality.ONE, Constants.DESCR_CONTENT)
         },
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
         ),};
@@ -179,9 +183,9 @@ public class Store extends BasicFunction {
             String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
             
             BasicDBObject info = new BasicDBObject();
-            info.put(Constants.COMPRESSION, GZIP);
-            info.put(Constants.ORIGINAL_SIZE, nrBytesRaw);
-            info.put(Constants.ORIGINAL_MD5, checksum);
+            info.put(Constants.EXIST_COMPRESSION, GZIP);
+            info.put(Constants.EXIST_ORIGINAL_SIZE, nrBytesRaw);
+            info.put(Constants.EXIST_ORIGINAL_MD5, checksum);
             info.put(Constants.EXIST_DATATYPE, dataType);
             info.put(Constants.EXIST_DATATYPE_TEXT, Type.getTypeName(dataType));
             

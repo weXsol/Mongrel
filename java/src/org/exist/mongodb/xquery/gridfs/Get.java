@@ -39,7 +39,12 @@ import org.exist.dom.QName;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.COMPRESSION;
+import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
+import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
+import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
+import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
+import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
 import static org.exist.mongodb.shared.Constants.EXIST_DATATYPE;
 import static org.exist.mongodb.shared.Constants.PARAM_BUCKET;
 import static org.exist.mongodb.shared.Constants.PARAM_DATABASE;
@@ -79,10 +84,10 @@ public class Get extends BasicFunction {
         new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Filename of document"),
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),
@@ -90,10 +95,10 @@ public class Get extends BasicFunction {
         new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "Mongo driver id"),
-            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data."),},
         new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "Requested document")
         ),};
@@ -163,7 +168,7 @@ public class Get extends BasicFunction {
         DBObject metadata = gfsFile.getMetaData();
         
         // Decompress when needed
-        String compression = (metadata == null) ? null : (String) metadata.get(COMPRESSION);
+        String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
         boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
         InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream();
         

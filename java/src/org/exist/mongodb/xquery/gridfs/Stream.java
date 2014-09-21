@@ -35,9 +35,14 @@ import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.http.servlets.ResponseWrapper;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.COMPRESSION;
+import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
+import static org.exist.mongodb.shared.Constants.DESCR_BUCKET;
+import static org.exist.mongodb.shared.Constants.DESCR_DATABASE;
+import static org.exist.mongodb.shared.Constants.DESCR_FILENAME;
+import static org.exist.mongodb.shared.Constants.DESCR_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.Constants.DESCR_OBJECT_ID;
 import static org.exist.mongodb.shared.Constants.PARAM_MONGODB_CLIENT_ID;
-import static org.exist.mongodb.shared.Constants.ORIGINAL_SIZE;
+import static org.exist.mongodb.shared.Constants.EXIST_ORIGINAL_SIZE;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
@@ -71,23 +76,23 @@ public class Stream extends BasicFunction {
         new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document by filename as stream",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(Constants.PARAM_FILENAME, Type.STRING, Cardinality.ONE, "Name of document"),
-            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(Constants.PARAM_FILENAME, Type.STRING, Cardinality.ONE, DESCR_FILENAME),
+            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, Constants.DESCR_AS_ATTACHMENT),},
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
         ),
         new FunctionSignature(
         new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
         "Retrieve document by objectid as stream",
         new SequenceType[]{
-            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, "MongoDB client id"),
-            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, "Name of database"),
-            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, "Name of bucket"),
-            new FunctionParameterSequenceType(Constants.PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, "ObjectID of document"),
-            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, "Add content-disposition header"),},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "Servlet output stream")
+            new FunctionParameterSequenceType(PARAM_MONGODB_CLIENT_ID, Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID),
+            new FunctionParameterSequenceType(Constants.PARAM_DATABASE, Type.STRING, Cardinality.ONE, DESCR_DATABASE),
+            new FunctionParameterSequenceType(Constants.PARAM_BUCKET, Type.STRING, Cardinality.ONE, DESCR_BUCKET),
+            new FunctionParameterSequenceType(Constants.PARAM_OBJECT_ID, Type.STRING, Cardinality.ONE, DESCR_OBJECT_ID),
+            new FunctionParameterSequenceType(Constants.PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, Constants.DESCR_AS_ATTACHMENT),},
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
         ),};
 
     public Stream(XQueryContext context, FunctionSignature signature) {
@@ -152,8 +157,8 @@ public class Stream extends BasicFunction {
         DBObject metadata = gfsFile.getMetaData();
         
         // Determine actual size
-        String compression = (metadata == null) ? null : (String) metadata.get(COMPRESSION);
-        Long originalSize = (metadata == null) ? null : (Long) metadata.get(ORIGINAL_SIZE);
+        String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
+        Long originalSize = (metadata == null) ? null : (Long) metadata.get(EXIST_ORIGINAL_SIZE);
         
         long length = gfsFile.getLength();
         if (originalSize != null) {
