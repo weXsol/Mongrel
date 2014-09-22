@@ -44,7 +44,7 @@ public class MongodbModule extends AbstractInternalModule {
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
     public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
     public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Generic exception");
-
+    public final static ErrorCode MONG0004 = new MongodbErrorCode("MONG0004", "JSON Syntax exception");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
