@@ -19,18 +19,16 @@
  */
 package org.exist.mongodb.xquery.mongodb;
 
-import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_QUERY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAM_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -43,27 +41,36 @@ import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
  *
  * @author Dannes Wessels
  */
-public class Query extends BasicFunction {
+public class Eval extends BasicFunction {
 
-    private static final String QUERY = "query";
-    
-  
+    private static final String EVAL = "eval";
+    private static final String COMMAND = "command";
+
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query database",
+        new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
+                + "functions on the database "
+                + "server. This is useful if you need to touch a lot of data lightly, "
+                + "in which case network transfer could be a bottleneck",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The JSON result")
-        ),};
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY,},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+        ),
+        new FunctionSignature(
+        new QName(COMMAND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Executes a database command.",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_QUERY},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+        ),
+    };
 
-    public Query(XQueryContext context, FunctionSignature signature) {
+    public Eval(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -73,8 +80,7 @@ public class Query extends BasicFunction {
         try {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
-            String query = args[3].itemAt(0).getStringValue();
+            String query = args[2].itemAt(0).getStringValue();
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -84,19 +90,15 @@ public class Query extends BasicFunction {
 
             // Get database
             DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            
+            Sequence retVal;
 
-            BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
-            DBCursor cursor = dbcol.find(mongoQuery);
-
-            Sequence retVal = new ValueSequence();
-
-            try {
-                while (cursor.hasNext()) {
-                    retVal.add(new StringValue(cursor.next().toString()));
-                }
-            } finally {
-                cursor.close();
+            if(isCalledAs(EVAL)){
+                Object result = db.eval(query);
+                retVal = new StringValue(result.toString());
+            } else {
+                CommandResult result = db.command(query);
+                retVal = new StringValue(result.toString());
             }
 
             return retVal;

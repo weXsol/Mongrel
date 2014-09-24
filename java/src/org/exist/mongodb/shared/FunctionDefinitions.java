@@ -66,7 +66,7 @@ public class FunctionDefinitions {
             = new FunctionParameterSequenceType(PARAM_AS_ATTACHMENT, Type.BOOLEAN, Cardinality.ONE, DESCR_AS_ATTACHMENT);
 
     public static final String PARAM_QUERY = "query";
-    public static final String DESCR_QUERY = "The mongodb query";
+    public static final String DESCR_QUERY = "The mongodb query, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_QUERY
             = new FunctionParameterSequenceType(PARAM_QUERY, Type.STRING, Cardinality.ONE, DESCR_QUERY);
@@ -76,4 +76,11 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ONE, DESCR_JSONCONTENT);
+    
+      
+    public static final String PARAM_JS_QUERY = "javascript";
+    public static final String DESCR_JS_QUERY = "Javascript Query";
+
+    public static final FunctionParameterSequenceType PARAMETER_JS_QUERY
+            = new FunctionParameterSequenceType(PARAM_JS_QUERY, Type.STRING, Cardinality.ONE, DESCR_JS_QUERY);
 }

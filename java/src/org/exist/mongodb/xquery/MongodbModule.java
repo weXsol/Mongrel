@@ -7,11 +7,12 @@ import org.exist.dom.QName;
 import org.exist.mongodb.xquery.mongodb.Close;
 import org.exist.mongodb.xquery.mongodb.Connect;
 import org.exist.mongodb.xquery.mongodb.Count;
+import org.exist.mongodb.xquery.mongodb.Eval;
 import org.exist.mongodb.xquery.mongodb.Insert;
 import org.exist.mongodb.xquery.mongodb.ListCollections;
 import org.exist.mongodb.xquery.mongodb.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.ListMongdbClientIds;
-import org.exist.mongodb.xquery.mongodb.Query;
+import org.exist.mongodb.xquery.mongodb.Find;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
@@ -35,7 +36,9 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(ListDatabases.signatures[0], ListDatabases.class),
         new FunctionDef(ListCollections.signatures[0], ListCollections.class),
         new FunctionDef(Connect.signatures[0], Connect.class),
-        new FunctionDef(Query.signatures[0], Query.class),
+        new FunctionDef(Find.signatures[0], Find.class),
+        new FunctionDef(Eval.signatures[0], Eval.class),
+        new FunctionDef(Eval.signatures[1], Eval.class),
         new FunctionDef(Insert.signatures[0], Insert.class),
         new FunctionDef(Close.signatures[0], Close.class),
         new FunctionDef(Count.signatures[0], Count.class),
