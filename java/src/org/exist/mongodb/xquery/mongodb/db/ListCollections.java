@@ -17,20 +17,15 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.db;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
-import com.mongodb.util.JSONParseException;
+import java.util.Set;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -39,35 +34,31 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Function to list all GridFS collections
  *
  * @author Dannes Wessels
  */
-public class Count extends BasicFunction {
+public class ListCollections extends BasicFunction {
 
-    private static final String QUERY = "count-documents";
-    
+    private static final String LIST_DOCUMENTS = "list-collections";
+
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection",
+        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+        "List names of available collections",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
-        new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
-        ),
-        new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
         ),};
 
-    public Count(XQueryContext context, FunctionSignature signature) {
+    public ListCollections(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -75,37 +66,31 @@ public class Count extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
+            // Fetch parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
-
-            // Get query when available
-            String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
-
+                  
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Get Mongodb client
+            // Retrieve Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Get database
+            // Retrieve database          
             DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
 
-            Long nrOfDocuments;
-            if (query == null) {
-                nrOfDocuments = dbcol.count();
-            } else {
-                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
-                nrOfDocuments = dbcol.count(mongoQuery);
+            // Retrieve collection names
+            Set<String> collectionNames = db.getCollectionNames();
+            
+            // Storage for results
+            ValueSequence valueSequence = new ValueSequence();
+           
+            // Iterate over collection names 
+            for (String collName : collectionNames) {
+                valueSequence.add(new StringValue(collName));
             }
 
-            return new IntegerValue(nrOfDocuments);
-
-        } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
+            return valueSequence;
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -115,12 +100,12 @@ public class Count extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
-        } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
-            throw new XPathException(this, MongodbModule.MONG0003, t.getMessage());
+        } catch (Throwable ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
-    }
 
+    }
 
 }

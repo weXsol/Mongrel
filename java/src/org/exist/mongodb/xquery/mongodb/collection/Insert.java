@@ -17,12 +17,20 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.collection;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
+import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
@@ -31,65 +39,61 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.EmptySequence;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Implementation of the gridfs:close() function
+ * Functions to retrieve documents from GridFS as a stream.
  *
  * @author Dannes Wessels
  */
-public class Close extends BasicFunction {
-    
+public class Insert extends BasicFunction {
 
+    private static final String QUERY = "insert";
+    
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-            new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Close MongoDB connector",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT
-            },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
-        ),
-    };
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "")
+        ),};
 
-    public Close(XQueryContext context, FunctionSignature signature) {
+    public Insert(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
-        // User must either be DBA or in the JMS group
-        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
-                    context.getSubject().getName(), Constants.MONGODB_GROUP);
-            LOG.error(txt);
-            throw new XPathException(this, txt);
-        }
-
-        // Get connection URL
-        String mongodbClientId = args[0].itemAt(0).getStringValue();
-
-        // Handle ()
         try {
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            String dbname = args[1].itemAt(0).getStringValue();
+            String collection = args[2].itemAt(0).getStringValue();
+            String content = args[3].itemAt(0).getStringValue();
+
+            // Check id
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+
+            // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            if (client == null) {
-                throw new XPathException(this, String.format("Mongoclient %s could not be found.", mongodbClientId));
-            }
+            // Get database
+            DB db = client.getDB(dbname);
+            DBCollection dbcol = db.getCollection(collection);
 
-            // Close connector with all connections
-            client.close();
+            BasicDBObject bsonContent = (BasicDBObject) JSON.parse(content);
+            WriteResult result = dbcol.insert(bsonContent);
 
-            // Remove from cache
-            MongodbClientStore.getInstance().remove(mongodbClientId);
+            return new StringValue(result.toString());
 
-            // Report identifier
-            return EmptySequence.EMPTY_SEQUENCE;
+        } catch (JSONParseException ex) {
+            String msg = "Invalid JSON data: " + ex.getMessage();
+            LOG.error(msg);
+            throw new XPathException(this, MongodbModule.MONG0004, msg);
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -99,10 +103,11 @@ public class Close extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
-        } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+            throw new XPathException(this, MongodbModule.MONG0003, t.getMessage());
         }
 
     }
+
 }

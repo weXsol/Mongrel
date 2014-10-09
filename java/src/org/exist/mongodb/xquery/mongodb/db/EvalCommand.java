@@ -17,7 +17,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.db;
 
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
@@ -28,7 +28,6 @@ import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_QUERY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAM_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -43,11 +42,11 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Functions to access the command and eval methods of the API.
  *
  * @author Dannes Wessels
  */
-public class Eval extends BasicFunction {
+public class EvalCommand extends BasicFunction {
 
     private static final String EVAL = "eval";
     private static final String COMMAND = "command";
@@ -62,6 +61,7 @@ public class Eval extends BasicFunction {
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY,},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
         ),
+        
         new FunctionSignature(
         new QName(COMMAND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Executes a database command.",
         new SequenceType[]{
@@ -70,7 +70,7 @@ public class Eval extends BasicFunction {
         ),
     };
 
-    public Eval(XQueryContext context, FunctionSignature signature) {
+    public EvalCommand(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -96,6 +96,7 @@ public class Eval extends BasicFunction {
             if(isCalledAs(EVAL)){
                 Object result = db.eval(query);
                 retVal = new StringValue(result.toString());
+                
             } else {
                 CommandResult result = db.command(query);
                 retVal = new StringValue(result.toString());

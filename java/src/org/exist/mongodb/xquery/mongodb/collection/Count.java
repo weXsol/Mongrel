@@ -17,21 +17,20 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -40,29 +39,37 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Count the number of documents in the collection
  *
  * @author Dannes Wessels
  */
-public class Insert extends BasicFunction {
+public class Count extends BasicFunction {
 
-    private static final String QUERY = "insert";
+    private static final String QUERY = "count-documents";
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "")
-        ),};
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
+        new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
+        ),
+        
+        new FunctionSignature(
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
+        new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
+        ),
+    };
 
-    public Insert(XQueryContext context, FunctionSignature signature) {
+    public Count(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -73,7 +80,9 @@ public class Insert extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            String content = args[3].itemAt(0).getStringValue();
+
+            // Get query when available
+            String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -81,14 +90,22 @@ public class Insert extends BasicFunction {
             // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Get database
+            // Get database and collection
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
 
-            BasicDBObject bsonContent = (BasicDBObject) JSON.parse(content);
-            WriteResult result = dbcol.insert(bsonContent);
+            // Count documents
+            Long nrOfDocuments;
+            if (query == null) {
+                // All documents
+                nrOfDocuments = dbcol.count();
+            } else {
+                // Documents found with query
+                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+                nrOfDocuments = dbcol.count(mongoQuery);
+            }
 
-            return new StringValue(result.toString());
+            return new IntegerValue(nrOfDocuments);
 
         } catch (JSONParseException ex) {
             String msg = "Invalid JSON data: " + ex.getMessage();
@@ -109,5 +126,6 @@ public class Insert extends BasicFunction {
         }
 
     }
+
 
 }

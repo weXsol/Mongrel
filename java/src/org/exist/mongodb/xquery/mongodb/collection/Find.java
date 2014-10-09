@@ -17,15 +17,20 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.collection;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import java.util.Set;
+import com.mongodb.util.JSON;
 import org.exist.dom.QName;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -41,24 +46,24 @@ import org.exist.xquery.value.Type;
 import org.exist.xquery.value.ValueSequence;
 
 /**
- * Function to list all GridFS collections
+ * Functions to retrieve documents from GridFS as a stream.
  *
  * @author Dannes Wessels
  */
-public class ListCollections extends BasicFunction {
+public class Find extends BasicFunction {
 
-    private static final String LIST_DOCUMENTS = "list-collections";
-
+    private static final String FIND = "find";
+    
+  
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "List names of available collections",
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
         ),};
 
-    public ListCollections(XQueryContext context, FunctionSignature signature) {
+    public Find(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -66,31 +71,38 @@ public class ListCollections extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            // Fetch parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
-                  
+            String collection = args[2].itemAt(0).getStringValue();
+            String query = args[3].itemAt(0).getStringValue();
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Retrieve Mongodb client
+            // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Retrieve database          
+            // Get database
             DB db = client.getDB(dbname);
+            DBCollection dbcol = db.getCollection(collection);
 
-            // Retrieve collection names
-            Set<String> collectionNames = db.getCollectionNames();
+            // Parse query
+            BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+            DBCursor cursor = dbcol.find(mongoQuery);
             
-            // Storage for results
-            ValueSequence valueSequence = new ValueSequence();
-           
-            // Iterate over collection names 
-            for (String collName : collectionNames) {
-                valueSequence.add(new StringValue(collName));
+            // Execute query
+            Sequence retVal = new ValueSequence();
+
+            // Harvest results
+            try {
+                while (cursor.hasNext()) {
+                    retVal.add(new StringValue(cursor.next().toString()));
+                }
+            } finally {
+                cursor.close();
             }
 
-            return valueSequence;
+            return retVal;
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -104,7 +116,6 @@ public class ListCollections extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
-
 
     }
 

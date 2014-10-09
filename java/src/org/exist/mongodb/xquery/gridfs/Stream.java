@@ -157,7 +157,7 @@ public class Stream extends BasicFunction {
         long length = gfsFile.getLength();
         if (originalSize != null) {
             length = originalSize;
-        };
+        }
         
         // Stream response stream
         ResponseWrapper rw = getResponseWrapper(context);

@@ -17,13 +17,13 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.client;
 
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -31,32 +31,32 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.EmptySequence;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
 
 /**
- * Function to list all GridFS buckets
+ * Implementation of the gridfs:close() function
  *
  * @author Dannes Wessels
  */
-public class ListMongdbClientIds extends BasicFunction {
-
-    private static final String LIST_CLIENT_IDS = "list-mongodb-clientids";
+public class Close extends BasicFunction {
+    
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-            new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Get all MongoDB client ids",
-            new SequenceType[]{ /* No Parameters */ },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, String.format("Sequence of %ss", DESCR_MONGODB_CLIENT_ID))
+            new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "Close MongoDB connector",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT
+            },
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
         ),
     };
 
-    public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
+    public Close(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -71,21 +71,29 @@ public class ListMongdbClientIds extends BasicFunction {
             throw new XPathException(this, txt);
         }
 
+        // Get connection URL
+        String mongodbClientId = args[0].itemAt(0).getStringValue();
+
+        // Handle ()
         try {
-            Set<String> clientIds = MongodbClientStore.getInstance().list();
-            
-            ValueSequence valueSequence = new ValueSequence();
-           
-            for (String mongodbClientId : clientIds) {
-                valueSequence.add(new StringValue(mongodbClientId));
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+
+            if (client == null) {
+                throw new XPathException(this, String.format("Mongoclient %s could not be found.", mongodbClientId));
             }
 
-            return valueSequence;
+            // Close connector with all connections
+            client.close();
 
+            // Remove from cache
+            MongodbClientStore.getInstance().remove(mongodbClientId);
 
-//        } catch (XPathException ex) {
-//            LOG.error(ex.getMessage(), ex);
-//            throw new XPathException(this, ex.getMessage(), ex);
+            // Report identifier
+            return EmptySequence.EMPTY_SEQUENCE;
+
+        } catch (XPathException ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -96,7 +104,5 @@ public class ListMongdbClientIds extends BasicFunction {
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
-
     }
-
 }

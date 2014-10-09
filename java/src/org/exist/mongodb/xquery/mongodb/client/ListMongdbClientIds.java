@@ -17,12 +17,13 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.client;
 
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import java.util.Set;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -38,51 +39,53 @@ import org.exist.xquery.value.Type;
 import org.exist.xquery.value.ValueSequence;
 
 /**
- * Functions to remove documents from GridFS
+ * Function to list all GridFS buckets
  *
  * @author Dannes Wessels
  */
-public class ListDatabases extends BasicFunction {
+public class ListMongdbClientIds extends BasicFunction {
 
-    private static final String LIST_DATABASES = "list-databases";
+    private static final String LIST_CLIENT_IDS = "list-mongodb-clientids";
 
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-            new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "List databases",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT,
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of names of databases")
+            new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "Get all MongoDB client ids",
+            new SequenceType[]{ /* No Parameters */ },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, String.format("Sequence of %ss", DESCR_MONGODB_CLIENT_ID))
         ),
     };
 
-    public ListDatabases(XQueryContext context, FunctionSignature signature) {
+    public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
+        // User must either be DBA or in the JMS group
+        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
+            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+                    context.getSubject().getName(), Constants.MONGODB_GROUP);
+            LOG.error(txt);
+            throw new XPathException(this, txt);
+        }
+
         try {
-            // Stream parameters
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            Set<String> clientIds = MongodbClientStore.getInstance().list();
             
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
-            ValueSequence seq = new ValueSequence();
-            for(String name : client.getDatabaseNames()){
-                seq.add(new StringValue(name));
+            ValueSequence valueSequence = new ValueSequence();
+           
+            for (String mongodbClientId : clientIds) {
+                valueSequence.add(new StringValue(mongodbClientId));
             }
-            return seq;
 
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
+            return valueSequence;
+
+
+//        } catch (XPathException ex) {
+//            LOG.error(ex.getMessage(), ex);
+//            throw new XPathException(this, ex.getMessage(), ex);
 
         } catch (MongoException ex) {
             LOG.error(ex.getMessage(), ex);

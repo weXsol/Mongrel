@@ -17,20 +17,12 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.mongodb.xquery.mongodb;
+package org.exist.mongodb.xquery.mongodb.client;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -46,24 +38,26 @@ import org.exist.xquery.value.Type;
 import org.exist.xquery.value.ValueSequence;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Functions to remove documents from GridFS
  *
  * @author Dannes Wessels
  */
-public class Find extends BasicFunction {
+public class ListDatabases extends BasicFunction {
 
-    private static final String QUERY = "find";
-    
-  
+    private static final String LIST_DATABASES = "list-databases";
+
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
-        ),};
+            new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+            "List databases",
+            new SequenceType[]{
+                PARAMETER_MONGODB_CLIENT,
+            },
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of names of databases")
+        ),
+    };
 
-    public Find(XQueryContext context, FunctionSignature signature) {
+    public ListDatabases(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -71,35 +65,20 @@ public class Find extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
+            // Stream parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
-            String query = args[3].itemAt(0).getStringValue();
-
+            
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Get Mongodb client
+            // Stream appropriate Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-
-            // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
-
-            BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
-            DBCursor cursor = dbcol.find(mongoQuery);
-
-            Sequence retVal = new ValueSequence();
-
-            try {
-                while (cursor.hasNext()) {
-                    retVal.add(new StringValue(cursor.next().toString()));
-                }
-            } finally {
-                cursor.close();
+            
+            ValueSequence seq = new ValueSequence();
+            for(String name : client.getDatabaseNames()){
+                seq.add(new StringValue(name));
             }
-
-            return retVal;
+            return seq;
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -113,6 +92,7 @@ public class Find extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
+
 
     }
 

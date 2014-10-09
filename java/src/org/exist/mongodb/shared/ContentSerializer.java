@@ -32,6 +32,7 @@ import org.exist.xquery.value.Item;
 import org.exist.xquery.value.JavaObjectValue;
 import org.exist.xquery.value.NodeValue;
 import org.exist.xquery.value.Type;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -121,7 +122,7 @@ public class ContentSerializer {
                 sax.endDocument();
             }
             
-        } catch (final Exception e) {
+        } catch (final IOException | SAXException e) {
             final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
             LOG.debug(txt, e);
             throw new IOException(txt, e);
