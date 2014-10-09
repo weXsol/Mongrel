@@ -29,12 +29,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
+import org.exist.http.servlets.RequestWrapper;
 import org.exist.http.servlets.ResponseWrapper;
 import org.exist.mongodb.shared.Constants;
+import static org.exist.mongodb.shared.Constants.ACCEPT_ENCODING;
+import static org.exist.mongodb.shared.Constants.GZIP;
 import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
 import static org.exist.mongodb.shared.Constants.EXIST_ORIGINAL_SIZE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_AS_ATTACHMENT;
@@ -53,6 +58,7 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.Variable;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.functions.request.RequestModule;
 import org.exist.xquery.functions.response.ResponseModule;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.JavaObjectValue;
@@ -176,18 +182,43 @@ public class Stream extends BasicFunction {
             rw.setContentType(contentType);
         }
         
+        boolean isGzipSupported = isGzipEncodingSupported(context);
+        
         // Stream data
-        if ((compression == null)) {
-            // Write data as-is
+        if ((StringUtils.isBlank(compression))) {
+//            if (isGzipSupported) {
+//                 rw.addHeader(Constants.CONTENT_ENCODING, GZIP);
+//                 GZIPOutputStream gos =  new GZIPOutputStream(rw.getOutputStream());
+//                 gfsFile.writeTo(gos);
+//                 gos.flush();
+//            }
+                 
+
+            // Write data as-is, no marker available that data is stored compressed
             try (OutputStream os = rw.getOutputStream()) {
                 gfsFile.writeTo(os);
+                os.flush();
             }
+            
         } else {
-            // Write data uncompressed
-            try (OutputStream os = rw.getOutputStream()) {
-                InputStream is = gfsFile.getInputStream();
-                try (GZIPInputStream gzis = new GZIPInputStream(is)) {
-                    IOUtils.copyLarge(gzis, os);
+            
+            if (isGzipSupported && StringUtils.contains(compression, GZIP)) {
+                // Write data as-is, since data is stored as gzipped data and
+                // the agent suports it.
+                rw.addHeader(Constants.CONTENT_ENCODING, GZIP);
+                try (OutputStream os = rw.getOutputStream()) {
+                    gfsFile.writeTo(os);
+                    os.flush();
+                }
+     
+            } else {
+                // Write data uncompressed
+                try (OutputStream os = rw.getOutputStream()) {
+                    InputStream is = gfsFile.getInputStream();
+                    try (GZIPInputStream gzis = new GZIPInputStream(is)) {
+                        IOUtils.copyLarge(gzis, os);
+                        os.flush();
+                    }
                 }
             }
         }
@@ -237,8 +268,7 @@ public class Stream extends BasicFunction {
     }
 
     /**
-     * Stream HTTP response wrapper which provides access to the servlet
-     * outputstream.
+     * Get the Response wrapper which provides access to the servlet outputstream.
      *
      * @throws XPathException Thrown when something bad happens.
      */
@@ -261,4 +291,51 @@ public class Stream extends BasicFunction {
 
         return response;
     }
+    
+    /**
+     * Get the Request wrapper which provides access to the servlet
+     * outputstream.
+     *
+     * @throws XPathException Thrown when something bad happens.
+     */
+    private RequestWrapper getRequestWrapper(XQueryContext context) throws XPathException {
+        RequestModule myModule = (RequestModule) context.getModule(RequestModule.NAMESPACE_URI);
+        // request object is read from global variable $request
+        Variable respVar = myModule.resolveVariable(RequestModule.REQUEST_VAR);
+        if (respVar == null) {
+            throw new XPathException(this, "No request object found in the current XQuery context.");
+        }
+        if (respVar.getValue().getItemType() != Type.JAVA_OBJECT) {
+            throw new XPathException(this, "Variable $request is not bound to an Java object.");
+        }
+        JavaObjectValue respValue = (JavaObjectValue) respVar.getValue().itemAt(0);
+        if (!"org.exist.http.servlets.HttpRequestWrapper".equals(respValue.getObject().getClass().getName())) {
+            throw new XPathException(this, signatures[1].toString()
+                    + " can only be used within the EXistServlet or XQueryServlet");
+        }
+        RequestWrapper request = (RequestWrapper) respValue.getObject();
+
+        return request;
+    }
+    
+    /**
+     * Verify if HTTP agent supports GZIP content encoding.
+     */
+    private boolean isGzipEncodingSupported(XQueryContext context) {
+        try {
+            RequestWrapper request = getRequestWrapper(context);
+            
+            String content = request.getHeader(ACCEPT_ENCODING);
+            
+            if (StringUtils.contains(content, GZIP)) {
+                return true;
+            }
+            
+        } catch (XPathException ex) {
+           LOG.error(ex.getMessage(), ex);
+        }
+        return false;
+    }
+    
+    
 }
