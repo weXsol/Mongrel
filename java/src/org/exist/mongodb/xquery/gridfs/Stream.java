@@ -29,9 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
@@ -186,14 +184,6 @@ public class Stream extends BasicFunction {
         
         // Stream data
         if ((StringUtils.isBlank(compression))) {
-//            if (isGzipSupported) {
-//                 rw.addHeader(Constants.CONTENT_ENCODING, GZIP);
-//                 GZIPOutputStream gos =  new GZIPOutputStream(rw.getOutputStream());
-//                 gfsFile.writeTo(gos);
-//                 gos.flush();
-//            }
-                 
-
             // Write data as-is, no marker available that data is stored compressed
             try (OutputStream os = rw.getOutputStream()) {
                 gfsFile.writeTo(os);
@@ -203,7 +193,7 @@ public class Stream extends BasicFunction {
         } else {
             
             if (isGzipSupported && StringUtils.contains(compression, GZIP)) {
-                // Write data as-is, since data is stored as gzipped data and
+                // Write compressend data as-is, since data is stored as gzipped data and
                 // the agent suports it.
                 rw.addHeader(Constants.CONTENT_ENCODING, GZIP);
                 try (OutputStream os = rw.getOutputStream()) {
