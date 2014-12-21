@@ -19,12 +19,17 @@
  */
 package org.exist.mongodb.xquery.mongodb.db;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.util.JSON;
+import java.util.ArrayList;
+import java.util.List;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_PARAMS;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_QUERY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
@@ -36,7 +41,9 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
@@ -63,6 +70,16 @@ public class EvalCommand extends BasicFunction {
         ),
         
         new FunctionSignature(
+        new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
+                + "functions on the database"
+                + "server with the provided parameters. This is useful if you need to touch a lot of data lightly, "
+                + "in which case network transfer could be a bottleneck",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY, PARAMETER_JS_PARAMS},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+        ),
+        
+        new FunctionSignature(
         new QName(COMMAND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Executes a database command.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_QUERY},
@@ -81,6 +98,9 @@ public class EvalCommand extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String query = args[2].itemAt(0).getStringValue();
+            
+            if(args.length==3){
+            }
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -94,11 +114,22 @@ public class EvalCommand extends BasicFunction {
             Sequence retVal;
 
             if(isCalledAs(EVAL)){
-                Object result = db.eval(query);
-                retVal = new StringValue(result.toString());
+                
+                if (args.length == 3) {
+                    Object result = db.eval(query, args[2]);
+                    retVal = new StringValue(result.toString());
+
+                } else {
+                    
+                    Object[] params = convertParameters(args);
+
+                    Object result = db.eval(query, params);
+                    retVal = new StringValue(result.toString());
+                }
                 
             } else {
-                CommandResult result = db.command(query);
+                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+                CommandResult result = db.command(mongoQuery);
                 retVal = new StringValue(result.toString());
             }
 
@@ -117,6 +148,41 @@ public class EvalCommand extends BasicFunction {
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
+    }
+
+    private Object[] convertParameters(Sequence[] args) throws XPathException {
+        List<Object> params = new ArrayList<>();
+        SequenceIterator iterate = args[3].iterate();
+        while (iterate.hasNext()) {
+            
+            Item item = iterate.nextItem();
+            
+            switch (item.getType()) {
+                case Type.STRING:
+                    params.add(item.getStringValue());
+                    break;
+                    
+                case Type.DOUBLE:
+                    params.add(item.toJavaObject(Double.class));
+                    break;
+                    
+                case Type.INTEGER:
+                case Type.INT:
+                    params.add(item.toJavaObject(Integer.class));
+                    break;
+                    
+                case Type.BOOLEAN:
+                    params.add(item.toJavaObject(Boolean.class));
+                    break;
+                    
+                default:
+                    LOG.debug(String.format("Converting '%s' to String value", Type.getTypeName(item.getType())));
+                    params.add(item.getStringValue());
+                    break;
+            }
+            
+        }
+        return params.toArray();
     }
 
 }
