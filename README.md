@@ -15,6 +15,9 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 - eXist-db 2.2
 - Java 8
 
+## Notes
+The current released code serializes JSON into `xs:string`. For XQuery 3.1 (probably supported by eXist-db 2.3) JSON is part of the specification, using Maps and Arrays. Migration will break the API in the future.
+
 ## License
 
 The work is released AS-IS under the LGPL license.
