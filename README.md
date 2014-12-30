@@ -13,7 +13,7 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 
 ## Requirements
 - eXist-db 2.2
-- Java 7
+- Java 8
 
 ## License
 
