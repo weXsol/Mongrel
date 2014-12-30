@@ -1,7 +1,7 @@
 Mongrel: the eXist-db MongoDB extension
 ========================================
 
-The Mongrel eXist-db extention provides xquery extension functions to access MongoDB functions database.
+The Mongrel eXist-db extention provides xquery extension functions to access MongoDB database functions.
 
 In addition to "regular" [MongoDB](https://github.com/dizzzz/Mongrel/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/Mongrel/wiki/GridFS) functions to manage arbitrary sized documents that are stored in MongoDB.
 
@@ -16,7 +16,7 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 - Java 8
 
 ## Notes
-The current released code serializes JSON into `xs:string`. For XQuery 3.1 (probably supported by eXist-db 2.3) JSON is part of the specification, using Maps and Arrays. Migration will break the API in the future.
+The current released code serializes JSON into `xs:string`. For [XQuery 3.1](http://www.w3.org/TR/xquery-31/) (probably supported by eXist-db 2.3) JSON is part of the specification, using Maps and Arrays. Migration will certainly break the API in the future.
 
 ## License
 
