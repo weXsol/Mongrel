@@ -7,6 +7,7 @@ In addition to "regular" [MongoDB](https://github.com/dizzzz/eXistdb-MongoDB-ext
 
 Documentation can be found on the [Wiki](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki)
 
+![MongoDB Logo](http://www.mongodb.com/sites/mongodb.com/files/media/mongodb-logo-rgb.jpeg)
 
 ## License
 
