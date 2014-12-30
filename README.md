@@ -1,9 +1,9 @@
-eXist-db MongoDB driver
+Mongrel: the eXist-db MongoDB extension
 ========================================
 
-This eXist-db extention provides xquery functions to access functions of an MongoDB database.
+The Mongrel eXist-db extention provides xquery extension functions to access MongoDB functions database.
 
-In addition to "regular" [MongoDB](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/GridFS) based functions to manage arbitrary sized documents stored in MongoDB.
+In addition to "regular" [MongoDB](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/GridFS) functions to manage arbitrary sized documents that are stored in MongoDB.
 
 Documentation can be found on the [Wiki](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki)
 
