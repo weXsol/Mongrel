@@ -11,6 +11,10 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 
 ![MongoDB Logo](http://www.mongodb.com/sites/mongodb.com/files/media/mongodb-logo-rgb.jpeg)
 
+## Requirements
+- eXist-db 2.2
+- Java 7
+
 ## License
 
 The works is released under the LGPL license.
