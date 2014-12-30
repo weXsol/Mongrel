@@ -1,9 +1,9 @@
 eXist-db MongoDB driver
 ========================================
 
-This extention provides access to services and functions provided by a MongoDB database.
+This eXist-db extention provides xquery functions to access functions of an MongoDB database.
 
-The current version provides xquery extension functions to access [MongoDB](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/MongoDB) and [GridFS](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/GridFS) functions.
+In addition to "regular" [MongoDB](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki/GridFS) based functions to manage arbitrary sized documents stored in MongoDB.
 
 Documentation can be found on the [Wiki](https://github.com/dizzzz/eXistdb-MongoDB-extension/wiki)
 
