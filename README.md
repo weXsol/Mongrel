@@ -17,4 +17,4 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 
 ## License
 
-The work is released As-IS under the LGPL license.
+The work is released AS-IS under the LGPL license.
