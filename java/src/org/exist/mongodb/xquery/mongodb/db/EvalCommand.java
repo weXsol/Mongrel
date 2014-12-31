@@ -175,6 +175,10 @@ public class EvalCommand extends BasicFunction {
                     params.add(item.toJavaObject(Boolean.class));
                     break;
                     
+                case Type.DATE_TIME:                  
+                    params.add(item.toJavaObject(Date.class));
+                    break;
+                    
                 default:
                     LOG.debug(String.format("Converting '%s' to String value", Type.getTypeName(item.getType())));
                     params.add(item.getStringValue());
