@@ -26,6 +26,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
