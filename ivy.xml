@@ -8,7 +8,7 @@
     <dependencies>
 
 
-        <dependency org="org.mongodb" name="mongo-java-driver" rev="2.12.3"/>
+        <dependency org="org.mongodb" name="mongo-java-driver" rev="2.12.4"/>
 
         
     </dependencies>
