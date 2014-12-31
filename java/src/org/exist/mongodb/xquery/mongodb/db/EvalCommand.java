@@ -100,8 +100,6 @@ public class EvalCommand extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String query = args[2].itemAt(0).getStringValue();
             
-            if(args.length==3){
-            }
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
