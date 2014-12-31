@@ -26,6 +26,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
@@ -98,9 +99,10 @@ public class EvalCommand extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String query = args[2].itemAt(0).getStringValue();
+           
+            // Get and convert 4th parameter, when existent
+            Object[] params = (args.length == 4) ? convertParameters(args[3]) : new Object[0];
             
-            if(args.length==3){
-            }
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -114,22 +116,25 @@ public class EvalCommand extends BasicFunction {
             Sequence retVal;
 
             if(isCalledAs(EVAL)){
-                
-                if (args.length == 3) {
-                    Object result = db.eval(query, args[2]);
-                    retVal = new StringValue(result.toString());
+                /* eval */
 
-                } else {
-                    
-                    Object[] params = convertParameters(args);
+                // Execute query with additional parameter 
+                Object result = db.eval(query, params);
 
-                    Object result = db.eval(query, params);
-                    retVal = new StringValue(result.toString());
-                }
+                // Convert result to string
+                retVal = new StringValue(result.toString());
+
                 
             } else {
+                /* command */
+                
+                // Convert query string
                 BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+                
+                // execute query
                 CommandResult result = db.command(mongoQuery);
+                
+                // Convert result to string
                 retVal = new StringValue(result.toString());
             }
 
@@ -144,15 +149,19 @@ public class EvalCommand extends BasicFunction {
             throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
         } catch (Throwable ex) {
+            /* The library throws a lot of runtime exceptions */
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
     }
 
-    private Object[] convertParameters(Sequence[] args) throws XPathException {
+    /**
+     *  Convert Sequence into array of Java objects
+     */
+    private Object[] convertParameters(Sequence args) throws XPathException {
         List<Object> params = new ArrayList<>();
-        SequenceIterator iterate = args[3].iterate();
+        SequenceIterator iterate = args.iterate();
         while (iterate.hasNext()) {
             
             Item item = iterate.nextItem();
@@ -175,8 +184,12 @@ public class EvalCommand extends BasicFunction {
                     params.add(item.toJavaObject(Boolean.class));
                     break;
                     
+                case Type.DATE_TIME:                  
+                    params.add(item.toJavaObject(Date.class));
+                    break;
+                    
                 default:
-                    LOG.debug(String.format("Converting '%s' to String value", Type.getTypeName(item.getType())));
+                    LOG.info(String.format("Fallback: Converting '%s' to String value", Type.getTypeName(item.getType())));
                     params.add(item.getStringValue());
                     break;
             }
