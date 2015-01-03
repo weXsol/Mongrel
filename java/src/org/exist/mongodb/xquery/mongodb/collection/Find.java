@@ -85,7 +85,7 @@ public class Find extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             String query = args[3].itemAt(0).getStringValue();
 
-            String keys = (args.length == 4) ? args[4].itemAt(0).getStringValue() : null;
+            String keys = (args.length == 5) ? args[4].itemAt(0).getStringValue() : null;
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
