@@ -84,6 +84,8 @@ public class Count extends BasicFunction {
             // Get query when available
             String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
 
+            BasicDBObject mongoQuery = (query==null) ? null : (BasicDBObject) JSON.parse(query);
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
@@ -95,15 +97,7 @@ public class Count extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
 
             // Count documents
-            Long nrOfDocuments;
-            if (query == null) {
-                // All documents
-                nrOfDocuments = dbcol.count();
-            } else {
-                // Documents found with query
-                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
-                nrOfDocuments = dbcol.count(mongoQuery);
-            }
+            Long nrOfDocuments = (mongoQuery==null) ? dbcol.count() : dbcol.count(mongoQuery);
 
             return new IntegerValue(nrOfDocuments);
 

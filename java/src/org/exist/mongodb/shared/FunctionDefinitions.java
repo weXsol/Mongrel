@@ -89,4 +89,10 @@ public class FunctionDefinitions {
     
     public static final FunctionParameterSequenceType PARAMETER_JS_PARAMS
             = new FunctionParameterSequenceType(PARAM_JS_PARAMS, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JS_PARAMS);
+
+    public static final String PARAM_KEYS = "keys";
+    public static final String DESCR_KEYS= "The filters keys, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_KEYS
+            = new FunctionParameterSequenceType(PARAM_KEYS, Type.STRING, Cardinality.ONE, DESCR_KEYS);
 }

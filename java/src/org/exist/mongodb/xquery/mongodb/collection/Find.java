@@ -29,6 +29,7 @@ import com.mongodb.util.JSON;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_KEYS;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -61,7 +62,15 @@ public class Find extends BasicFunction {
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
-        ),};
+        ),
+        
+        new FunctionSignature(
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection, return specified fields",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_KEYS},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
+        ),
+    };
 
     public Find(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -76,6 +85,8 @@ public class Find extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             String query = args[3].itemAt(0).getStringValue();
 
+            String keys = (args.length == 4) ? args[4].itemAt(0).getStringValue() : null;
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
@@ -88,7 +99,12 @@ public class Find extends BasicFunction {
 
             // Parse query
             BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
-            DBCursor cursor = dbcol.find(mongoQuery);
+
+            // Parse keys when available
+            BasicDBObject mongoKeys = (keys==null) ? null : (BasicDBObject) JSON.parse(query);
+
+            // Call correct method
+            DBCursor cursor = (mongoKeys==null) ? dbcol.find(mongoQuery) : dbcol.find(mongoQuery, mongoKeys);
             
             // Execute query
             Sequence retVal = new ValueSequence();

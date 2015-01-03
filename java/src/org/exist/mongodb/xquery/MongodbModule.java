@@ -6,22 +6,18 @@ import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.mongodb.client.Close;
 import org.exist.mongodb.xquery.mongodb.client.Connect;
-import org.exist.mongodb.xquery.mongodb.collection.Count;
-import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
-import org.exist.mongodb.xquery.mongodb.collection.Insert;
-import org.exist.mongodb.xquery.mongodb.db.ListCollections;
 import org.exist.mongodb.xquery.mongodb.client.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.client.ListMongdbClientIds;
+import org.exist.mongodb.xquery.mongodb.collection.Count;
 import org.exist.mongodb.xquery.mongodb.collection.Find;
+import org.exist.mongodb.xquery.mongodb.collection.Insert;
+import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
+import org.exist.mongodb.xquery.mongodb.db.ListCollections;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
-/**
- *
- * @author wessels
- */
 
 
 public class MongodbModule extends AbstractInternalModule {
@@ -37,6 +33,7 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(ListCollections.signatures[0], ListCollections.class),
         new FunctionDef(Connect.signatures[0], Connect.class),
         new FunctionDef(Find.signatures[0], Find.class),
+        new FunctionDef(Find.signatures[1], Find.class),
         new FunctionDef(EvalCommand.signatures[0], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[1], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[2], EvalCommand.class),
