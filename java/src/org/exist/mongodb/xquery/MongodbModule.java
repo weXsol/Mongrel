@@ -36,6 +36,7 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Drop.signatures[0], Drop.class),
         new FunctionDef(Find.signatures[0], Find.class),
         new FunctionDef(Find.signatures[1], Find.class),
+        new FunctionDef(Find.signatures[2], Find.class),
         new FunctionDef(EvalCommand.signatures[0], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[1], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[2], EvalCommand.class),

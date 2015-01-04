@@ -26,6 +26,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
+import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
@@ -57,6 +58,14 @@ public class Find extends BasicFunction {
     
   
     public final static FunctionSignature signatures[] = {
+        
+        new FunctionSignature(
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
+        new SequenceType[]{
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
+        ),
+        
         new FunctionSignature(
         new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
         new SequenceType[]{
@@ -83,9 +92,10 @@ public class Find extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            String query = args[3].itemAt(0).getStringValue();
+            
+            String query = (args.length >= 4) ? args[3].itemAt(0).getStringValue() : null;
 
-            String keys = (args.length == 5) ? args[4].itemAt(0).getStringValue() : null;
+            String keys = (args.length >= 5) ? args[4].itemAt(0).getStringValue() : null;
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -96,15 +106,26 @@ public class Find extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
+            
+            // PLace holder result cursor
+            DBCursor cursor;
+            
+            if (query == null) {
+                // No query
+                cursor = dbcol.find();
 
-            // Parse query
-            BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+            } else {
+                // Parse query
+                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
 
-            // Parse keys when available
-            BasicDBObject mongoKeys = (keys==null) ? null : (BasicDBObject) JSON.parse(query);
+                // Parse keys when available
+                BasicDBObject mongoKeys = (keys == null) ? null : (BasicDBObject) JSON.parse(keys);
 
-            // Call correct method
-            DBCursor cursor = (mongoKeys==null) ? dbcol.find(mongoQuery) : dbcol.find(mongoQuery, mongoKeys);
+                // Call correct method
+                cursor = (mongoKeys == null) ? dbcol.find(mongoQuery) : dbcol.find(mongoQuery, mongoKeys);
+            }
+
+
             
             // Execute query
             Sequence retVal = new ValueSequence();
@@ -119,6 +140,10 @@ public class Find extends BasicFunction {
             }
 
             return retVal;
+            
+        } catch(JSONParseException ex){
+            LOG.error(ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);

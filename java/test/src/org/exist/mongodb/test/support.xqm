@@ -8,6 +8,7 @@ import module namespace mongodb = "http://exist-db.org/xquery/mongodb"
 declare variable $support:mongoUrl := "mongodb://miniserver.local";
 declare variable $support:database := "mydatabase";
 declare variable $support:testCollection := "/db/mongodbTest";
+declare variable $support:mongoCollection := "mongodbTest";
 declare variable $support:tokenStore := "token.xml";
 
 (:  
@@ -35,4 +36,5 @@ declare function support:cleanup() {
 declare function support:getToken() as xs:string {
     doc($support:testCollection || "/" || $support:tokenStore )//token/text()
 };
+
 
