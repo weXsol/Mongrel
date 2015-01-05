@@ -95,4 +95,16 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_KEYS
             = new FunctionParameterSequenceType(PARAM_KEYS, Type.STRING, Cardinality.ONE, DESCR_KEYS);
+    
+    public static final String PARAM_FIELDS = "fields";
+    public static final String DESCR_FIELDS= "Fields to return, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_FIELDS
+            = new FunctionParameterSequenceType(PARAM_FIELDS, Type.STRING, Cardinality.ONE, DESCR_FIELDS);
+    
+    public static final String PARAM_ORDERBY = "orderBy";
+    public static final String DESCR_ORDERBY= "Fields to return, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_ORDERBY
+            = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.STRING, Cardinality.ONE, DESCR_ORDERBY);
 }
