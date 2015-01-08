@@ -41,7 +41,11 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.BooleanValue;
+import org.exist.xquery.value.DoubleValue;
+import org.exist.xquery.value.FloatValue;
 import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
@@ -101,7 +105,7 @@ public class EvalCommand extends BasicFunction {
             String query = args[2].itemAt(0).getStringValue();
            
             // Get and convert 4th parameter, when existent
-            Object[] params = (args.length == 4) ? convertParameters(args[3]) : new Object[0];
+            Object[] params = (args.length >= 4) ? convertParameters(args[3]) : new Object[0];
             
 
             // Check id
@@ -120,9 +124,8 @@ public class EvalCommand extends BasicFunction {
 
                 // Execute query with additional parameter 
                 Object result = db.eval(query, params);
-
-                // Convert result to string
-                retVal = new StringValue(result.toString());
+                
+                retVal = convertResult(result);
 
                 
             } else {
@@ -156,6 +159,39 @@ public class EvalCommand extends BasicFunction {
 
     }
 
+    private Sequence convertResult(Object result) throws XPathException {
+        Sequence retVal;
+        if (result instanceof BasicDBObject) {
+            retVal = new StringValue(result.toString());
+            
+        } else if (result instanceof String) {
+            retVal = new StringValue((String) result);
+            
+        } else if (result instanceof Boolean) {
+            retVal = BooleanValue.valueOf(((Boolean) result));
+            
+        } else if (result instanceof Float) {
+            retVal = new FloatValue(((Float) result));
+            
+        } else if (result instanceof Double) {
+            retVal = new DoubleValue(((Double) result));
+            
+        } else if (result instanceof Short) {
+            retVal = new IntegerValue(((Short) result), Type.SHORT);
+            
+        } else if (result instanceof Integer) {
+            retVal = new IntegerValue(((Integer) result), Type.INT);
+            
+        } else if (result instanceof Long) {
+            retVal = new IntegerValue(((Long) result), Type.LONG);
+            
+        } else {
+            // Convert result to string
+            retVal = new StringValue(result.toString());
+        }
+        return retVal;
+    }
+
     /**
      *  Convert Sequence into array of Java objects
      */
@@ -170,14 +206,14 @@ public class EvalCommand extends BasicFunction {
                 case Type.STRING:
                     params.add(item.getStringValue());
                     break;
-                    
-                case Type.DOUBLE:
-                    params.add(item.toJavaObject(Double.class));
-                    break;
-                    
+                               
                 case Type.INTEGER:
                 case Type.INT:
                     params.add(item.toJavaObject(Integer.class));
+                    break;
+                    
+                case Type.DOUBLE:
+                    params.add(item.toJavaObject(Double.class));
                     break;
                     
                 case Type.BOOLEAN:
