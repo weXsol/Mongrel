@@ -19,18 +19,15 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -39,7 +36,6 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
@@ -49,27 +45,20 @@ import org.exist.xquery.value.Type;
  *
  * @author Dannes Wessels
  */
-public class Count extends BasicFunction {
+public class Drop extends BasicFunction {
 
-    private static final String QUERY = "count-documents";
+    private static final String QUERY = "drop";
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection",
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Drop the collection",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
-        new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
-        ),
-        
-        new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
-        ),
+        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
+        )
     };
 
-    public Count(XQueryContext context, FunctionSignature signature) {
+    public Drop(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -80,26 +69,22 @@ public class Count extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-
-            // Get query when available
-            String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
-
-            BasicDBObject mongoQuery = (query==null) ? null : (BasicDBObject) JSON.parse(query);
-
-            // Check id
+            
+             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
+
+            
             // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database and collection
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
+            
+            dbcol.drop();
 
-            // Count documents
-            Long nrOfDocuments = (mongoQuery==null) ? dbcol.count() : dbcol.count(mongoQuery);
-
-            return new IntegerValue(nrOfDocuments);
+            return Sequence.EMPTY_SEQUENCE;
 
         } catch (JSONParseException ex) {
             String msg = "Invalid JSON data: " + ex.getMessage();
