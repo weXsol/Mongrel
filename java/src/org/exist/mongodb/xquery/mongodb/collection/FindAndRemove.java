@@ -27,17 +27,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.HashMap;
-import java.util.Map;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FIELDS;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_ORDERBY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_SORT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_UPDATE;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -45,45 +39,34 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.functions.map.AbstractMapType;
-import org.exist.xquery.value.AtomicValue;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to modify documents in mongodb
+ * Function to remove document from mongodb
  *
  * @author Dannes Wessels
  */
-public class FindAndModify extends BasicFunction {
+public class FindAndRemove extends BasicFunction {
 
-    private static final String FIND_AND_MODIFY = "findAndModify";
+    private static final String FIND_AND_REMOVE = "findAndRemove";
     
   
     public final static FunctionSignature signatures[] = {
         
         new FunctionSignature(
-        new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
+        new QName(FIND_AND_REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_UPDATE},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
-        ),
-        
-        new FunctionSignature(
-        new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY,PARAMETER_UPDATE, PARAMETER_SORT},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before it was removed formatted as JSON")
         ),
         
     };
 
-    public FindAndModify(XQueryContext context, FunctionSignature signature) {
+    public FindAndRemove(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -101,47 +84,18 @@ public class FindAndModify extends BasicFunction {
             BasicDBObject query = (args.length >= 4)
                     ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
                     : null;
-
-            BasicDBObject update = (args.length >= 5)
-                    ? (BasicDBObject) JSON.parse(args[4].itemAt(0).getStringValue())
-                    : null;
-
-            BasicDBObject sort = (args.length >= 6)
-                    ? (BasicDBObject) JSON.parse(args[5].itemAt(0).getStringValue())
-                    : null;
-
-             Map<String,Boolean> options = (args.length >= 7)
-                    ? convertOptions((AbstractMapType) args[2].itemAt(0))
-                    : null;
              
             // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            // Get database
+            // Get collection in database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
             
-            //query update sort
-                    
-            DBObject result;
-            if (sort == null /* && options==null */) {
-                result = dbcol.findAndModify(query, update);
-                
-            } else  /* if (options==null) */ {
-                result = dbcol.findAndModify(query, sort, update);
-            }
+            // Execute query      
+            DBObject result = dbcol.findAndRemove(query);
             
-//            else {
-//               options.putIfAbsent("remove", unordered);
-//               options.putIfAbsent("returnNew", unordered);
-//               options.putIfAbsent("update", unordered);
-//               options.putIfAbsent("upsert", unordered);
-//                
-//               dbcol.findAndModify(query, sort, update, unordered, result, unordered, unordered);
-//            }
-            
-           
-            // Execute query
+            // Parse results
             Sequence retVal = (result==null) 
                     ? Sequence.EMPTY_SEQUENCE 
                     : new StringValue(result.toString());
@@ -167,30 +121,5 @@ public class FindAndModify extends BasicFunction {
 
     }
     
-    public Map<String,Boolean> convertOptions(AbstractMapType map) throws XPathException {
-        
-        Map<String,Boolean> retVal = new HashMap<>();
-        
-        // Get all keys
-        Sequence keys = map.keys();
-        
-        // Iterate over all keys
-        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
-
-            // Get next item
-            Item key = i.nextItem();
-            
-            // Only use Strings as key, as required by JMS
-            String keyValue = key.getStringValue();
-            
-            // Get values
-            Sequence values = map.get((AtomicValue)key);
-            
-            retVal.put(keyValue, Boolean.valueOf(values.getStringValue()));
-            
-        }
-        
-        return retVal;
-    }
 
 }
