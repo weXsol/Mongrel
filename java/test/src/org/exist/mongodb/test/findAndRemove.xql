@@ -1,6 +1,6 @@
 xquery version "3.0";
 
-module namespace findAndModify="http://exist-db.org/mongodb/test/findAndModify";
+module namespace findAndRemove="http://exist-db.org/mongodb/test/findAndRemove";
 
 import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 
@@ -15,7 +15,7 @@ import module namespace support = "http://exist-db.org/ext/mongodb/test/support"
                 
 
 (: Connect to mongodb, store token :)
-declare %test:setUp function findAndModify:setup()
+declare %test:setUp function findAndRemove:setup()
 {
     let $setup := support:setup()
     let $mongodbClientId := support:getToken()
@@ -25,19 +25,19 @@ declare %test:setUp function findAndModify:setup()
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
                             "{ x : 1 ,  y : 10 , z : 100 }"),
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
-                            "{ x : 2 ,  y : 10 , z : 200 }"),
+                            "{ x : 2 ,  y : 20 , z : 200 }"),
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
-                            "{ x : 3 ,  y : 30 , z : 300 }"),
+                            "{ x : 3 ,  y : 20 , z : 300 }"),
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
                             "{ x : 4 ,  y : 40 , z : 300 }"),
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
-                            "{ x : 5 ,  y : 50 , z : 300 }")
+                            "{ x : 5 ,  y : 50 , z : 500 }")
         )
             
 };
 
 (: Disconnect from mongodb, cleanup token :)
-declare %test:tearDown function findAndModify:cleanup()
+declare %test:tearDown function findAndRemove:cleanup()
 {   
     support:cleanup()
 };
@@ -49,46 +49,45 @@ declare %test:tearDown function findAndModify:cleanup()
 
 
 (: 
- : collection#findAndModify(query, update) 
+ : collection#findAndRemove(query) 
  : 
- : Execute update twice, 1st time old value is returned, 2nd time the updated value
+ : Execute update twice, 1st time removed value is returned, 2nd time is empty sequence
  :)
 declare 
-    %test:assertEquals(10, 20)
-function findAndModify:findAndModify_simple() {
+    %test:assertEquals(20, 0)
+function findAndRemove:findAndRemove_simple() {
     let $mongodbClientId := support:getToken()
     
-    let $result1 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
-                   "{ x : 2 }", "{ x : 2 ,  y : 20 , z : 200 }")
-    let $result2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
-                   "{ x : 2 }", "{ x : 2 ,  y : 30 , z : 200 }")
+    let $result1 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
+                   "{ x : 2 }")
+    let $result2 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
+                   "{ x : 2 }")
                    
     let $y1 := xqjson:parse-json($result1)//pair[@name eq 'y']/text() 
-    let $y2 := xqjson:parse-json($result2)//pair[@name eq 'y']/text() 
     
-    return ($y1, $y2)
+    return ($y1, count($result2))
         
 };
 
 (: 
- : collection#findAndModify(query, update, sort) 
+ : collection#findAndRemove(query) 
  : 
-Similar test, reverse sorting
+ : Similar test, more complex query
  :)
 declare 
-    %test:assertEquals(5, 3)
-function findAndModify:findAndModify_sort() {
+    %test:assertEquals(3, 0)
+function findAndRemove:findAndRemove_double() {
     let $mongodbClientId := support:getToken()
     
-    let $result1 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
-                   "{ z : 300 }", "{ x : 2 ,  y : 20 , z : 400 }", "{ y : -1 }")
-    let $result2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
-                   "{ z : 300 }", "{ x : 2 ,  y : 30 , z : 400 }", "{ y : 1 }")
+    let $result1 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
+                   "{ y : 20 , z : 300 }")
+    let $result2 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
+                   "{ y : 20 , z : 300 }")
                    
     let $y1 := xqjson:parse-json($result1)//pair[@name eq 'x']/text() 
-    let $y2 := xqjson:parse-json($result2)//pair[@name eq 'x']/text() 
+
     
-    return ($y1, $y2)
+    return ($y1, count($result2))
         
 };
 

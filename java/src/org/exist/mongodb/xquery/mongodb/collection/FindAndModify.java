@@ -56,13 +56,13 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Functions to modify documents in mongodb
  *
  * @author Dannes Wessels
  */
 public class FindAndModify extends BasicFunction {
 
-    private static final String FIND_AND_MODIFY = "findandModify";
+    private static final String FIND_AND_MODIFY = "findAndModify";
     
   
     public final static FunctionSignature signatures[] = {
@@ -71,14 +71,14 @@ public class FindAndModify extends BasicFunction {
         new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_UPDATE},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
         ),
         
         new FunctionSignature(
         new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY,PARAMETER_UPDATE, PARAMETER_SORT},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
         ),
         
     };
