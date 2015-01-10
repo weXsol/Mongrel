@@ -107,4 +107,17 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_ORDERBY
             = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.STRING, Cardinality.ONE, DESCR_ORDERBY);
+    
+    public static final String PARAM_UPDATE = "update";
+    public static final String DESCR_UPDATE= "The modifications to apply, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_UPDATE
+            = new FunctionParameterSequenceType(PARAM_UPDATE, Type.STRING, Cardinality.ONE, DESCR_UPDATE);
+    
+    
+    public static final String PARAM_SORT = "sort";
+    public static final String DESCR_SORT= "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_SORT
+            = new FunctionParameterSequenceType(PARAM_SORT, Type.STRING, Cardinality.ONE, DESCR_SORT);
 }
