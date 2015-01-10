@@ -8,6 +8,7 @@ import org.exist.mongodb.xquery.mongodb.client.Close;
 import org.exist.mongodb.xquery.mongodb.client.Connect;
 import org.exist.mongodb.xquery.mongodb.client.ListDatabases;
 import org.exist.mongodb.xquery.mongodb.client.ListMongdbClientIds;
+import org.exist.mongodb.xquery.mongodb.collection.Aggregate;
 import org.exist.mongodb.xquery.mongodb.collection.Count;
 import org.exist.mongodb.xquery.mongodb.collection.Drop;
 import org.exist.mongodb.xquery.mongodb.collection.Find;
@@ -53,7 +54,8 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Insert.signatures[0], Insert.class),
         new FunctionDef(Close.signatures[0], Close.class),
         new FunctionDef(Count.signatures[0], Count.class),
-        new FunctionDef(Count.signatures[1], Count.class),    
+        new FunctionDef(Count.signatures[1], Count.class),   
+        new FunctionDef(Aggregate.signatures[0], Aggregate.class), 
     };
     
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
