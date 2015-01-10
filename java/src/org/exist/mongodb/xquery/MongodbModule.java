@@ -11,6 +11,7 @@ import org.exist.mongodb.xquery.mongodb.client.ListMongdbClientIds;
 import org.exist.mongodb.xquery.mongodb.collection.Count;
 import org.exist.mongodb.xquery.mongodb.collection.Drop;
 import org.exist.mongodb.xquery.mongodb.collection.Find;
+import org.exist.mongodb.xquery.mongodb.collection.FindAndModify;
 import org.exist.mongodb.xquery.mongodb.collection.FindOne;
 import org.exist.mongodb.xquery.mongodb.collection.Insert;
 import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
@@ -42,6 +43,8 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(FindOne.signatures[1], FindOne.class),
         new FunctionDef(FindOne.signatures[2], FindOne.class),
         new FunctionDef(FindOne.signatures[3], FindOne.class),
+        new FunctionDef(FindAndModify.signatures[0], FindAndModify.class),
+        new FunctionDef(FindAndModify.signatures[1], FindAndModify.class),
         new FunctionDef(EvalCommand.signatures[0], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[1], EvalCommand.class),
         new FunctionDef(EvalCommand.signatures[2], EvalCommand.class),
