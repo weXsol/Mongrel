@@ -20,13 +20,18 @@
 package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandFailureException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
@@ -41,6 +46,7 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
@@ -59,7 +65,7 @@ public class Insert extends BasicFunction {
         new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The write result, JSON formatted")
         ),};
 
     public Insert(XQueryContext context, FunctionSignature signature) {
@@ -73,7 +79,6 @@ public class Insert extends BasicFunction {
             String mongodbClientId = args[0].itemAt(0).getStringValue();
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            String content = args[3].itemAt(0).getStringValue();
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
@@ -84,11 +89,28 @@ public class Insert extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-
-            BasicDBObject bsonContent = (BasicDBObject) JSON.parse(content);
-            WriteResult result = dbcol.insert(bsonContent);
+            
+            // Place holder for all results
+            List<DBObject> allContent = new ArrayList();
+            
+            SequenceIterator iterate = args[3].iterate();
+            while(iterate.hasNext()){
+                String value = iterate.nextItem().getStringValue();
+                if(StringUtils.isEmpty(value)){
+                    LOG.error("Skipping empty string");
+                } else {
+                    BasicDBObject bsonContent = (BasicDBObject) JSON.parse(value);
+                    allContent.add(bsonContent);
+                }
+            }
+    
+            WriteResult result = dbcol.insert(allContent);
 
             return new StringValue(result.toString());
+            
+        } catch (CommandFailureException ex){
+            LOG.error(ex.getMessage());
+            return new StringValue(ex.getCommandResult().toString());
 
         } catch (JSONParseException ex) {
             String msg = "Invalid JSON data: " + ex.getMessage();

@@ -75,7 +75,7 @@ public class FunctionDefinitions {
     public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
 
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
-            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ONE, DESCR_JSONCONTENT);
+            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
     
       
     public static final String PARAM_JS_QUERY = "javascript";
