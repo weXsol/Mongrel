@@ -25,6 +25,7 @@ declare function support:setup() {
  :)
 declare function support:cleanup() {
     let $mongodbClientId := support:getToken()
+    let $drop := mongodb:drop($mongodbClientId, $support:database, $support:mongoCollection)
     let $logout := mongodb:close($mongodbClientId)
     return
     xmldb:remove($support:testCollection)
