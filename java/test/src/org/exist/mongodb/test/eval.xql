@@ -33,8 +33,6 @@ declare %test:tearDown function eval:cleanup()
 
 (: 
  : collection#eval(two params)  integer -> double
- : 
- : TODO: Check why only text "7.0" works
  :)
 declare 
     %test:assertEquals(7)
