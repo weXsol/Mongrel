@@ -4,6 +4,7 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.mongodb.xquery.gridfs.Remove;
 import org.exist.mongodb.xquery.mongodb.client.Close;
 import org.exist.mongodb.xquery.mongodb.client.Connect;
 import org.exist.mongodb.xquery.mongodb.client.ListDatabases;
@@ -16,6 +17,7 @@ import org.exist.mongodb.xquery.mongodb.collection.FindAndModify;
 import org.exist.mongodb.xquery.mongodb.collection.FindAndRemove;
 import org.exist.mongodb.xquery.mongodb.collection.FindOne;
 import org.exist.mongodb.xquery.mongodb.collection.Insert;
+import org.exist.mongodb.xquery.mongodb.collection.MapReduce;
 import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
 import org.exist.mongodb.xquery.mongodb.db.ListCollections;
 import org.exist.xquery.AbstractInternalModule;
@@ -56,12 +58,15 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Count.signatures[0], Count.class),
         new FunctionDef(Count.signatures[1], Count.class),   
         new FunctionDef(Aggregate.signatures[0], Aggregate.class), 
+        new FunctionDef(MapReduce.signatures[0], MapReduce.class),
+        new FunctionDef(Remove.signatures[0], Remove.class), 
     };
     
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
     public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
     public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Generic exception");
     public final static ErrorCode MONG0004 = new MongodbErrorCode("MONG0004", "JSON Syntax exception");
+    public final static ErrorCode MONG0005 = new MongodbErrorCode("MONG0005", "Command Failure exception");
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
