@@ -32,9 +32,7 @@ import java.util.Map;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FIELDS;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_ORDERBY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_SORT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_UPDATE;
@@ -110,9 +108,9 @@ public class FindAndModify extends BasicFunction {
                     ? (BasicDBObject) JSON.parse(args[5].itemAt(0).getStringValue())
                     : null;
 
-             Map<String,Boolean> options = (args.length >= 7)
-                    ? convertOptions((AbstractMapType) args[2].itemAt(0))
-                    : null;
+//             Map<String,Boolean> options = (args.length >= 7)
+//                    ? convertOptions((AbstractMapType) args[6].itemAt(0))
+//                    : null;
              
             // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
