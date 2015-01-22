@@ -19,22 +19,21 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.ArrayList;
-import java.util.List;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DELETE_CRITERIUM;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_PIPELINE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -43,36 +42,33 @@ import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
 
 /**
- * Function to remove document from mongodb
+ * Function to Remove document from mongodb
  *
  * @author Dannes Wessels
  */
-public class Aggregate extends BasicFunction {
+public class Remove extends BasicFunction {
 
-    private static final String AGGREGATE = "aggregate";
+    private static final String FIND_AND_REMOVE = "remove";
     
   
     public final static FunctionSignature signatures[] = {
         
         new FunctionSignature(
-        new QName(AGGREGATE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
+        new QName(FIND_AND_REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Remove documents from a collection.",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_PIPELINE},
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_DELETE_CRITERIUM},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before it was removed formatted as JSON")
         ),
         
     };
 
-    public Aggregate(XQueryContext context, FunctionSignature signature) {
+    public Remove(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -87,8 +83,10 @@ public class Aggregate extends BasicFunction {
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
             
-            List<DBObject> pipeline = convertPipeline(args[3]);
-          
+            BasicDBObject query = (args.length >= 4)
+                    ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
+                    : null;
+             
             // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
@@ -97,16 +95,9 @@ public class Aggregate extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Execute query      
-            AggregationOutput aggrOutput = dbcol.aggregate(pipeline);
+            WriteResult result = dbcol.remove(query);
             
-            // Parse results
-            Sequence retVal = new ValueSequence();
-            
-            for (DBObject result : aggrOutput.results()) {
-                retVal.add(new StringValue(result.toString()));
-            }
-            
-            return retVal;
+            return new StringValue(result.toString());
             
         } catch(JSONParseException ex){
             LOG.error(ex.getMessage());
@@ -125,26 +116,6 @@ public class Aggregate extends BasicFunction {
             throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
         }
 
-    }
-    
-    List<DBObject> convertPipeline(Sequence args) throws XPathException{
-        
-        List<DBObject> pipeline = new ArrayList();
-        
-        if(args !=null ){
-            SequenceIterator iterator = args.iterate();
-            while(iterator.hasNext()){
-                Item next = iterator.nextItem();
-                
-                String step = next.getStringValue();
-                
-                pipeline.add((BasicDBObject) JSON.parse(step));
-                
-            }
-            
-        }
-        
-        return pipeline;
     }
     
 

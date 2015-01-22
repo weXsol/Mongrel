@@ -9,6 +9,7 @@ test:suite((
     inspect:module-functions(xs:anyURI("findAndModify.xql")),
     inspect:module-functions(xs:anyURI("findAndRemove.xql")),
     inspect:module-functions(xs:anyURI("aggregate.xql")),
+    inspect:module-functions(xs:anyURI("map-reduce.xql")),
     inspect:module-functions(xs:anyURI("mongo.xql")),
     inspect:module-functions(xs:anyURI("eval.xql")),
     inspect:module-functions(xs:anyURI("insert.xql"))

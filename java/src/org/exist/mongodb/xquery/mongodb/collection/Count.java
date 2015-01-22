@@ -51,18 +51,18 @@ import org.exist.xquery.value.Type;
  */
 public class Count extends BasicFunction {
 
-    private static final String QUERY = "count-documents";
+    private static final String QUERY = "count";
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection",
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
         new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
         ),
         
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query",
+        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
         new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")

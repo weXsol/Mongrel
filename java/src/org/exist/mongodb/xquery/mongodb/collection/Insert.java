@@ -109,8 +109,10 @@ public class Insert extends BasicFunction {
             return new StringValue(result.toString());
             
         } catch (CommandFailureException ex){
-            LOG.error(ex.getMessage());
-            return new StringValue(ex.getCommandResult().toString());
+//            LOG.error(ex.getMessage());
+//            return new StringValue(ex.getCommandResult().toString());
+            LOG.error(ex.getMessage(), ex);
+            throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 
         } catch (JSONParseException ex) {
             String msg = "Invalid JSON data: " + ex.getMessage();
