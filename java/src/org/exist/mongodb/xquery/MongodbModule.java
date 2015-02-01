@@ -20,6 +20,7 @@ import org.exist.mongodb.xquery.mongodb.collection.Group;
 import org.exist.mongodb.xquery.mongodb.collection.Insert;
 import org.exist.mongodb.xquery.mongodb.collection.MapReduce;
 import org.exist.mongodb.xquery.mongodb.collection.Save;
+import org.exist.mongodb.xquery.mongodb.collection.Update;
 import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
 import org.exist.mongodb.xquery.mongodb.db.ListCollections;
 import org.exist.xquery.AbstractInternalModule;
@@ -64,6 +65,7 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(MapReduce.signatures[0], MapReduce.class),
         new FunctionDef(Remove.signatures[0], Remove.class), 
         new FunctionDef(Save.signatures[0], Save.class),
+        new FunctionDef(Update.signatures[0], Update.class),
     };
     
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
