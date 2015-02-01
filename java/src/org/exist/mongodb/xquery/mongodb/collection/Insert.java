@@ -20,11 +20,11 @@
 package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.CommandFailureException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
@@ -108,9 +108,7 @@ public class Insert extends BasicFunction {
 
             return new StringValue(result.toString());
             
-        } catch (CommandFailureException ex){
-//            LOG.error(ex.getMessage());
-//            return new StringValue(ex.getCommandResult().toString());
+        } catch (MongoCommandException ex){
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 
