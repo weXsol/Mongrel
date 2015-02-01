@@ -22,20 +22,15 @@ package org.exist.mongodb.xquery.mongodb.collection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
@@ -44,31 +39,41 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
 
 /**
- * Functions to retrieve documents from GridFS as a stream.
+ * Functions to save a document in mongodb
  *
  * @author Dannes Wessels
  */
-public class Insert extends BasicFunction {
+public class Save extends BasicFunction {
 
-    private static final String QUERY = "insert";
+    private static final String save = "save";
+    
+        public static final String PARAM_JSONCONTENT = "content";
+    public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
+
+    public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
+            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ONE, DESCR_JSONCONTENT);
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
+        new QName(save, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Update an existing document or insert a document depending on the parameter. "
+                + "If the document does not contain an '_id' field, then the method performs an insert with the specified fields in the document as well "
+                + "as an '_id' field with a unique objectId value. If the document contains an '_id' field, then the method performs an upsert querying the collection on the '_id' field: " +
+"If a document does not exist with the specified '_id' value, the method performs an insert with the specified fields in the document. " +
+"If a document exists with the specified '_id' value, the method performs an update, replacing all field in the existing record with the fields from the document.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The write result, JSON formatted")
         ),};
 
-    public Insert(XQueryContext context, FunctionSignature signature) {
+    public Save(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -90,25 +95,16 @@ public class Insert extends BasicFunction {
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
             
-            // Place holder for all results
-            List<DBObject> allContent = new ArrayList();
-            
-            SequenceIterator iterate = args[3].iterate();
-            while(iterate.hasNext()){
-                String value = iterate.nextItem().getStringValue();
-                if(StringUtils.isEmpty(value)){
-                    LOG.error("Skipping empty string");
-                } else {
-                    BasicDBObject bsonContent = (BasicDBObject) JSON.parse(value);
-                    allContent.add(bsonContent);
-                }
-            }
+            // Get data
+            BasicDBObject data = (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue());
     
-            WriteResult result = dbcol.insert(allContent);
+            // Execute save
+            WriteResult result = dbcol.save(data);
 
             return new StringValue(result.toString());
             
         } catch (MongoCommandException ex){
+            // TODO return as value?
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 

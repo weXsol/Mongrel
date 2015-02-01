@@ -44,10 +44,10 @@ declare %test:tearDown function groupa:cleanup()
  : ---------------------------- :)
 
 (: 
- : collection#map-reduce()  simple
+ : collection#group()  simple
  :)
 declare 
-    %test:assertEquals("A123", "750.0", "B212", "200.0") 
+    (: %test:assertEquals("A123", "750.0", "B212", "200.0")  :)
 function groupa:group_simple() {
     let $mongodbClientId := support:getToken()
     
