@@ -14,5 +14,6 @@ test:suite((
     inspect:module-functions(xs:anyURI("insert.xql")),
     inspect:module-functions(xs:anyURI("map-reduce.xql")),
     inspect:module-functions(xs:anyURI("mongo.xql")),
-    inspect:module-functions(xs:anyURI("save.xql"))
+    inspect:module-functions(xs:anyURI("save.xql")),
+    inspect:module-functions(xs:anyURI("update.xql"))
 ))

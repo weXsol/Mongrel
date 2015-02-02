@@ -98,7 +98,7 @@ function mapreduce:mapreduce_write_collection() {
  : collection#map-reduce() test command failure exception
  :)
 declare 
-    %test:assertError("Command Failure")
+    %test:assertError("mongodb:MONG0005")
 function mapreduce:mapreduce_command_failure() {
     let $mongodbClientId := support:getToken()
     
