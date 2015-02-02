@@ -1,7 +1,7 @@
 Mongrel: the eXist-db MongoDB extension
 ========================================
 
-The Mongrel eXist-db extention provides xquery extension functions to access MongoDB database functions.
+The Mongrel eXist-db extension provides xquery extension functions to access MongoDB database functions.
 
 In addition to "regular" [MongoDB](https://github.com/dizzzz/Mongrel/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/Mongrel/wiki/GridFS) functions to manage arbitrary sized documents that are stored in MongoDB.
 
