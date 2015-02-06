@@ -131,9 +131,4 @@ public class FunctionDefinitions {
     public static final FunctionParameterSequenceType PARAMETER_SORT
             = new FunctionParameterSequenceType(PARAM_SORT, Type.STRING, Cardinality.ONE, DESCR_SORT);
     
-    public static final String PARAM_PIPELINE = "pipeline";
-    public static final String DESCR_PIPELINE= "Operations to be performed in the aggregation pipeline, JSON formatted";
-
-    public static final FunctionParameterSequenceType PARAMETER_PIPELINE
-            = new FunctionParameterSequenceType(PARAM_PIPELINE, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_PIPELINE);
 }

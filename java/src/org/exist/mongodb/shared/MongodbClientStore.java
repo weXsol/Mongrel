@@ -47,6 +47,7 @@ public class MongodbClientStore {
     }
 
     public MongoClient get(String mongodbClientId) {
+        
         MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
         if (clientwrapper != null) {
             return clientwrapper.getMongoClient();
@@ -59,6 +60,7 @@ public class MongodbClientStore {
     }
 
     public String create(String url, String username) throws UnknownHostException {
+        
         // Construct client
         MongoClientURI uri = new MongoClientURI(url);
         MongoClient client = new MongoClient(uri);
@@ -74,7 +76,7 @@ public class MongodbClientStore {
         return mongodbClientId;
     }
 
-    public void validate(String mongodbClientId) throws XPathException {
+    public  MongoClient validate(String mongodbClientId) throws XPathException {
         if (mongodbClientId == null || !isValid(mongodbClientId)) {
             try {
                 // introduce a delay
@@ -85,6 +87,13 @@ public class MongodbClientStore {
             }
             throw new XPathException(MONG0001, "The provided MongoDB clientid is not valid.");
         }
+        
+        MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
+        if (clientwrapper != null) {
+            return clientwrapper.getMongoClient();
+        }
+        return null;
+        
     }
 
     class MongoClientWrapper {

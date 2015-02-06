@@ -54,34 +54,34 @@ import org.exist.xquery.value.Type;
  */
 public class FindOne extends BasicFunction {
 
-    private static final String FIND = "findOne";
+    private static final String FIND_ONE = "findOne";
     
   
     public final static FunctionSignature signatures[] = {
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection.",
+        new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
+        new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
+        new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_FIELDS},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Returns a single object from this collection matching the query.",
+        new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Returns a single object from this collection matching the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY,PARAMETER_FIELDS, PARAMETER_ORDERBY},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
@@ -96,7 +96,12 @@ public class FindOne extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
             
@@ -114,9 +119,6 @@ public class FindOne extends BasicFunction {
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);

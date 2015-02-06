@@ -89,12 +89,14 @@ public class FindAndModify extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
             
             BasicDBObject query = (args.length >= 4)
                     ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
@@ -111,9 +113,6 @@ public class FindAndModify extends BasicFunction {
 //             Map<String,Boolean> options = (args.length >= 7)
 //                    ? convertOptions((AbstractMapType) args[6].itemAt(0))
 //                    : null;
-             
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);

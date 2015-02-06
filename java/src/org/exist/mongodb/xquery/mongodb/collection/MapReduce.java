@@ -19,7 +19,6 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandFailureException;
 import com.mongodb.DB;
@@ -31,8 +30,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
@@ -47,9 +44,7 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
@@ -116,12 +111,14 @@ public class MapReduce extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
             
             String map = args[3].itemAt(0).getStringValue();
             String reduce = args[4].itemAt(0).getStringValue();
@@ -137,9 +134,6 @@ public class MapReduce extends BasicFunction {
             
             
             DBObject query = (BasicDBObject) JSON.parse(args[7].itemAt(0).getStringValue());
-                    
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get collection in database
             DB db = client.getDB(dbname);

@@ -102,10 +102,12 @@ public class Group extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            // Check id
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
             MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
             
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
@@ -122,9 +124,6 @@ public class Group extends BasicFunction {
                     ? args[7].itemAt(0).getStringValue()
                     : null;
 
-
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);

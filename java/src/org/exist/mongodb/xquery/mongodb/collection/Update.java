@@ -105,15 +105,14 @@ public class Update extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
-
-            // Check id
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
             MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Get Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
+            String dbname = args[1].itemAt(0).getStringValue();
+            String collection = args[2].itemAt(0).getStringValue(); 
 
             // Get database
             DB db = client.getDB(dbname);
