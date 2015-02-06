@@ -53,7 +53,7 @@ import org.exist.xquery.value.Type;
  */
 public class Save extends BasicFunction {
 
-    private static final String save = "save";
+    private static final String SAVE = "save";
     
         public static final String PARAM_JSONCONTENT = "content";
     public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
@@ -63,7 +63,7 @@ public class Save extends BasicFunction {
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(save, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Update an existing document or insert a document depending on the parameter. "
+        new QName(SAVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Update an existing document or insert a document depending on the parameter. "
                 + "If the document does not contain an '_id' field, then the method performs an insert with the specified fields in the document as well "
                 + "as an '_id' field with a unique objectId value. If the document contains an '_id' field, then the method performs an upsert querying the collection on the '_id' field: " +
 "If a document does not exist with the specified '_id' value, the method performs an insert with the specified fields in the document. " +
@@ -81,15 +81,14 @@ public class Save extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);

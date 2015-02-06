@@ -51,18 +51,18 @@ import org.exist.xquery.value.Type;
  */
 public class Count extends BasicFunction {
 
-    private static final String QUERY = "count";
+    private static final String COUNT = "count";
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
+        new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
         new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
         ),
         
         new FunctionSignature(
-        new QName(QUERY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query.",
+        new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
         new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
@@ -77,20 +77,17 @@ public class Count extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+                        
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
             // Get query when available
             String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
-
             BasicDBObject mongoQuery = (query==null) ? null : (BasicDBObject) JSON.parse(query);
-
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get database and collection
             DB db = client.getDB(dbname);

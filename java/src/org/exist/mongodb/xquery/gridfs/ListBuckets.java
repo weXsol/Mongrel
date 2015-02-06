@@ -69,15 +69,13 @@ public class ListBuckets extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            // Fetch parameters
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
-            String dbname = args[1].itemAt(0).getStringValue();
-                  
-            // Check id
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
             MongodbClientStore.getInstance().validate(mongodbClientId);
-
-            // Retrieve Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
+            String dbname = args[1].itemAt(0).getStringValue();
 
             // Retrieve database          
             DB db = client.getDB(dbname);

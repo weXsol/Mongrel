@@ -34,7 +34,6 @@ import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_PIPELINE;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -42,6 +41,7 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
@@ -59,6 +59,12 @@ import org.exist.xquery.value.ValueSequence;
 public class Aggregate extends BasicFunction {
 
     private static final String AGGREGATE = "aggregate";
+    
+    public static final String PARAM_PIPELINE = "pipeline";
+    public static final String DESCR_PIPELINE= "Operations to be performed in the aggregation pipeline, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_PIPELINE
+            = new FunctionParameterSequenceType(PARAM_PIPELINE, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_PIPELINE);
     
   
     public final static FunctionSignature signatures[] = {
@@ -80,17 +86,15 @@ public class Aggregate extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            // Verify clientid and get client
+            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            MongodbClientStore.getInstance().validate(mongodbClientId);
+            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            
+            // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
-            
             List<DBObject> pipeline = convertPipeline(args[3]);
-          
-            // Get Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get collection in database
             DB db = client.getDB(dbname);
