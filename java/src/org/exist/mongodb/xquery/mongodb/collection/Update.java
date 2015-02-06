@@ -29,6 +29,7 @@ import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -119,8 +120,8 @@ public class Update extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Get data
-            BasicDBObject criterium = (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue());
-            BasicDBObject modification = (BasicDBObject) JSON.parse(args[4].itemAt(0).getStringValue());
+            BasicDBObject criterium = ConversionTools.convertJSon(args[3]);
+            BasicDBObject modification = ConversionTools.convertJSon(args[4]);
             
             Boolean upsert = (args.length >= 6)
                     ? args[5].itemAt(0).toJavaObject(Boolean.class)

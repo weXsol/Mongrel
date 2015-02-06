@@ -28,6 +28,7 @@ import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FIELDS;
@@ -106,25 +107,21 @@ public class FindOne extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[3])
                     : null;
 
             BasicDBObject fields = (args.length >= 5)
-                    ? (BasicDBObject) JSON.parse(args[4].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[4])
                     : null;
 
             BasicDBObject orderBy = (args.length >= 6)
-                    ? (BasicDBObject) JSON.parse(args[5].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[5])
                     : null;
-
-            // Check id
-            MongodbClientStore.getInstance().validate(mongodbClientId);
 
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-            
-            
+                     
             DBObject result;
             if (fields == null && orderBy == null && query == null) {
                 result = dbcol.findOne();

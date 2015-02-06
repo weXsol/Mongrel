@@ -30,6 +30,7 @@ import com.mongodb.util.JSONParseException;
 import java.util.HashMap;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -99,15 +100,15 @@ public class FindAndModify extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[3])
                     : null;
 
             BasicDBObject update = (args.length >= 5)
-                    ? (BasicDBObject) JSON.parse(args[4].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[4])
                     : null;
 
             BasicDBObject sort = (args.length >= 6)
-                    ? (BasicDBObject) JSON.parse(args[5].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[5])
                     : null;
 
 //             Map<String,Boolean> options = (args.length >= 7)

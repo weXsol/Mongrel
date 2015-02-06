@@ -28,6 +28,7 @@ import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_KEYS;
@@ -115,10 +116,10 @@ public class Find extends BasicFunction {
 
             } else {
                 // Parse query
-                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query);
+                BasicDBObject mongoQuery = ConversionTools.convertJSon(query);
 
                 // Parse keys when available
-                BasicDBObject mongoKeys = (keys == null) ? null : (BasicDBObject) JSON.parse(keys);
+                BasicDBObject mongoKeys = ConversionTools.convertJSon(keys);
 
                 // Call correct method
                 cursor = (mongoKeys == null) ? dbcol.find(mongoQuery) : dbcol.find(mongoQuery, mongoKeys);

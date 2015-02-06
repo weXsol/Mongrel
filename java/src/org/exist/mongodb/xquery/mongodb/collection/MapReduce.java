@@ -32,6 +32,7 @@ import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import java.util.Locale;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -133,7 +134,7 @@ public class MapReduce extends BasicFunction {
                     : OutputType.valueOf( args[6].itemAt(0).getStringValue().toUpperCase(Locale.US) );
             
             
-            DBObject query = (BasicDBObject) JSON.parse(args[7].itemAt(0).getStringValue());
+            DBObject query = ConversionTools.convertJSon(args[7]);
 
             // Get collection in database
             DB db = client.getDB(dbname);

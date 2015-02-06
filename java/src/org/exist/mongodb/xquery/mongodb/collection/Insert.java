@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
@@ -98,7 +99,7 @@ public class Insert extends BasicFunction {
                 if(StringUtils.isEmpty(value)){
                     LOG.error("Skipping empty string");
                 } else {
-                    BasicDBObject bsonContent = (BasicDBObject) JSON.parse(value);
+                    BasicDBObject bsonContent = ConversionTools.convertJSon(value);
                     allContent.add(bsonContent);
                 }
             }

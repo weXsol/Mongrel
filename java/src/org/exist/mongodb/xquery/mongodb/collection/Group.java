@@ -29,6 +29,7 @@ import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -111,11 +112,11 @@ public class Group extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue());
+            BasicDBObject key = ConversionTools.convertJSon(args[3]);
 
-            BasicDBObject condition = (BasicDBObject) JSON.parse(args[4].itemAt(0).getStringValue());
+            BasicDBObject condition = ConversionTools.convertJSon(args[4]);
 
-            BasicDBObject initial = (BasicDBObject) JSON.parse(args[5].itemAt(0).getStringValue());
+            BasicDBObject initial = ConversionTools.convertJSon(args[5]);
 
             String reduce = args[6].itemAt(0).getStringValue();
 
@@ -131,9 +132,7 @@ public class Group extends BasicFunction {
             
             // Propare groupcommand
             GroupCommand command = new GroupCommand(dbcol, key, condition, initial, reduce, finalize);
-            
-            System.out.println(command.toDBObject().toString());
-            
+                  
             if(LOG.isDebugEnabled()){
                 LOG.debug(command.toDBObject().toString());
             }

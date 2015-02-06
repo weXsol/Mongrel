@@ -20,17 +20,15 @@
 package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.AggregationOutput;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.ArrayList;
 import java.util.List;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -43,9 +41,7 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
@@ -94,7 +90,7 @@ public class Aggregate extends BasicFunction {
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            List<DBObject> pipeline = convertPipeline(args[3]);
+            List<DBObject> pipeline = ConversionTools.convertPipeline(args[3]);
 
             // Get collection in database
             DB db = client.getDB(dbname);
@@ -131,25 +127,7 @@ public class Aggregate extends BasicFunction {
 
     }
     
-    List<DBObject> convertPipeline(Sequence args) throws XPathException{
-        
-        List<DBObject> pipeline = new ArrayList();
-        
-        if(args !=null ){
-            SequenceIterator iterator = args.iterate();
-            while(iterator.hasNext()){
-                Item next = iterator.nextItem();
-                
-                String step = next.getStringValue();
-                
-                pipeline.add((BasicDBObject) JSON.parse(step));
-                
-            }
-            
-        }
-        
-        return pipeline;
-    }
+
     
 
 }
