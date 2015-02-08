@@ -25,9 +25,8 @@ import org.exist.xquery.value.Type;
  * @author wessels
  */
 public class ConversionTools {
-    
+
     protected final static Logger LOG = Logger.getLogger(ConversionTools.class);
-    
 
     /**
      * Convert sequence of strings into List of DBobjects
@@ -80,120 +79,157 @@ public class ConversionTools {
     public static BasicDBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
 
         BasicDBObject retVal = new BasicDBObject();
-        
-        if(seq.getItemType()==Type.STRING){
+
+        if (seq.getItemType() == Type.STRING) {
             retVal = convertJSon(seq.getStringValue());
         } else {
-            parseSequence(seq, retVal, null);
+            retVal = (BasicDBObject) parseSequence(seq);
         }
 
         return retVal;
     }
 
-    public static void parseSequence(Sequence seq, BasicDBObject bson, String key) throws XPathException {
+    public static Object parseSequence(Sequence seq) throws XPathException {
+
+        Object retVal = null;
+
         switch (seq.getItemType()) {
             case Type.MAP:
                 MapType map = (MapType) seq;
-                parseMap(map, bson);
+                //String key = map.getKey().getStringValue();
+                BasicDBObject value = parseMap(map);
+                retVal = value;
                 break;
             case Type.ARRAY:
                 ArrayType array = (ArrayType) seq;
-                parseArray(array, bson, key);
+                ArrayList values = parseArray(array);
+                retVal = values;
                 break;
             default:
-                bson.append(key, ConversionTools.convertParameters(seq)[0]); // need for real converter
+                retVal = ConversionTools.convertParameters(seq)[0];
         }
+
+        return retVal;
     }
 
-    private static void parseMap(MapType map, BasicDBObject bson) throws XPathException {
+    private static BasicDBObject parseMap(MapType map) throws XPathException {
+        BasicDBObject retVal = new BasicDBObject();
 
         for (Map.Entry<AtomicValue, Sequence> mapEntry : map) {
-            
+
             // A key is always a string
             String key = mapEntry.getKey().getStringValue();
-            
+
             // The value is always a sequence
             Sequence sequence = mapEntry.getValue();
 
-            if (sequence.getItemType() == Type.MAP) {
-                BasicDBObject newBson = new BasicDBObject();
-                bson.append(key, newBson);
-                parseMap((MapType)sequence, newBson);
-                
-            } else if (sequence.getItemType() == Type.ARRAY) {
-                parseArray((ArrayType) sequence, bson, key);
-                               
-            } else {
-                Object value = ConversionTools.convertParameters(sequence)[0];
-                bson.append(key, value);
-            }
-
+            // Recurivele add value
+            retVal.append(key, parseSequence(sequence));
         }
 
+        return retVal;
     }
 
-    private static void parseArray(ArrayType array, BasicDBObject bson, String key) throws XPathException {
-        
-          
-        for(Sequence sequence : array.toArray()) {
+    private static ArrayList parseArray(ArrayType array) throws XPathException {
 
-            if (sequence.getItemType() == Type.MAP) {
-                BasicDBObject newBson = new BasicDBObject();
-                bson.append(key, newBson);
-                parseMap((MapType)sequence, newBson);
-                
-            } else if (sequence.getItemType() == Type.ARRAY) {
-                parseArray((ArrayType) sequence, bson, key);
-                               
-            } else {
-                Object value = ConversionTools.convertParameters(sequence)[0];
-                bson.append(key, value);
-            }
-            
-            
+        ArrayList<Object> retVal = new ArrayList();
+
+        for (Sequence sequence : array.toArray()) {
+            // Recurively add value
+            retVal.add(parseSequence(sequence));
         }
-        
 
+        return retVal;
     }
-    
-     /**
-     *  Convert Sequence into array of Java objects
+
+//    private static void parseMap(MapType map, BasicDBObject bson) throws XPathException {
+//
+//        for (Map.Entry<AtomicValue, Sequence> mapEntry : map) {
+//            
+//            // A key is always a string
+//            String key = mapEntry.getKey().getStringValue();
+//            
+//            // The value is always a sequence
+//            Sequence sequence = mapEntry.getValue();
+//
+//            if (sequence.getItemType() == Type.MAP) {
+//                BasicDBObject newBson = new BasicDBObject();
+//                bson.append(key, newBson);
+//                parseMap((MapType)sequence, newBson);
+//                
+//            } else if (sequence.getItemType() == Type.ARRAY) {
+//                parseArray((ArrayType) sequence, bson, key);
+//                               
+//            } else {
+//                Object value = ConversionTools.convertParameters(sequence)[0];
+//                bson.append(key, value);
+//            }
+//
+//        }
+//
+//    }
+//
+//    private static void parseArray(ArrayType array, BasicDBObject bson, String key) throws XPathException {
+//        
+//          
+//        for(Sequence sequence : array.toArray()) {
+//
+//            if (sequence.getItemType() == Type.MAP) {
+//                BasicDBObject newBson = new BasicDBObject();
+//                bson.append(key, newBson);
+//                parseMap((MapType)sequence, newBson);
+//                
+//            } else if (sequence.getItemType() == Type.ARRAY) {
+//                parseArray((ArrayType) sequence, bson, key);
+//                               
+//            } else {
+//                Object value = ConversionTools.convertParameters(sequence)[0];
+//                bson.append(key, value);
+//            }
+//            
+//            
+//        }
+//        
+//
+//    }
+    /**
+     * Convert Sequence into array of Java objects
      */
     public static Object[] convertParameters(Sequence args) throws XPathException {
         List<Object> params = new ArrayList<>();
         SequenceIterator iterate = args.iterate();
         while (iterate.hasNext()) {
-            
+
             Item item = iterate.nextItem();
-            
+
             switch (item.getType()) {
                 case Type.STRING:
                     params.add(item.getStringValue());
                     break;
-                               
+
                 case Type.INTEGER:
                 case Type.INT:
                     params.add(item.toJavaObject(Integer.class));
                     break;
-                    
+
                 case Type.DOUBLE:
                     params.add(item.toJavaObject(Double.class));
                     break;
-                    
+
                 case Type.BOOLEAN:
                     params.add(item.toJavaObject(Boolean.class));
                     break;
-                    
-                case Type.DATE_TIME:                  
+
+                case Type.DATE_TIME:
                     params.add(item.toJavaObject(Date.class));
                     break;
-                    
+
                 default:
                     LOG.info(String.format("Fallback: Converting '%s' to String value", Type.getTypeName(item.getType())));
                     params.add(item.getStringValue());
                     break;
             }
-            
+
         }
         return params.toArray();
     }
