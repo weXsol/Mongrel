@@ -21,6 +21,7 @@ public class BSonModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = { 
         new FunctionDef(Parse.signatures[0], Parse.class),
+        new FunctionDef(Parse.signatures[1], Parse.class)
     };
     
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");

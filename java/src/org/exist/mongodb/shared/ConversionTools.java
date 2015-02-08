@@ -6,19 +6,20 @@ import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.bson.BSONObject;
 import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.array.ArrayType;
 import org.exist.xquery.functions.map.MapType;
 import org.exist.xquery.value.AtomicValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
+import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 
 /**
  *
@@ -142,56 +143,51 @@ public class ConversionTools {
         return retVal;
     }
 
-//    private static void parseMap(MapType map, BasicDBObject bson) throws XPathException {
-//
-//        for (Map.Entry<AtomicValue, Sequence> mapEntry : map) {
-//            
-//            // A key is always a string
-//            String key = mapEntry.getKey().getStringValue();
-//            
-//            // The value is always a sequence
-//            Sequence sequence = mapEntry.getValue();
-//
-//            if (sequence.getItemType() == Type.MAP) {
-//                BasicDBObject newBson = new BasicDBObject();
-//                bson.append(key, newBson);
-//                parseMap((MapType)sequence, newBson);
-//                
-//            } else if (sequence.getItemType() == Type.ARRAY) {
-//                parseArray((ArrayType) sequence, bson, key);
-//                               
-//            } else {
-//                Object value = ConversionTools.convertParameters(sequence)[0];
-//                bson.append(key, value);
-//            }
-//
-//        }
-//
-//    }
-//
-//    private static void parseArray(ArrayType array, BasicDBObject bson, String key) throws XPathException {
-//        
-//          
-//        for(Sequence sequence : array.toArray()) {
-//
-//            if (sequence.getItemType() == Type.MAP) {
-//                BasicDBObject newBson = new BasicDBObject();
-//                bson.append(key, newBson);
-//                parseMap((MapType)sequence, newBson);
-//                
-//            } else if (sequence.getItemType() == Type.ARRAY) {
-//                parseArray((ArrayType) sequence, bson, key);
-//                               
-//            } else {
-//                Object value = ConversionTools.convertParameters(sequence)[0];
-//                bson.append(key, value);
-//            }
-//            
-//            
-//        }
-//        
-//
-//    }
+    public static Sequence convertBson(XQueryContext context, BasicDBObject bson) throws XPathException {
+
+        Sequence retVal = new ValueSequence();
+
+        for (Map.Entry<String, Object> entry : bson.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            MapType mt = new MapType(context);
+            mt.add(new StringValue(key), getValues(context, value));
+            retVal.add(mt);
+        }
+
+        return retVal;
+    }
+
+    public static Sequence getValues(XQueryContext context, Object o) throws XPathException {
+        
+        Sequence retVal = new ValueSequence();
+
+        if (o instanceof BasicDBObject) {
+
+            BasicDBObject bson = (BasicDBObject) o;
+
+            for (Map.Entry<String, Object> entry : bson.entrySet()) {
+
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                MapType mt = new MapType(context);
+                mt.add(new StringValue(key), getValues(context, value));
+                
+                retVal.add(mt);
+            }
+
+        } else {
+            // regular javaobject
+            // TODO : create actual objects
+            retVal.add(new StringValue(o.toString()));
+        }
+        
+        return retVal;
+
+    }
+
     /**
      * Convert Sequence into array of Java objects
      */

@@ -45,21 +45,30 @@ import org.exist.xquery.value.Type;
  */
 public class Parse extends BasicFunction {
 
+    private static final String PARSE_AS_STRING = "parse-as-string";
     private static final String PARSE = "parse";
     
     public static final String PARAM_JSONCONTENT = "content";
-    public static final String DESCR_JSONCONTENT = "JSON formatted document";
+    public static final String DESCR_JSONCONTENT = "JSON formatted document or item";
 
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ONE, DESCR_JSONCONTENT);
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-        new QName(PARSE, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data tthat needs to be parsed.",
+        new QName(PARSE_AS_STRING, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data tthat needs to be parsed.",
         new SequenceType[]{
             PARAMETER_JSONCONTENT},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The parse result, JSON formatted")
-        ),};
+        ),
+        new FunctionSignature(
+        new QName(PARSE, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data that needs to be parsed.",
+        new SequenceType[]{
+            PARAMETER_JSONCONTENT},
+        new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "The parse result")
+        ),
+    
+    };
 
     public Parse(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -71,7 +80,12 @@ public class Parse extends BasicFunction {
         try {
             BasicDBObject data = ConversionTools.convertJSon(args[0]);
 
-            return new StringValue(data.toString());
+            if(isCalledAs(PARSE)){
+                return ConversionTools.convertBson(context, data);
+                
+            } else {
+                return new StringValue(data.toString());
+            }
             
         } catch (MongoCommandException ex){
             LOG.error(ex.getMessage(), ex);
