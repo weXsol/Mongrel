@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace support="http://exist-db.org/ext/mongodb/test/support";
 
