@@ -1,5 +1,6 @@
 package org.exist.mongodb.shared;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
@@ -152,7 +153,6 @@ public class ConversionTools {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            
             mt.add(new StringValue(key), getValues(context, value));
             
         }
@@ -167,17 +167,33 @@ public class ConversionTools {
         if (o instanceof BasicDBObject) {
 
             BasicDBObject bson = (BasicDBObject) o;
+            MapType mt = new MapType(context);
 
             for (Map.Entry<String, Object> entry : bson.entrySet()) {
 
                 String key = entry.getKey();
                 Object value = entry.getValue();
 
-                MapType mt = new MapType(context);
+                
                 mt.add(new StringValue(key), getValues(context, value));
                 
-                retVal.add(mt);
+                
             }
+            retVal.add(mt);
+
+        } else if (o instanceof BasicDBList) {
+            BasicDBList list = (BasicDBList) o;
+
+
+            List<Sequence> collected = new ArrayList();
+
+            for(Object item : list){
+                collected.add(getValues(context, item));
+            }
+
+            ArrayType at = new ArrayType(context, collected);
+            retVal.add(at);
+
 
         } else {
             // regular javaobject

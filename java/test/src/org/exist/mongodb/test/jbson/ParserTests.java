@@ -3,7 +3,7 @@ package org.exist.mongodb.test.jbson;
 import org.apache.commons.lang3.StringUtils;
 import xquery.TestRunner;
 
-public class JSonTests extends TestRunner {
+public class ParserTests extends TestRunner {
 
     @Override
     protected String getDirectory() {

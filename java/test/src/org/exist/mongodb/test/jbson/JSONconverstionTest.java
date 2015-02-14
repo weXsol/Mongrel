@@ -32,7 +32,7 @@ public class JSONconverstionTest {
         assertEquals("firstName", next.getKey());
         assertEquals("John", next.getValue());
         
-        // Seconf entry
+        // Second entry
         next = iterator.next();   
         assertEquals("lastName", next.getKey());
         assertEquals("Doe", next.getValue());

@@ -40,4 +40,27 @@ function json:larger_json() {
          serialize($data, $json:serializeOptions)
 };
 
+declare 
+    %test:assertEquals('{"name":{"first":"John","last":"Backus"},"awards":[{"by":"IEEE Computer Society","year":"1967","award":"W.W. McDowell Award"},{"by":"National Academy of Engineering","year":"1993","award":"Draper Prize"}],"_id":"1","contribs":["Fortran","ALGOL","Backus-Naur Form","FP"]}')
+function json:complex_json() {
+     let $data := bson:parse('{
+"_id" : 1,
+"name" : { "first" : "John", "last" : "Backus" },
+"contribs" : [ "Fortran", "ALGOL", "Backus-Naur Form", "FP" ],
+"awards" : [
+           {
+             "award" : "W.W. McDowell Award",
+             "year" : 1967,
+             "by" : "IEEE Computer Society"
+           },
+           { "award" : "Draper Prize",
+             "year" : 1993,
+             "by" : "National Academy of Engineering"
+           }
+]
+}
+')
+     return
+         serialize($data, $json:serializeOptions)
+};
 
