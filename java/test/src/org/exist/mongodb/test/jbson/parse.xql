@@ -25,7 +25,7 @@ declare variable $json:serializeOptions := <output:serialization-parameters>
  :)
 
 declare 
-    %test:assertEquals('{"x":"1"}')
+    %test:assertEquals('{"x":1}')
 function json:simple_json() {
      let $data := bson:parse("{ x : 1 }")
      return
@@ -33,7 +33,7 @@ function json:simple_json() {
 };
 
 declare 
-    %test:assertEquals('{"x":"1","y":"2","z":"3"}')
+    %test:assertEquals('{"x":1,"y":2,"z":3}')
 function json:larger_json() {
      let $data := bson:parse("{ x : 1 , y : 2 , z : 3 }")
      return
@@ -41,7 +41,7 @@ function json:larger_json() {
 };
 
 declare 
-    %test:assertEquals('{"name":{"first":"John","last":"Backus"},"awards":[{"by":"IEEE Computer Society","year":"1967","award":"W.W. McDowell Award"},{"by":"National Academy of Engineering","year":"1993","award":"Draper Prize"}],"_id":"1","contribs":["Fortran","ALGOL","Backus-Naur Form","FP"]}')
+    %test:assertEquals('{"name":{"first":"John","last":"Backus"},"awards":[{"by":"IEEE Computer Society","year":1967,"award":"W.W. McDowell Award"},{"by":"National Academy of Engineering","year":1993,"award":"Draper Prize"}],"_id":1,"contribs":["Fortran","ALGOL","Backus-Naur Form","FP"]}')
 function json:complex_json() {
      let $data := bson:parse('{
 "_id" : 1,

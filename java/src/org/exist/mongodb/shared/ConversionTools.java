@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.exist.xquery.XPathException;
+import org.exist.xquery.XPathUtil;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.array.ArrayType;
 import org.exist.xquery.functions.map.MapType;
@@ -154,14 +155,14 @@ public class ConversionTools {
             Object value = entry.getValue();
 
             mt.add(new StringValue(key), getValues(context, value));
-            
+
         }
         retVal.add(mt);
         return retVal;
     }
 
     public static Sequence getValues(XQueryContext context, Object o) throws XPathException {
-        
+
         Sequence retVal = new ValueSequence();
 
         if (o instanceof BasicDBObject) {
@@ -174,33 +175,29 @@ public class ConversionTools {
                 String key = entry.getKey();
                 Object value = entry.getValue();
 
-                
                 mt.add(new StringValue(key), getValues(context, value));
-                
-                
+
             }
             retVal.add(mt);
 
         } else if (o instanceof BasicDBList) {
             BasicDBList list = (BasicDBList) o;
 
-
             List<Sequence> collected = new ArrayList();
 
-            for(Object item : list){
+            for (Object item : list) {
                 collected.add(getValues(context, item));
             }
 
             ArrayType at = new ArrayType(context, collected);
             retVal.add(at);
 
-
         } else {
             // regular javaobject
             // TODO : create actual objects
-            retVal.add(new StringValue(o.toString()));
+            retVal = XPathUtil.javaObjectToXPath(o, context);
         }
-        
+
         return retVal;
 
     }
