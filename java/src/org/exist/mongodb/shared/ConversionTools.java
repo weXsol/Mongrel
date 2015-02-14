@@ -146,16 +146,17 @@ public class ConversionTools {
     public static Sequence convertBson(XQueryContext context, BasicDBObject bson) throws XPathException {
 
         Sequence retVal = new ValueSequence();
+        MapType mt = new MapType(context);
 
         for (Map.Entry<String, Object> entry : bson.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            MapType mt = new MapType(context);
+            
             mt.add(new StringValue(key), getValues(context, value));
-            retVal.add(mt);
+            
         }
-
+        retVal.add(mt);
         return retVal;
     }
 
