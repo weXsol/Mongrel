@@ -81,9 +81,10 @@ public class ConversionTools {
      */
     public static BasicDBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
 
-        BasicDBObject retVal = new BasicDBObject();
+        BasicDBObject retVal;
 
         if (seq.getItemType() == Type.STRING) {
+            // Do direct conversion
             retVal = convertJSon(seq.getStringValue());
         } else {
             retVal = (BasicDBObject) parseSequence(seq);
@@ -94,7 +95,7 @@ public class ConversionTools {
 
     public static Object parseSequence(Sequence seq) throws XPathException {
 
-        Object retVal = null;
+        Object retVal;
 
         switch (seq.getItemType()) {
             case Type.MAP:

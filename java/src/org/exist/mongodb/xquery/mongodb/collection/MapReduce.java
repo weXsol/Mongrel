@@ -19,16 +19,14 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.CommandFailureException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand.OutputType;
 import com.mongodb.MapReduceOutput;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import java.util.Locale;
 import org.exist.dom.QName;
@@ -160,7 +158,7 @@ public class MapReduce extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
             
-        } catch (CommandFailureException ex) {
+        } catch (MongoCommandException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 

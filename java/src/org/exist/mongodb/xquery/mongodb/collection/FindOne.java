@@ -25,7 +25,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
@@ -56,38 +55,32 @@ import org.exist.xquery.value.Type;
 public class FindOne extends BasicFunction {
 
     private static final String FIND_ONE = "findOne";
-    
-  
+
     public final static FunctionSignature signatures[] = {
-        
         new FunctionSignature(
         new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
-        
         new FunctionSignature(
         new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
-        
         new FunctionSignature(
         new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection matching the query.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_FIELDS},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
         ),
-        
         new FunctionSignature(
         new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Returns a single object from this collection matching the query.",
         new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY,PARAMETER_FIELDS, PARAMETER_ORDERBY},
+            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_FIELDS, PARAMETER_ORDERBY},
         new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
-        ),
-    };
+        ),};
 
     public FindOne(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -98,14 +91,14 @@ public class FindOne extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
+
             BasicDBObject query = (args.length >= 4)
                     ? ConversionTools.convertJSon(args[3])
                     : null;
@@ -121,29 +114,29 @@ public class FindOne extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-                     
+
             DBObject result;
             if (fields == null && orderBy == null && query == null) {
                 result = dbcol.findOne();
-                
+
             } else if (fields == null && orderBy == null) {
                 result = dbcol.findOne(query);
-                
+
             } else if (orderBy == null) {
                 result = dbcol.findOne(query, fields);
-                
+
             } else {
                 result = dbcol.findOne(query, fields, orderBy);
             }
-           
+
             // Execute query
-            Sequence retVal = (result==null) 
-                    ? Sequence.EMPTY_SEQUENCE 
+            Sequence retVal = (result == null)
+                    ? Sequence.EMPTY_SEQUENCE
                     : new StringValue(result.toString());
 
             return retVal;
-            
-        } catch(JSONParseException ex){
+
+        } catch (JSONParseException ex) {
             LOG.error(ex.getMessage());
             throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
 
