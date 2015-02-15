@@ -4,10 +4,10 @@
     <jar>mongo-java-driver-2.13.0.jar</jar>
     <java>
         <namespace>http://exist-db.org/xquery/mongodb</namespace>
-        <class>org.exist.mongodb.MongodbModule</class>
+        <class>org.exist.mongodb.xquery.MongodbModule</class>
     </java>
     <java>
         <namespace>http://exist-db.org/xquery/gridfs</namespace>
-        <class>org.exist.mongodb.GridfsModule</class>
+        <class>org.exist.mongodb.xquery.GridfsModule</class>
     </java>
 </package>
