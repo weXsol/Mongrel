@@ -1,11 +1,11 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace support="http://exist-db.org/ext/mongodb/test/support";
 
 import module namespace mongodb = "http://exist-db.org/xquery/mongodb" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
-declare variable $support:mongoUrl := "mongodb://miniserver.local";
+declare variable $support:mongoUrl := "mongodb://localhost";
 declare variable $support:database := "mydatabase";
 declare variable $support:testCollection := "/db/mongodbTest";
 declare variable $support:mongoCollection := "mongodbTest";

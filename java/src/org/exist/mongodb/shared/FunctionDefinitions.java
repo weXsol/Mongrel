@@ -69,7 +69,7 @@ public class FunctionDefinitions {
     public static final String DESCR_QUERY = "The mongodb query, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_QUERY
-            = new FunctionParameterSequenceType(PARAM_QUERY, Type.STRING, Cardinality.ONE, DESCR_QUERY);
+            = new FunctionParameterSequenceType(PARAM_QUERY, Type.ITEM, Cardinality.ONE, DESCR_QUERY);
     
     public static final String PARAM_DELETE_CRITERIUM = "criterium";
     public static final String DESCR_DELETE_CRITERIUM = "The deletion criteria using query operators. Omit "

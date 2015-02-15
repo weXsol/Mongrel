@@ -19,8 +19,8 @@ import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.exist.memtree.MemTreeBuilder;
-import org.exist.memtree.NodeImpl;
+import org.exist.dom.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.NodeImpl;
 import org.exist.storage.serializers.Serializer;
 import org.exist.util.serializer.SAXSerializer;
 import org.exist.util.serializer.SerializerPool;
@@ -92,41 +92,41 @@ public class ContentSerializer {
 
     private static void streamElement(XQueryContext context, Item item, OutputStream os) throws IOException {
         LOG.debug("Streaming element or document node");
-        
+
         final Serializer serializer = context.getBroker().newSerializer();
-        
+
         final NodeValue node = (NodeValue) item;
-        
+
         // Setup serialization options
         // TODO: get global serialization options
         final Properties outputProperties = new Properties();
         outputProperties.setProperty(OutputKeys.INDENT, "yes");
         outputProperties.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        
+
         SerializerPool serializerPool = SerializerPool.getInstance();
-        
+
         LOG.debug("Serializing started.");
         final SAXSerializer sax = (SAXSerializer) serializerPool.borrowObject(SAXSerializer.class);
         try {
             final String encoding = "UTF-8";
             try (Writer writer = new OutputStreamWriter(os, encoding)) {
                 sax.setOutput(writer, outputProperties);
-                
+
                 serializer.reset();
                 serializer.setProperties(outputProperties);
                 serializer.setSAXHandlers(sax, sax);
-                
+
                 sax.startDocument();
                 serializer.toSAX(node);
-                
+
                 sax.endDocument();
             }
-            
+
         } catch (final IOException | SAXException e) {
             final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
             LOG.debug(txt, e);
             throw new IOException(txt, e);
-            
+
         } finally {
             LOG.debug("Serializing done.");
             serializerPool.returnObject(sax);
@@ -135,15 +135,15 @@ public class ContentSerializer {
 
     private static void streamAnyURI(Item item, OutputStream os) throws IOException, XPathException {
         LOG.debug("Streaming xs:anyURI");
-        
+
         // anyURI provided
         String url = item.getStringValue();
-        
+
         // Fix URL
         if (url.startsWith("/")) {
             url = "xmldb:exist://" + url;
         }
-        
+
         final InputStream is = new BufferedInputStream(new URL(url).openStream());
         IOUtils.copyLarge(is, os);
         IOUtils.closeQuietly(is);
@@ -151,12 +151,12 @@ public class ContentSerializer {
 
     private static void streamJavaObject(Item item, OutputStream os) throws XPathException, IOException {
         LOG.debug("Streaming Java object");
-        
+
         final Object obj = ((JavaObjectValue) item).getObject();
         if (!(obj instanceof File)) {
             throw new XPathException("Passed java object should be a File object");
         }
-        
+
         final File inputFile = (File) obj;
         final InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
         IOUtils.copyLarge(is, os);
@@ -188,7 +188,7 @@ public class ContentSerializer {
      */
     public static NodeImpl getDocuments(GridFS gfs) {
         MemTreeBuilder builder = new MemTreeBuilder();
-        
+
         // Start document
         builder.startDocument();
         int nodeNr = builder.startElement("", "GridFSFiles", "GridFSFiles", null);
@@ -243,16 +243,16 @@ public class ContentSerializer {
             LOG.error("Error adding upload date. " + ex.getMessage());
         }
         addElementValue(builder, "md5", gfsFile.getMD5());
-        
+
         DBObject metaData = gfsFile.getMetaData();
         if (metaData != null && !metaData.keySet().isEmpty()) {
             builder.startElement("", "metaData", "metaData", null);
-            
-            for(String key :metaData.keySet()){
+
+            for (String key : metaData.keySet()) {
                 String value = metaData.get(key).toString();
                 addElementValue(builder, key, value);
             }
-            
+
             builder.endElement();
         }
 

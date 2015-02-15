@@ -26,9 +26,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -95,7 +95,7 @@ public class Save extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Get data
-            BasicDBObject data = (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue());
+            BasicDBObject data = ConversionTools.convertJSon(args[3]);
     
             // Execute save
             WriteResult result = dbcol.save(data);

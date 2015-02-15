@@ -24,9 +24,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -87,7 +87,7 @@ public class Count extends BasicFunction {
 
             // Get query when available
             String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
-            BasicDBObject mongoQuery = (query==null) ? null : (BasicDBObject) JSON.parse(query);
+            BasicDBObject mongoQuery = ConversionTools.convertJSon(query);
 
             // Get database and collection
             DB db = client.getDB(dbname);

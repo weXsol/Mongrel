@@ -25,9 +25,9 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
@@ -84,7 +84,7 @@ public class FindAndRemove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) JSON.parse(args[3].itemAt(0).getStringValue())
+                    ? ConversionTools.convertJSon(args[3])
                     : null;
 
             // Get collection in database

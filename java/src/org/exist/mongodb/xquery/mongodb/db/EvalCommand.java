@@ -25,10 +25,8 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSON;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_PARAMS;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JS_QUERY;
@@ -46,9 +44,7 @@ import org.exist.xquery.value.DoubleValue;
 import org.exist.xquery.value.FloatValue;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.Type;
@@ -110,7 +106,7 @@ public class EvalCommand extends BasicFunction {
             String query = args[2].itemAt(0).getStringValue();
            
             // Get and convert 4th parameter, when existent
-            Object[] params = (args.length >= 4) ? convertParameters(args[3]) : new Object[0];
+            Object[] params = (args.length >= 4) ? ConversionTools.convertParameters(args[3]) : new Object[0];
 
             // Get database
             DB db = client.getDB(dbname);
@@ -190,46 +186,6 @@ public class EvalCommand extends BasicFunction {
         return retVal;
     }
 
-    /**
-     *  Convert Sequence into array of Java objects
-     */
-    private Object[] convertParameters(Sequence args) throws XPathException {
-        List<Object> params = new ArrayList<>();
-        SequenceIterator iterate = args.iterate();
-        while (iterate.hasNext()) {
-            
-            Item item = iterate.nextItem();
-            
-            switch (item.getType()) {
-                case Type.STRING:
-                    params.add(item.getStringValue());
-                    break;
-                               
-                case Type.INTEGER:
-                case Type.INT:
-                    params.add(item.toJavaObject(Integer.class));
-                    break;
-                    
-                case Type.DOUBLE:
-                    params.add(item.toJavaObject(Double.class));
-                    break;
-                    
-                case Type.BOOLEAN:
-                    params.add(item.toJavaObject(Boolean.class));
-                    break;
-                    
-                case Type.DATE_TIME:                  
-                    params.add(item.toJavaObject(Date.class));
-                    break;
-                    
-                default:
-                    LOG.info(String.format("Fallback: Converting '%s' to String value", Type.getTypeName(item.getType())));
-                    params.add(item.getStringValue());
-                    break;
-            }
-            
-        }
-        return params.toArray();
-    }
+   
 
 }
