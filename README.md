@@ -11,6 +11,10 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 
 ![MongoDB Logo](http://www.mongodb.com/sites/mongodb.com/files/media/mongodb-logo-rgb.jpeg)
 
+## Versions
+
+versions `0.3.x` runs on eXist-db v2.2 , version `0.6.x` runs on v2.3+
+
 ## Requirements
 - eXist-db 2.2
 - Java 8
