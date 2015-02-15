@@ -1,3 +1,4 @@
+local.build.properties
 build
 dist
 java/lib
