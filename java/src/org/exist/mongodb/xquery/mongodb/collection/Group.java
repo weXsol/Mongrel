@@ -56,13 +56,13 @@ public class Group extends BasicFunction {
     private static final String GROUP = "group";
        
     public static final FunctionParameterSequenceType PARAMETER_KEY
-            = new FunctionParameterSequenceType("key", Type.STRING, Cardinality.ONE, "Specifies one or more document fields to group. JSON formatted.");
+            = new FunctionParameterSequenceType("key", Type.ITEM, Cardinality.ONE, "Specifies one or more document fields to group. JSON formatted.");
 
     public static final FunctionParameterSequenceType PARAMETER_COND
-            = new FunctionParameterSequenceType("cond", Type.STRING, Cardinality.ONE, "Specifies the selection criteria to determine which documents in the collection to process. JSON formatted.");
+            = new FunctionParameterSequenceType("cond", Type.ITEM, Cardinality.ONE, "Specifies the selection criteria to determine which documents in the collection to process. JSON formatted.");
 
     public static final FunctionParameterSequenceType PARAMETER_INITIAL
-            = new FunctionParameterSequenceType("initial", Type.STRING, Cardinality.ONE, "Initializes the aggregation result document. JSON formatted.");
+            = new FunctionParameterSequenceType("initial", Type.ITEM, Cardinality.ONE, "Initializes the aggregation result document. JSON formatted.");
 
     public static final FunctionParameterSequenceType PARAMETER_REDUCE
             = new FunctionParameterSequenceType("reduce", Type.STRING, Cardinality.ONE, "Specifies an $reduce Javascript function, that operates on the documents during the grouping operation.");

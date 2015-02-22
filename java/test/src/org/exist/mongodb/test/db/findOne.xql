@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/findOne";
 
@@ -115,6 +115,26 @@ function mongoMain:findOne_query_fields_orderby() {
     return ($count, count($xValues), count($yValues), $xValues)
 };
 
+(: collection#findOne(query, keys, orderby) : xquery31 :)
+declare 
+    %test:assertEquals(7,7)
+function mongoMain:findOne_query_fields_orderby_xq31() {
+
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    let $query := parse-json("{ z : 49 }", $options)
+    let $fields := parse-json("{ x : 1 , y : 1 }", $options)
+    let $orderBy := parse-json("{ x : 1 }", $options)
+    
+    let $result := mongodb:findOne($mongodbClientId, $support:database, $support:mongoCollection,
+    $query, $fields, $orderBy)
+    
+    let $parsed := parse-json($result, $options)
+
+    return ($parsed?x, $parsed?y)
+};
+
 
 
 (: 
@@ -136,5 +156,6 @@ function mongoMain:findOne_query_fields_orderby() {
     <pair name="z" type="number">36</pair>
 </json>
 :)
+
 
 

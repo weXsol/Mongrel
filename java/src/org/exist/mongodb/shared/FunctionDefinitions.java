@@ -81,11 +81,7 @@ public class FunctionDefinitions {
     
     //the deletion criteria using query operators. Omit the query parameter or pass an empty document to delete all documents in the collection.
 
-    public static final String PARAM_JSONCONTENT = "content";
-    public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
 
-    public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
-            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
     
       
     public static final String PARAM_JS_QUERY = "javascript";
@@ -110,12 +106,12 @@ public class FunctionDefinitions {
     public static final String DESCR_FIELDS= "Fields to return, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_FIELDS
-            = new FunctionParameterSequenceType(PARAM_FIELDS, Type.STRING, Cardinality.ONE, DESCR_FIELDS);
+            = new FunctionParameterSequenceType(PARAM_FIELDS, Type.ITEM, Cardinality.ONE, DESCR_FIELDS);
     
     public static final String PARAM_ORDERBY = "orderBy";
     public static final String DESCR_ORDERBY= "Fields to return, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_ORDERBY
-            = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.STRING, Cardinality.ONE, DESCR_ORDERBY);
+            = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.ITEM, Cardinality.ONE, DESCR_ORDERBY);
         
 }

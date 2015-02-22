@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/insert";
 
@@ -38,7 +38,7 @@ function mongoMain:insert() {
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 
                    "{ x : 1  ,  y : 2 , z : 3 }")
     return
-        mongodb:count-documents($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 1 }")
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 1 }")
 };
 
 (: collection#insert()  insert two documents :)
@@ -49,29 +49,40 @@ function mongoMain:insert_two() {
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 
                    ("{ x : 2  ,  y : 1 , z : 3 }", "{ x : 2  ,  y : 2 , z : 3 }"))
     return
-        mongodb:count-documents($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 2 }")
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 2 }")
 };
 
 (: collection#insert()  empty sequence :)
 declare 
-    %test:assertEquals(0)
+    %test:assertError("mongodb:MONG0005")
 function mongoMain:insert_emptysequence() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 
                    () )
     return
-        mongodb:count-documents($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 10 }")
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 10 }")
 };
 
 (: collection#insert()  empty document :)
 declare 
-    %test:assertEquals(0)
+    %test:assertError("mongodb:MONG0003")
 function mongoMain:insert_emptydocument() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 
                    "" )
     return
-        mongodb:count-documents($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 10 }")
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 10 }")
 };
 
+(: collection#insert()  insert one document :)
+declare 
+    %test:assertEquals(1)
+function mongoMain:insert_xq31() {
+    let $mongodbClientId := support:getToken()
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    let $data := parse-json("{ x : 100  ,  y : 200 , z : 300 }", $options)
+    let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, $data )
+    return
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ x : 100 }")
+};
 

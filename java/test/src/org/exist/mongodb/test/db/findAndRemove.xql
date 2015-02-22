@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace findAndRemove="http://exist-db.org/mongodb/test/findAndRemove";
 
@@ -91,4 +91,24 @@ function findAndRemove:findAndRemove_double() {
         
 };
 
+(: 
+ : collection#findAndRemove(query) 
+ : 
+ : Xquery31
+ :)
+declare 
+    %test:assertEquals(50)
+function findAndRemove:findAndRemove_xq31() {
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    let $query := parse-json("{ x : 5 }", $options)
+    
+    let $result := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
+                   $query)
+
+                   
+    return parse-json($result, $options)?y
+        
+};
 

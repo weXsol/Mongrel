@@ -35,7 +35,6 @@ import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_JSONCONTENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
@@ -44,7 +43,9 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.SequenceType;
@@ -59,6 +60,13 @@ import org.exist.xquery.value.Type;
 public class Insert extends BasicFunction {
 
     private static final String INSERT = "insert";
+
+
+    public static final String PARAM_JSONCONTENT = "content";
+    public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
+
+    public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
+            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
@@ -94,12 +102,22 @@ public class Insert extends BasicFunction {
             
             SequenceIterator iterate = args[3].iterate();
             while(iterate.hasNext()){
-                String value = iterate.nextItem().getStringValue();
-                if(StringUtils.isEmpty(value)){
-                    LOG.error("Skipping empty string");
-                } else {
-                    BasicDBObject bsonContent = ConversionTools.convertJSon(value);
+
+                Item nextItem = iterate.nextItem();
+
+                if(nextItem instanceof Sequence){
+                    Sequence seq = (Sequence) nextItem;
+                    BasicDBObject bsonContent = ConversionTools.convertJSon(seq);
                     allContent.add(bsonContent);
+
+                } else {
+                    String value = iterate.nextItem().getStringValue();
+                    if(StringUtils.isEmpty(value)){
+                        LOG.error("Skipping empty string");
+                    } else {
+                        BasicDBObject bsonContent = ConversionTools.convertJSon(value);
+                        allContent.add(bsonContent);
+                    }
                 }
             }
     
