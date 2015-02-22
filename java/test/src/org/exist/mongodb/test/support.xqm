@@ -2,7 +2,7 @@ xquery version "3.1";
 
 module namespace support="http://exist-db.org/ext/mongodb/test/support";
 
-import module namespace mongodb = "http://exist-db.org/xquery/mongodb" 
+import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
 declare variable $support:mongoUrl := "mongodb://localhost";

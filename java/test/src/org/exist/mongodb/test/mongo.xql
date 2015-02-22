@@ -5,7 +5,7 @@ module namespace mongoMain="http://exist-db.org/mongodb/test/main";
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
-import module namespace mongodb = "http://exist-db.org/xquery/mongodb" 
+import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
 import module namespace support = "http://exist-db.org/ext/mongodb/test/support"

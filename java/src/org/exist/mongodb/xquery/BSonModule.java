@@ -14,7 +14,7 @@ import org.exist.xquery.XPathException;
 
 public class BSonModule extends AbstractInternalModule {
 
-    public final static String NAMESPACE_URI = "http://exist-db.org/xquery/mongodb/bson";
+    public final static String NAMESPACE_URI = "http://exist-db.org/mongrel/bson";
     public final static String PREFIX = "bson";
     public final static String INCLUSION_DATE = "2015-02-08";
     public final static String RELEASED_IN_VERSION = "eXist-2.3";
