@@ -49,9 +49,12 @@ public class ConversionTools {
             while (iterator.hasNext()) {
                 Item next = iterator.nextItem();
 
-                String step = next.getStringValue();
-
-                pipeline.add((BasicDBObject) JSON.parse(step));
+                if(next instanceof Sequence){
+                    pipeline.add(convertJSon((Sequence) next));
+                } else {
+                    String step = next.getStringValue();
+                    pipeline.add((BasicDBObject) JSON.parse(step));
+                }
 
             }
 
@@ -93,6 +96,13 @@ public class ConversionTools {
         return retVal;
     }
 
+    /**
+     *  Convert a sequence into BSON type or Arraylist.
+     *
+     * @param seq The sequence.
+     * @return The conversion result.
+     * @throws XPathException Thrown when a conversion fails.
+     */
     public static Object parseSequence(Sequence seq) throws XPathException {
 
         Object retVal;
@@ -100,7 +110,6 @@ public class ConversionTools {
         switch (seq.getItemType()) {
             case Type.MAP:
                 MapType map = (MapType) seq;
-                //String key = map.getKey().getStringValue();
                 BasicDBObject value = parseMap(map);
                 retVal = value;
                 break;
@@ -139,13 +148,21 @@ public class ConversionTools {
         ArrayList<Object> retVal = new ArrayList();
 
         for (Sequence sequence : array.toArray()) {
-            // Recurively add value
+            // Recursively add value
             retVal.add(parseSequence(sequence));
         }
 
         return retVal;
     }
 
+    /**
+     *  Convert an MongoDB BSON object into a sequence of xquery objects.
+     *
+     * @param context XQUery context
+     * @param bson    The BSON data
+     * @return The result of the conversion
+     * @throws XPathException Thrown when an xpath variable operation failed.
+     */
     public static Sequence convertBson(XQueryContext context, BasicDBObject bson) throws XPathException {
 
         Sequence retVal = new ValueSequence();
@@ -161,6 +178,8 @@ public class ConversionTools {
         retVal.add(mt);
         return retVal;
     }
+
+    // BSONObject
 
     public static Sequence getValues(XQueryContext context, Object o) throws XPathException {
 

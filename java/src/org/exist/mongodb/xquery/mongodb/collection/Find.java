@@ -97,11 +97,15 @@ public class Find extends BasicFunction {
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
-            String query = (args.length >= 4) ? args[3].itemAt(0).getStringValue() : null;
-            
-            String keys = (args.length >= 5) ? args[4].itemAt(0).getStringValue() : null;
 
+            BasicDBObject mongoQuery = (args.length >= 4)
+                    ? ConversionTools.convertJSon(args[3])
+                    : null;
+ 
+            BasicDBObject mongoKeys = (args.length >= 5)
+                    ? ConversionTools.convertJSon(args[4])
+                    : null;
+ 
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
@@ -109,19 +113,15 @@ public class Find extends BasicFunction {
             // PLace holder result cursor
             DBCursor cursor;
             
-            if (query == null) {
+            if (mongoQuery == null) {
                 // No query
                 cursor = dbcol.find();
 
             } else {
-                // Parse query
-                BasicDBObject mongoQuery = ConversionTools.convertJSon(query);
-
-                // Parse keys when available
-                BasicDBObject mongoKeys = ConversionTools.convertJSon(keys);
-
                 // Call correct method
-                cursor = (mongoKeys == null) ? dbcol.find(mongoQuery) : dbcol.find(mongoQuery, mongoKeys);
+                cursor = (mongoKeys == null) 
+                        ? dbcol.find(mongoQuery)
+                        : dbcol.find(mongoQuery, mongoKeys);
             }
 
 
