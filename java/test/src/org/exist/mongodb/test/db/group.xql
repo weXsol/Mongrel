@@ -10,7 +10,7 @@ import module namespace test="http://exist-db.org/xquery/xqsuite"
 import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
-import module namespace support = "http://exist-db.org/ext/mongodb/test/support"
+import module namespace support = "http://exist-db.org/mongrel/test/support"
                 at "./support.xqm";
  
 (: 

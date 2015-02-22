@@ -1,4 +1,4 @@
-package org.exist.mongodb.test.jbson;
+package org.exist.mongodb.test.bson;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
