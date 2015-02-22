@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace findAndModify="http://exist-db.org/mongodb/test/findAndModify";
 
@@ -31,7 +31,11 @@ declare %test:setUp function findAndModify:setup()
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
                             "{ x : 4 ,  y : 40 , z : 300 }"),
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
-                            "{ x : 5 ,  y : 50 , z : 300 }")
+                            "{ x : 5 ,  y : 50 , z : 300 }"),
+            mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
+                            "{ x : 6 ,  y : 60 , z : 3000 }"),
+          mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
+                            "{ x : 7 ,  y : 70 , z : 3000 }") 
         )
             
 };
@@ -92,4 +96,30 @@ function findAndModify:findAndModify_sort() {
         
 };
 
+declare 
+    %test:assertEquals(70,60)
+function findAndModify:findAndModify_sort_xq3() {
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    let $query_1 := parse-json("{ z : 3000 }", $options)
+    let $update_1 := parse-json("{ x : 2 ,  y : 20 , z : 400 }", $options)
+    let $sort_1 := parse-json("{ y : -1 }", $options)
+    
+    let $result_1 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
+                   $query_1, $update_1, $sort_1)
+                   
+    let $parse_1 := parse-json($result_1, $options)   
+    
+
+    let $result_2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
+                   $query_1, $update_1, $sort_1)
+                   
+    let $parse_2 := parse-json($result_2, $options)  
+   
+    return
+        ($parse_1?y , $parse_2?y)
+        
+};
 

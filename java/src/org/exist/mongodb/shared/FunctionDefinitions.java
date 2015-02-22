@@ -104,7 +104,7 @@ public class FunctionDefinitions {
     public static final String DESCR_KEYS= "The filters keys, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_KEYS
-            = new FunctionParameterSequenceType(PARAM_KEYS, Type.STRING, Cardinality.ONE, DESCR_KEYS);
+            = new FunctionParameterSequenceType(PARAM_KEYS, Type.ITEM, Cardinality.ONE, DESCR_KEYS);
     
     public static final String PARAM_FIELDS = "fields";
     public static final String DESCR_FIELDS= "Fields to return, JSON formatted";
@@ -117,18 +117,5 @@ public class FunctionDefinitions {
 
     public static final FunctionParameterSequenceType PARAMETER_ORDERBY
             = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.STRING, Cardinality.ONE, DESCR_ORDERBY);
-    
-    public static final String PARAM_UPDATE = "update";
-    public static final String DESCR_UPDATE= "The modifications to apply, JSON formatted";
-
-    public static final FunctionParameterSequenceType PARAMETER_UPDATE
-            = new FunctionParameterSequenceType(PARAM_UPDATE, Type.STRING, Cardinality.ONE, DESCR_UPDATE);
-    
-    
-    public static final String PARAM_SORT = "sort";
-    public static final String DESCR_SORT= "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
-
-    public static final FunctionParameterSequenceType PARAMETER_SORT
-            = new FunctionParameterSequenceType(PARAM_SORT, Type.STRING, Cardinality.ONE, DESCR_SORT);
-    
+        
 }

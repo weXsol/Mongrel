@@ -34,8 +34,6 @@ import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_SORT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_UPDATE;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -45,6 +43,7 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.AtomicValue;
+import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
@@ -61,6 +60,19 @@ import org.exist.xquery.value.Type;
 public class FindAndModify extends BasicFunction {
 
     private static final String FIND_AND_MODIFY = "findAndModify";
+
+    public static final String PARAM_UPDATE = "update";
+    public static final String DESCR_UPDATE= "The modifications to apply, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_UPDATE
+            = new FunctionParameterSequenceType(PARAM_UPDATE, Type.ITEM, Cardinality.ONE, DESCR_UPDATE);
+
+
+    public static final String PARAM_SORT = "sort";
+    public static final String DESCR_SORT= "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_SORT
+            = new FunctionParameterSequenceType(PARAM_SORT, Type.ITEM, Cardinality.ONE, DESCR_SORT);
     
   
     public final static FunctionSignature signatures[] = {

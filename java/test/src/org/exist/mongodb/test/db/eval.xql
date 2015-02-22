@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace eval="http://exist-db.org/mongodb/test/eval";
 
@@ -84,4 +84,27 @@ function eval:eval_json() {
     'function() { return { x : 1 ,  y : 2 } }' )
     
     return count(xqjson:parse-json($eval)//pair)
+};
+
+(: 
+ : collection#eval() 
+ : <json type="object">
+ : <pair name="x" type="number">1.0</pair>
+ : <pair name="y" type="number">2.0</pair>
+ : </json>
+ :)
+declare 
+    %test:assertEquals(1,2)
+function eval:eval_json_xq31() {
+    let $mongodbClientId := support:getToken()
+    let $eval:= mongodb:eval($mongodbClientId, $support:database, 
+
+    (: Javascript :)
+    'function() { return { x : 1 ,  y : 2 } }' )
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    let $result := parse-json($eval, $options)
+    
+    return ($result?x , $result?y) 
 };

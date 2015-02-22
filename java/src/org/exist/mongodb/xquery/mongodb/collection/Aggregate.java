@@ -57,10 +57,10 @@ public class Aggregate extends BasicFunction {
     private static final String AGGREGATE = "aggregate";
     
     public static final String PARAM_PIPELINE = "pipeline";
-    public static final String DESCR_PIPELINE= "Operations to be performed in the aggregation pipeline, JSON formatted";
+    public static final String DESCR_PIPELINE= "Operations to be performed in the aggregation pipeline (JSON).";
 
     public static final FunctionParameterSequenceType PARAMETER_PIPELINE
-            = new FunctionParameterSequenceType(PARAM_PIPELINE, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_PIPELINE);
+            = new FunctionParameterSequenceType(PARAM_PIPELINE, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_PIPELINE);
     
   
     public final static FunctionSignature signatures[] = {
@@ -99,7 +99,7 @@ public class Aggregate extends BasicFunction {
             // Execute query      
             AggregationOutput aggrOutput = dbcol.aggregate(pipeline);
             
-            // Parse results
+            // Bundle results
             Sequence retVal = new ValueSequence();
             
             for (DBObject result : aggrOutput.results()) {
