@@ -30,7 +30,6 @@ import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DELETE_CRITERIUM;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
@@ -39,6 +38,7 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
@@ -53,6 +53,13 @@ import org.exist.xquery.value.Type;
 public class Remove extends BasicFunction {
 
     private static final String REMOVE = "remove";
+
+    public static final String PARAM_DELETE_CRITERIUM = "criterium";
+    public static final String DESCR_DELETE_CRITERIUM = "The deletion criteria using query operators. Omit "
+            + "the query parameter or pass an empty document to delete all documents in the collection. JSON formatted";
+
+    public static final FunctionParameterSequenceType PARAMETER_DELETE_CRITERIUM
+            = new FunctionParameterSequenceType(PARAM_DELETE_CRITERIUM, Type.ITEM, Cardinality.ONE, DESCR_DELETE_CRITERIUM);
     
   
     public final static FunctionSignature signatures[] = {

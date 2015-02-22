@@ -71,12 +71,7 @@ public class FunctionDefinitions {
     public static final FunctionParameterSequenceType PARAMETER_QUERY
             = new FunctionParameterSequenceType(PARAM_QUERY, Type.ITEM, Cardinality.ONE, DESCR_QUERY);
     
-    public static final String PARAM_DELETE_CRITERIUM = "criterium";
-    public static final String DESCR_DELETE_CRITERIUM = "The deletion criteria using query operators. Omit "
-            + "the query parameter or pass an empty document to delete all documents in the collection. JSON formatted";
 
-    public static final FunctionParameterSequenceType PARAMETER_DELETE_CRITERIUM
-            = new FunctionParameterSequenceType(PARAM_DELETE_CRITERIUM, Type.STRING, Cardinality.ONE, DESCR_DELETE_CRITERIUM);
     
     
     //the deletion criteria using query operators. Omit the query parameter or pass an empty document to delete all documents in the collection.
