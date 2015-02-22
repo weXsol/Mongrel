@@ -32,7 +32,7 @@ import org.exist.xquery.XPathException;
 
 public class MongodbModule extends AbstractInternalModule {
 
-    public final static String NAMESPACE_URI = "http://exist-db.org/xquery/mongodb";
+    public final static String NAMESPACE_URI = "http://exist-db.org/mongrel/mongodb";
     public final static String PREFIX = "mongodb";
     public final static String INCLUSION_DATE = "2014-08-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";

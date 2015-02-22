@@ -1,4 +1,4 @@
-package org.exist.mongodb.test;
+package org.exist.mongodb.test.db;
 
 import org.apache.commons.lang3.StringUtils;
 import xquery.TestRunner;

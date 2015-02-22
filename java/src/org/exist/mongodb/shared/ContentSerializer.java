@@ -247,8 +247,8 @@ public class ContentSerializer {
         DBObject metaData = gfsFile.getMetaData();
         if (metaData != null && !metaData.keySet().isEmpty()) {
             builder.startElement("", "metaData", "metaData", null);
-            
-            for(String key :metaData.keySet()){
+
+            for (String key : metaData.keySet()) {
                 String value = metaData.get(key).toString();
                 addElementValue(builder, key, value);
             }
