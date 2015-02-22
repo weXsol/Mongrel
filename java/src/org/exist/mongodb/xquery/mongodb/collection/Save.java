@@ -59,7 +59,7 @@ public class Save extends BasicFunction {
     public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
 
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
-            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ONE, DESCR_JSONCONTENT);
+            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ONE, DESCR_JSONCONTENT);
     
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(

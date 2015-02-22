@@ -5,6 +5,7 @@ at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
 test:suite((
     inspect:module-functions(xs:anyURI("aggregate.xql")),
+    inspect:module-functions(xs:anyURI("count.xql")),
     inspect:module-functions(xs:anyURI("eval.xql")),
     inspect:module-functions(xs:anyURI("find.xql")),
     inspect:module-functions(xs:anyURI("findAndModify.xql")),

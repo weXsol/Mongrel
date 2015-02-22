@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/find";
 
@@ -94,6 +94,26 @@ function mongoMain:find_query_keys() {
 };
 
 
+(: collection#find(query, keys) : only y-values are returned :)
+declare 
+    %test:assertEquals(6, 4)
+function mongoMain:find_query_keys_xq31() {
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    let $query := parse-json("{ x : 6 }", $options)
+    let $keys := parse-json("{ y : 1 }", $options)
+
+    let $mongodbClientId := support:getToken()
+    let $result := mongodb:find($mongodbClientId, $support:database, $support:mongoCollection,
+    $query, $keys)
+
+    return
+        for $one in $result
+        let $parse := parse-json($one)
+        return $parse?y
+};
+
+
 (: 
 {
     "_id": {
@@ -113,4 +133,6 @@ function mongoMain:find_query_keys() {
     <pair name="z" type="number">36</pair>
 </json>
 :)
+
+
 

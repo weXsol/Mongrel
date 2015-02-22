@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace aggregate="http://exist-db.org/mongodb/test/aggregate";
 
@@ -22,7 +22,6 @@ declare %test:setUp function aggregate:setup()
 {
     let $setup := support:setup()
     let $mongodbClientId := support:getToken()
-    let $drop := mongodb:drop($mongodbClientId, $support:database, $support:mongoCollection)
     return
         (
             mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,  
@@ -36,10 +35,6 @@ declare %test:setUp function aggregate:setup()
         )
             
 };
-
-
-
-
 
 
 (: Disconnect from mongodb, cleanup token :)
@@ -80,8 +75,24 @@ function aggregate:aggregate_simple() {
         
 };
 
+declare 
+    %test:assertEquals(5, 15, 74) 
+function aggregate:aggregate_simple_xq31() {
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    let $match := parse-json('{ "$match" : { "type" : "airfare"}}', $options)
+    let $project := parse-json('{ "$project" : { "department" : 1 , "amount" : 1 , "_id" : 0}}', $options)
+    let $group := parse-json('{ "$group" : { "_id" : "$department" , "average" : { "$avg" : "$amount"}}}', $options)
+    let $sort := parse-json('{ "$sort" : { "amount" : -1}}', $options)
+    
+    let $result := mongodb:aggregate($mongodbClientId, $support:database, $support:mongoCollection,
+                   ($match, $project, $group, $sort))
 
+    return
+        for $one in $result
+        return parse-json($one, $options)?average
 
-
-
+};
 

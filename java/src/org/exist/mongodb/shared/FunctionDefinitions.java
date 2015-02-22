@@ -71,21 +71,12 @@ public class FunctionDefinitions {
     public static final FunctionParameterSequenceType PARAMETER_QUERY
             = new FunctionParameterSequenceType(PARAM_QUERY, Type.ITEM, Cardinality.ONE, DESCR_QUERY);
     
-    public static final String PARAM_DELETE_CRITERIUM = "criterium";
-    public static final String DESCR_DELETE_CRITERIUM = "The deletion criteria using query operators. Omit "
-            + "the query parameter or pass an empty document to delete all documents in the collection. JSON formatted";
 
-    public static final FunctionParameterSequenceType PARAMETER_DELETE_CRITERIUM
-            = new FunctionParameterSequenceType(PARAM_DELETE_CRITERIUM, Type.STRING, Cardinality.ONE, DESCR_DELETE_CRITERIUM);
     
     
     //the deletion criteria using query operators. Omit the query parameter or pass an empty document to delete all documents in the collection.
 
-    public static final String PARAM_JSONCONTENT = "content";
-    public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
 
-    public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
-            = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.STRING, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
     
       
     public static final String PARAM_JS_QUERY = "javascript";
@@ -104,31 +95,18 @@ public class FunctionDefinitions {
     public static final String DESCR_KEYS= "The filters keys, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_KEYS
-            = new FunctionParameterSequenceType(PARAM_KEYS, Type.STRING, Cardinality.ONE, DESCR_KEYS);
+            = new FunctionParameterSequenceType(PARAM_KEYS, Type.ITEM, Cardinality.ONE, DESCR_KEYS);
     
     public static final String PARAM_FIELDS = "fields";
     public static final String DESCR_FIELDS= "Fields to return, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_FIELDS
-            = new FunctionParameterSequenceType(PARAM_FIELDS, Type.STRING, Cardinality.ONE, DESCR_FIELDS);
+            = new FunctionParameterSequenceType(PARAM_FIELDS, Type.ITEM, Cardinality.ONE, DESCR_FIELDS);
     
     public static final String PARAM_ORDERBY = "orderBy";
     public static final String DESCR_ORDERBY= "Fields to return, JSON formatted";
 
     public static final FunctionParameterSequenceType PARAMETER_ORDERBY
-            = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.STRING, Cardinality.ONE, DESCR_ORDERBY);
-    
-    public static final String PARAM_UPDATE = "update";
-    public static final String DESCR_UPDATE= "The modifications to apply, JSON formatted";
-
-    public static final FunctionParameterSequenceType PARAMETER_UPDATE
-            = new FunctionParameterSequenceType(PARAM_UPDATE, Type.STRING, Cardinality.ONE, DESCR_UPDATE);
-    
-    
-    public static final String PARAM_SORT = "sort";
-    public static final String DESCR_SORT= "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
-
-    public static final FunctionParameterSequenceType PARAMETER_SORT
-            = new FunctionParameterSequenceType(PARAM_SORT, Type.STRING, Cardinality.ONE, DESCR_SORT);
-    
+            = new FunctionParameterSequenceType(PARAM_ORDERBY, Type.ITEM, Cardinality.ONE, DESCR_ORDERBY);
+        
 }

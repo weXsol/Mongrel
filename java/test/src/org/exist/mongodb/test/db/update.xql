@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/update";
 
@@ -62,6 +62,22 @@ function mongoMain:update_noupsert() {
         mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ qa : 4 }")
 };
 
+declare 
+    %test:assertEquals(0)
+function mongoMain:update_noupsert_xq31() {
+    let $mongodbClientId := support:getToken()
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    let $criterium := parse-json("{ x : 4 }", $options)
+    let $modification := parse-json("{ qa : 6 }", $options)
+                     
+    let $update := mongodb:update($mongodbClientId, $support:database, $support:mongoCollection, 
+                     $criterium, $modification, false(), false())            
+
+    return
+        mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ qa : 6 }")
+};
+
+
 (: collection#update() upsert contents :)
 declare 
     %test:assertEquals(1)
@@ -115,5 +131,6 @@ function mongoMain:update_nomulti() {
         mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ qd : 4 }")
         )
 };
+
 
 

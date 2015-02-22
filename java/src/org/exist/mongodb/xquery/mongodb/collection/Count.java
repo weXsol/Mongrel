@@ -86,8 +86,9 @@ public class Count extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             // Get query when available
-            String query = (args.length == 4) ? args[3].itemAt(0).getStringValue() : null;
-            BasicDBObject mongoQuery = ConversionTools.convertJSon(query);
+            BasicDBObject mongoQuery = (args.length == 4)
+                    ? ConversionTools.convertJSon(args[3])
+                    : null;
 
             // Get database and collection
             DB db = client.getDB(dbname);

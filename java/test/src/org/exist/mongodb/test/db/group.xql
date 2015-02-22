@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace groupa="http://exist-db.org/mongodb/test/group";
 
@@ -56,8 +56,7 @@ function groupa:group_simple() {
                 "{ status : 'A'}",
                 "{ total : 0 }",
                 "function ( curr, result ) {
-                     result.total += curr.amount;
-                  }"
+                     result.total += curr.amount;   }"
                 
                     )
 
@@ -65,4 +64,29 @@ function groupa:group_simple() {
         
 };
 
+
+(: 
+ : collection#group()  simple
+ : the test makes no sense but at least the new params are validated
+ :)
+declare 
+function groupa:group_simple_xq31() {
+    
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    let $key := parse-json("{ cust_id : 1 , amount : 1 , status : 1}", $options)
+    let $cond := parse-json("{ status : 'A'}", $options)
+    let $initial := parse-json("{ total : 0 }", $options)
+    
+    let $result := mongodb:group($mongodbClientId, $support:database, $support:mongoCollection,
+                $key, $cond, $initial,
+                "function ( curr, result ) {
+                     result.total += curr.amount;
+                  }" )
+
+   return $result
+        
+};
 

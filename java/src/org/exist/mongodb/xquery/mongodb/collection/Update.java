@@ -59,13 +59,13 @@ public class Update extends BasicFunction {
     public static final String DESCR_CRITERIA = "The selection criteria for the update";
 
     public static final FunctionParameterSequenceType PARAMETER_CRITERIA
-            = new FunctionParameterSequenceType(PARAM_CRITERIA, Type.STRING, Cardinality.ONE, DESCR_CRITERIA);
+            = new FunctionParameterSequenceType(PARAM_CRITERIA, Type.ITEM, Cardinality.ONE, DESCR_CRITERIA);
     
     public static final String PARAM_MODIFICATION = "modification";
     public static final String DESCR_MODIFICATION = "The modifications to apply";
 
     public static final FunctionParameterSequenceType PARAMETER_MODIFICATION 
-            = new FunctionParameterSequenceType(PARAM_MODIFICATION, Type.STRING, Cardinality.ONE, DESCR_MODIFICATION);
+            = new FunctionParameterSequenceType(PARAM_MODIFICATION, Type.ITEM, Cardinality.ONE, DESCR_MODIFICATION);
     
     public static final String PARAM_UPSERT = "upsert";
     public static final String DESCR_UPSERT = "When true, inserts a document if no document matches the update query criteria";
