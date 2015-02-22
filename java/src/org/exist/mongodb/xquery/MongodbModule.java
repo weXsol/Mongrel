@@ -4,7 +4,6 @@ package org.exist.mongodb.xquery;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
-import org.exist.mongodb.xquery.gridfs.Remove;
 import org.exist.mongodb.xquery.mongodb.client.Close;
 import org.exist.mongodb.xquery.mongodb.client.Connect;
 import org.exist.mongodb.xquery.mongodb.client.ListDatabases;
@@ -19,6 +18,7 @@ import org.exist.mongodb.xquery.mongodb.collection.FindOne;
 import org.exist.mongodb.xquery.mongodb.collection.Group;
 import org.exist.mongodb.xquery.mongodb.collection.Insert;
 import org.exist.mongodb.xquery.mongodb.collection.MapReduce;
+import org.exist.mongodb.xquery.mongodb.collection.Remove;
 import org.exist.mongodb.xquery.mongodb.collection.Save;
 import org.exist.mongodb.xquery.mongodb.collection.Update;
 import org.exist.mongodb.xquery.mongodb.db.EvalCommand;
@@ -32,7 +32,7 @@ import org.exist.xquery.XPathException;
 
 public class MongodbModule extends AbstractInternalModule {
 
-    public final static String NAMESPACE_URI = "http://exist-db.org/xquery/mongodb";
+    public final static String NAMESPACE_URI = "http://exist-db.org/mongrel/mongodb";
     public final static String PREFIX = "mongodb";
     public final static String INCLUSION_DATE = "2014-08-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";

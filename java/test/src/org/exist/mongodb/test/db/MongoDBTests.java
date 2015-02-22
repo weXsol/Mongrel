@@ -1,9 +1,9 @@
-package org.exist.mongodb.test.jbson;
+package org.exist.mongodb.test.db;
 
 import org.apache.commons.lang3.StringUtils;
 import xquery.TestRunner;
 
-public class ParserTests extends TestRunner {
+public class MongoDBTests extends TestRunner {
 
     @Override
     protected String getDirectory() {
