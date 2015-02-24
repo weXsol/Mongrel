@@ -31,7 +31,7 @@ public class MongodbClientStore {
         return instance;
     }
 
-    private final Map<String, MongoClientWrapper> clients = new HashMap();
+    private final Map<String, MongoClientWrapper> clients = new HashMap<>();
 
     public void add(String id, MongoClient client, String username) {
         MongoClientWrapper wrapper = new MongoClientWrapper(id, client, username);
