@@ -133,7 +133,7 @@ public class Aggregate extends BasicFunction {
     
     List<DBObject> convertPipeline(Sequence args) throws XPathException{
         
-        List<DBObject> pipeline = new ArrayList();
+        List<DBObject> pipeline = new ArrayList<>();
         
         if(args !=null ){
             SequenceIterator iterator = args.iterate();

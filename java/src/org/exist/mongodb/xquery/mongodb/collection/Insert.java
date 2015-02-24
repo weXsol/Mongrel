@@ -90,7 +90,7 @@ public class Insert extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Place holder for all results
-            List<DBObject> allContent = new ArrayList();
+            List<DBObject> allContent = new ArrayList<>();
             
             SequenceIterator iterate = args[3].iterate();
             while(iterate.hasNext()){
