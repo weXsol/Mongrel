@@ -26,5 +26,7 @@ Due to changes in the eXist-db core (restructoring and xquery3.1 support) two ve
 The current released code serializes JSON (output) into a JSON `xs:string`. For [XQuery 3.1](http://www.w3.org/TR/xquery-31/) (supported by eXist-db 2.3) JSON is part of the XQuery specification, using Maps and Arrays. Migration to the new output will certainly break the API in the future.
 
 ## License
-
 The work is released AS-IS under the LGPL license.
+
+## Support
+Support on this extension is provided by [eXist Solutions GmbH](http://www.existsolutions.com)
