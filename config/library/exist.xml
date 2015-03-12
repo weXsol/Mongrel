@@ -3,11 +3,11 @@
     <jar>exist-mongrel-@VERSION@.jar</jar>
     <jar>mongo-java-driver-2.13.0.jar</jar>
     <java>
-        <namespace>http://exist-db.org/mongrel/mongodb</namespace>
+        <namespace>http://expath.org/ns/mongo</namespace>
         <class>org.exist.mongodb.xquery.MongodbModule</class>
     </java>
     <java>
-        <namespace>http://exist-db.org/mongrel/gridfs</namespace>
+        <namespace>http://expath.org/ns/mongo/gridfs</namespace>
         <class>org.exist.mongodb.xquery.GridfsModule</class>
     </java>
 </package>
