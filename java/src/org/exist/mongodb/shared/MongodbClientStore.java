@@ -10,7 +10,8 @@ import java.util.UUID;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.exist.mongodb.xquery.MongodbModule.MONG0001;
 import org.exist.xquery.XPathException;
 
@@ -20,7 +21,7 @@ import org.exist.xquery.XPathException;
  */
 public class MongodbClientStore {
 
-    protected final static Logger LOG = Logger.getLogger(MongodbClientStore.class);
+    protected final static Logger LOG = LoggerFactory.getLogger(MongodbClientStore.class);
 
     private static MongodbClientStore instance = null;
 
@@ -83,7 +84,7 @@ public class MongodbClientStore {
                 Thread.sleep(1000l);
 
             } catch (InterruptedException ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage(), ex);
             }
             throw new XPathException(MONG0001, "The provided MongoDB clientid is not valid.");
         }

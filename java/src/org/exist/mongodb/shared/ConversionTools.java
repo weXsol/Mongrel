@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XPathUtil;
 import org.exist.xquery.XQueryContext;
@@ -29,7 +30,7 @@ import org.exist.xquery.value.ValueSequence;
  */
 public class ConversionTools {
 
-    protected final static Logger LOG = Logger.getLogger(ConversionTools.class);
+    protected final static Logger LOG = LoggerFactory.getLogger(ConversionTools.class);
 
     /**
      * Convert sequence of strings into List of DBobjects
