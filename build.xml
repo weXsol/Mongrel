@@ -145,6 +145,7 @@
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
             <zipfileset dir="${java.libs}" prefix="content">
                 <include name="*.jar"/>
+                <exclude name="slf4j-api-*.jar"/> <!-- already present in eXist, we manually exclude as eXist does not manage expath pkg dependencies yet -->
                 <exclude name="*-javadoc.jar"/>
                 <exclude name="*-sources.jar"/>
             </zipfileset>
