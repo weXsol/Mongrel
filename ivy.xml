@@ -9,6 +9,7 @@
 
 
         <dependency org="org.mongodb" name="mongo-java-driver" rev="2.13.0"/>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.7.10"/>
 
         
     </dependencies>
