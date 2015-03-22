@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XPathUtil;
 import org.exist.xquery.XQueryContext;
@@ -29,7 +30,7 @@ import org.exist.xquery.value.ValueSequence;
  */
 public class ConversionTools {
 
-    protected final static Logger LOG = Logger.getLogger(ConversionTools.class);
+    protected final static Logger LOG = LogManager.getLogger(ConversionTools.class);
 
     /**
      * Convert sequence of strings into List of DBobjects
@@ -70,8 +71,8 @@ public class ConversionTools {
      * @return the converted result, null if input is null.
      * @throws JSONParseException The string could not be parsed.
      */
-    public static BasicDBObject convertJSon(String json) throws JSONParseException {
-        return (json == null) ? null : (BasicDBObject) JSON.parse(json);
+    public static DBObject convertJSon(String json) throws JSONParseException {
+        return (json == null) ? null : (DBObject) JSON.parse(json);
     }
 
     /**
@@ -82,9 +83,9 @@ public class ConversionTools {
      * @throws JSONParseException The string could not be parsed.
      * @throws XPathException The string value could not be obtained
      */
-    public static BasicDBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
+    public static DBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
 
-        BasicDBObject retVal;
+        DBObject retVal;
 
         if (seq.getItemType() == Type.STRING) {
             // Do direct conversion
@@ -163,20 +164,10 @@ public class ConversionTools {
      * @return The result of the conversion
      * @throws XPathException Thrown when an xpath variable operation failed.
      */
-    public static Sequence convertBson(XQueryContext context, BasicDBObject bson) throws XPathException {
+    public static Sequence convertBson(XQueryContext context, DBObject bson) throws XPathException {
 
-        Sequence retVal = new ValueSequence();
-        MapType mt = new MapType(context);
-
-        for (Map.Entry<String, Object> entry : bson.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-
-            mt.add(new StringValue(key), getValues(context, value));
-
-        }
-        retVal.add(mt);
-        return retVal;
+        return getValues(context, bson);
+        
     }
 
     // BSONObject

@@ -10,7 +10,8 @@ import java.util.UUID;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.exist.mongodb.xquery.MongodbModule.MONG0001;
 import org.exist.xquery.XPathException;
 
@@ -20,7 +21,7 @@ import org.exist.xquery.XPathException;
  */
 public class MongodbClientStore {
 
-    protected final static Logger LOG = Logger.getLogger(MongodbClientStore.class);
+   protected final static Logger LOG = LogManager.getLogger(MongodbClientStore.class);
 
     private static MongodbClientStore instance = null;
 

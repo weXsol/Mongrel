@@ -18,7 +18,8 @@ import java.util.Properties;
 import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
 import org.exist.storage.serializers.Serializer;
@@ -40,7 +41,7 @@ import org.xml.sax.SAXException;
  */
 public class ContentSerializer {
 
-    private final static Logger LOG = Logger.getLogger(ContentSerializer.class);
+    protected final static Logger LOG = LogManager.getLogger(ContentSerializer.class);
 
     /**
      * Stream content of item to output stream
