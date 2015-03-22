@@ -19,7 +19,7 @@
  */
 package org.exist.mongodb.xquery.bson;
 
-import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.util.JSONParseException;
@@ -78,7 +78,7 @@ public class Parse extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            BasicDBObject data = ConversionTools.convertJSon(args[0]);
+            DBObject data = ConversionTools.convertJSon(args[0]);
 
             if(isCalledAs(PARSE)){
                 return ConversionTools.convertBson(context, data);
