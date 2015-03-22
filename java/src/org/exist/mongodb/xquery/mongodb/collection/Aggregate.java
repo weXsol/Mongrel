@@ -108,9 +108,9 @@ public class Aggregate extends BasicFunction {
             
             return retVal;
             
-        } catch(JSONParseException ex){
+        } catch (JSONParseException ex) {
             LOG.error(ex.getMessage());
-            throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONGO_JSON, ex.getMessage());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);

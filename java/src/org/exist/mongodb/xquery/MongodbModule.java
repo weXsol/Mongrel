@@ -68,12 +68,49 @@ public class MongodbModule extends AbstractInternalModule {
         new FunctionDef(Update.signatures[0], Update.class),
         new FunctionDef(Update.signatures[1], Update.class),
     };
-    
-    public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
-    public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
-    public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Generic exception");
-    public final static ErrorCode MONG0004 = new MongodbErrorCode("MONG0004", "JSON Syntax exception");
+
+//    @Deprecated
+//    public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
+
+    public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Generic MongoDB exception");
+    public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Uncaught java exception");
+    //public final static ErrorCode MONG0004 = new MongodbErrorCode("MONG0004", "JSON Syntax exception");
+
+    @Deprecated
     public final static ErrorCode MONG0005 = new MongodbErrorCode("MONG0005", "Command exception");
+
+    /** A new database connection could not be established. */
+    public final static ErrorCode MONGO_CONNECT
+            = new MongodbErrorCode("connect", "A new database connection could not be established.");
+
+    /** Command execution failed. */
+    public final static ErrorCode MONGO_EXEC
+            = new MongodbErrorCode("exec", "Command execution failed.");
+
+    /** No open database connection exists for the supplied client id. */
+    public final static ErrorCode MONGO_ID
+            = new MongodbErrorCode("id", "No open database connection exists for the supplied client id.");
+
+    /** An unexpected error occurred while interacting with the database. */
+    public final static ErrorCode MONGO_IO
+            = new MongodbErrorCode("io", "An unexpected error occurred while interacting with the database.");
+
+    /** A parameter could  not be converted to a JSON object. */
+    public final static ErrorCode MONGO_JSON
+            = new MongodbErrorCode("json", "A parameter could not be converted to a JSON object.");
+
+    /** The name of a database or collection is invalid. */
+    public final static ErrorCode MONGO_NAME
+            = new MongodbErrorCode("name", "The name of a database or collection is invalid.");
+
+    /** An XQuery argument cannot be converted to Javascript, or a Javascript result cannot be converted to XQuery. */
+    public final static ErrorCode MONGO_TYPE
+            = new MongodbErrorCode("type", "An XQuery argument cannot be converted to Javascript, or a Javascript result cannot be converted to XQuery.");
+
+    /** "A write operation failed. */
+    public final static ErrorCode MONGO_WRITE
+            = new MongodbErrorCode("write", "A write operation failed.");
+
 
     public final static QName EXCEPTION_QNAME
             = new QName("exception", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);

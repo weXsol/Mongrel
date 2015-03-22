@@ -143,9 +143,8 @@ public class Update extends BasicFunction {
             throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 
         } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
+            LOG.error(ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONGO_JSON, ex.getMessage());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);

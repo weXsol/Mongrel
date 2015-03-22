@@ -84,13 +84,12 @@ public class Drop extends BasicFunction {
             return Sequence.EMPTY_SEQUENCE;
 
         } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
+            LOG.error(ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONGO_JSON, ex.getMessage());
 
         } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
+            LOG.error(ex.getMessage());
+            throw new XPathException(this, ex.getMessage());
 
         } catch (MongoException ex) {
             LOG.error(ex.getMessage(), ex);

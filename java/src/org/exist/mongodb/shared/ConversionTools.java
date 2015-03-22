@@ -100,9 +100,19 @@ public class ConversionTools {
      */
     public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException{
 
+        if(seq == null & seq.isEmpty()){
+            throw new IllegalArgumentException("Sequence is NULL or is empty.");
+        }
+
         DBObject value = convertJSon(seq);
+
+        if(value == null){
+            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject (null value).");
+        }
+
+
         if(! (value instanceof BasicDBObject)){
-            throw new IllegalArgumentException(String.format("Sequence '%s' cannot be converted to BasicDBObject.", seq.getStringValue()));
+            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject.");
         }
 
         return (BasicDBObject)value;

@@ -103,10 +103,10 @@ public class Remove extends BasicFunction {
             
             return new StringValue(result.toString());
             
-        } catch(JSONParseException ex){
+        } catch (JSONParseException ex) {
             LOG.error(ex.getMessage());
-            throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
-
+            throw new XPathException(this, MongodbModule.MONGO_JSON, ex.getMessage());
+            
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);

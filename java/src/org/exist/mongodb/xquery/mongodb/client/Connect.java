@@ -81,17 +81,13 @@ public class Connect extends BasicFunction {
             // Report identifier
             return new StringValue(mongodbClientId);
 
-//        } catch (XPathException ex) {
-//            LOG.error(ex.getMessage(), ex);
-//            throw new XPathException(this, ex.getMessage(), ex);
-
         } catch (MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
 
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
+            throw new XPathException(this, MongodbModule.MONGO_IO, ex.getMessage());
         }
 
 
