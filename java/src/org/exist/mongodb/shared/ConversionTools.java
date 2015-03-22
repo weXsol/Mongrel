@@ -85,16 +85,27 @@ public class ConversionTools {
      */
     public static DBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
 
-        DBObject retVal;
+        return (seq.getItemType() == Type.STRING)
+                ? convertJSon(seq.getStringValue())
+                : (BasicDBObject) parseSequence(seq); // is this correct
+    }
 
-        if (seq.getItemType() == Type.STRING) {
-            // Do direct conversion
-            retVal = convertJSon(seq.getStringValue());
-        } else {
-            retVal = (BasicDBObject) parseSequence(seq);
+    /**
+     *  Get simple BasicDBObject from sequence
+     * 
+     * @param seq The input sequence
+     * @return The JSON representation of the sequence
+     * @throws JSONParseException The input could not be parsed
+     * @throws XPathException The conversion failed.
+     */
+    public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException{
+
+        DBObject value = convertJSon(seq);
+        if(! (value instanceof BasicDBObject)){
+            throw new IllegalArgumentException(String.format("Sequence '%s' cannot be converted to BasicDBObject.", seq.getStringValue()));
         }
 
-        return retVal;
+        return (BasicDBObject)value;
     }
 
     /**

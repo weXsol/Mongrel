@@ -100,15 +100,15 @@ public class FindOne extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             BasicDBObject fields = (args.length >= 5)
-                    ? ConversionTools.convertJSon(args[4])
+                    ? ConversionTools.convertJSonParameter(args[4])
                     : null;
 
             BasicDBObject orderBy = (args.length >= 6)
-                    ? ConversionTools.convertJSon(args[5])
+                    ? ConversionTools.convertJSonParameter(args[5])
                     : null;
 
             // Get database

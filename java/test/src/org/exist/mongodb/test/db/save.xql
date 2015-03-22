@@ -85,7 +85,7 @@ function mongoMain:save_mixed() {
 
 (: collection#save()  empty document :)
 declare 
-    %test:assertError("mongodb:MONG0003")
+    %test:assertError("mongodb:MONG0004")
 function mongoMain:save_emptydocument() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:save($mongodbClientId, $support:database, $support:mongoCollection, 

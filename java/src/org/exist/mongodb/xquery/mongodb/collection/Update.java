@@ -119,8 +119,8 @@ public class Update extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Get data
-            BasicDBObject criterium = ConversionTools.convertJSon(args[3]);
-            BasicDBObject modification = ConversionTools.convertJSon(args[4]);
+            BasicDBObject criterium = ConversionTools.convertJSonParameter(args[3]);
+            BasicDBObject modification = ConversionTools.convertJSonParameter(args[4]);
             
             Boolean upsert = (args.length >= 6)
                     ? args[5].itemAt(0).toJavaObject(Boolean.class)

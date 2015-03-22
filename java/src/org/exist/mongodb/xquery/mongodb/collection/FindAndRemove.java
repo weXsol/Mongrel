@@ -84,7 +84,7 @@ public class FindAndRemove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             // Get collection in database

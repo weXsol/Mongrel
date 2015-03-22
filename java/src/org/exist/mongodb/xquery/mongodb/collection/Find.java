@@ -99,11 +99,11 @@ public class Find extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject mongoQuery = (args.length >= 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
  
             BasicDBObject mongoKeys = (args.length >= 5)
-                    ? ConversionTools.convertJSon(args[4])
+                    ? ConversionTools.convertJSonParameter(args[4])
                     : null;
  
             // Get database

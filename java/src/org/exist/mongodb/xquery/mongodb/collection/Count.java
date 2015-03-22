@@ -87,7 +87,7 @@ public class Count extends BasicFunction {
 
             // Get query when available
             BasicDBObject mongoQuery = (args.length == 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             // Get database and collection

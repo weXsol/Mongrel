@@ -111,15 +111,15 @@ public class FindAndModify extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             BasicDBObject update = (args.length >= 5)
-                    ? ConversionTools.convertJSon(args[4])
+                    ? ConversionTools.convertJSonParameter(args[4])
                     : null;
 
             BasicDBObject sort = (args.length >= 6)
-                    ? ConversionTools.convertJSon(args[5])
+                    ? ConversionTools.convertJSonParameter(args[5])
                     : null;
 
 //             Map<String,Boolean> options = (args.length >= 7)

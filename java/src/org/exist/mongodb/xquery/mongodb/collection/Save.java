@@ -95,7 +95,7 @@ public class Save extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Get data
-            BasicDBObject data = ConversionTools.convertJSon(args[3]);
+            BasicDBObject data = ConversionTools.convertJSonParameter(args[3]);
     
             // Execute save
             WriteResult result = dbcol.save(data);
@@ -107,7 +107,7 @@ public class Save extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
 
-        } catch (JSONParseException ex) {
+        } catch (JSONParseException | IllegalArgumentException ex) {
             String msg = "Invalid JSON data: " + ex.getMessage();
             LOG.error(msg);
             throw new XPathException(this, MongodbModule.MONG0004, msg);

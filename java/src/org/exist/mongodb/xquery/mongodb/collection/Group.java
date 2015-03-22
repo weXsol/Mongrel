@@ -111,11 +111,11 @@ public class Group extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = ConversionTools.convertJSon(args[3]);
+            BasicDBObject key = ConversionTools.convertJSonParameter(args[3]);
 
-            BasicDBObject condition = ConversionTools.convertJSon(args[4]);
+            BasicDBObject condition = ConversionTools.convertJSonParameter(args[4]);
 
-            BasicDBObject initial = ConversionTools.convertJSon(args[5]);
+            BasicDBObject initial = ConversionTools.convertJSonParameter(args[5]);
 
             String reduce = args[6].itemAt(0).getStringValue();
 

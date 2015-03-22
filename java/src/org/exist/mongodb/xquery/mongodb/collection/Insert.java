@@ -107,7 +107,7 @@ public class Insert extends BasicFunction {
 
                 if(nextItem instanceof Sequence){
                     Sequence seq = (Sequence) nextItem;
-                    BasicDBObject bsonContent = ConversionTools.convertJSon(seq);
+                    BasicDBObject bsonContent = ConversionTools.convertJSonParameter(seq);
                     allContent.add(bsonContent);
 
                 } else {
@@ -115,7 +115,7 @@ public class Insert extends BasicFunction {
                     if(StringUtils.isEmpty(value)){
                         LOG.error("Skipping empty string");
                     } else {
-                        BasicDBObject bsonContent = ConversionTools.convertJSon(value);
+                        DBObject bsonContent = ConversionTools.convertJSon(value);
                         allContent.add(bsonContent);
                     }
                 }
