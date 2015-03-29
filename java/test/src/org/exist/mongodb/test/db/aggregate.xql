@@ -96,3 +96,51 @@ function aggregate:aggregate_simple_xq31() {
 
 };
 
+declare 
+    %test:assertEquals('{ "serverUsed" : "miniserver.local:27017" , "result" : [ ] , "ok" : 1.0}') 
+function aggregate:aggregate_command_xq31() {
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    
+    let $command := '{
+  aggregate: "mongoTest",
+  pipeline: [
+    {
+        "$match": {
+            "type": "airfare"
+        }
+    },
+    {
+        "$project": {
+            "_id": 0,
+            "amount": 1,
+            "department": 1
+        }
+    },
+    {
+        "$group": {
+            "_id": "$department",
+            "average": {
+                "$avg": "$amount"
+            }
+        }
+    },
+    {
+        "$sort": {
+            "amount": -1
+        }
+    }
+]
+}'
+
+    let $json := parse-json($command, $options)
+    
+    
+    let $result := mongodb:command($mongodbClientId, $support:database, $command)
+
+    return
+        $result
+
+};

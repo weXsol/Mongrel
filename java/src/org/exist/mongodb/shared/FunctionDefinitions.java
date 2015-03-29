@@ -77,20 +77,6 @@ public class FunctionDefinitions {
     //the deletion criteria using query operators. Omit the query parameter or pass an empty document to delete all documents in the collection.
 
 
-    
-      
-    public static final String PARAM_JS_QUERY = "javascript";
-    public static final String DESCR_JS_QUERY = "Javascript Query";
-
-    public static final FunctionParameterSequenceType PARAMETER_JS_QUERY
-            = new FunctionParameterSequenceType(PARAM_JS_QUERY, Type.STRING, Cardinality.ONE, DESCR_JS_QUERY);
-    
-    public static final String PARAM_JS_PARAMS = "parameters";
-    public static final String DESCR_JS_PARAMS = "Parameters for script";
-    
-    public static final FunctionParameterSequenceType PARAMETER_JS_PARAMS
-            = new FunctionParameterSequenceType(PARAM_JS_PARAMS, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JS_PARAMS);
-
     public static final String PARAM_KEYS = "keys";
     public static final String DESCR_KEYS= "The filters keys, JSON formatted";
 
