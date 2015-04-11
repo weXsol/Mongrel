@@ -23,6 +23,7 @@ import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -81,14 +82,9 @@ public class Connect extends BasicFunction {
             // Report identifier
             return new StringValue(mongodbClientId);
 
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
-        } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONGO_IO, ex.getMessage());
-        }
+        } catch (Throwable t) {
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
 
     }    

@@ -78,6 +78,12 @@ public class MongodbModule extends AbstractInternalModule {
 
     @Deprecated
     public final static ErrorCode MONG0005 = new MongodbErrorCode("MONG0005", "Command exception");
+    
+     @Deprecated
+    public final static ErrorCode MONG0006 = new MongodbErrorCode("MONG0006", "Connection timeout.");
+     
+       @Deprecated
+    public final static ErrorCode MONG0007 = new MongodbErrorCode("MONG0007", "Failure in driver.");
 
     /** A new database connection could not be established. */
     public final static ErrorCode MONGO_CONNECT
@@ -97,7 +103,7 @@ public class MongodbModule extends AbstractInternalModule {
 
     /** A parameter could  not be converted to a JSON object. */
     public final static ErrorCode MONGO_JSON
-            = new MongodbErrorCode("json", "A parameter could not be converted to a JSON object.");
+            = new MongodbErrorCode("json", "A parameter could not be converted to a JSON object");
 
     /** The name of a database or collection is invalid. */
     public final static ErrorCode MONGO_NAME

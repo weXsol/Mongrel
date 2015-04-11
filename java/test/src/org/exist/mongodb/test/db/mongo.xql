@@ -34,7 +34,7 @@ function mongoMain:show_token() {
 };
 
 declare 
-    %test:assertError("xerr:ERROR mongodb:id")
+    %test:assertError("mongodb:id")
 function mongoMain:login_illegal_token() {
     let $mongodbClientId := "aa"
     return mongodb:drop($mongodbClientId, $support:database, $support:mongoCollection)

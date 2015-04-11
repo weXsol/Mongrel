@@ -65,7 +65,7 @@ function mongoMain:insert_emptysequence() {
 
 (: collection#insert()  empty document :)
 declare 
-    %test:assertError("mongodb:MONG0003")
+    %test:assertError("mongodb:json")
 function mongoMain:insert_emptydocument() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 
