@@ -96,8 +96,11 @@ function aggregate:aggregate_simple_xq31() {
 
 };
 
+(: 
+ : Run same tests directly with command function
+ :)
 declare 
-    %test:assertEquals('{ "serverUsed" : "miniserver.local:27017" , "result" : [ ] , "ok" : 1.0}') 
+    %test:assertEquals(5, 15, 74) 
 function aggregate:aggregate_command_xq31() {
     let $mongodbClientId := support:getToken()
     
@@ -105,7 +108,7 @@ function aggregate:aggregate_command_xq31() {
     
     
     let $command := '{
-  aggregate: "mongoTest",
+  aggregate: "mongodbTest",
   pipeline: [
     {
         "$match": {
@@ -135,12 +138,11 @@ function aggregate:aggregate_command_xq31() {
 ]
 }'
 
-    let $json := parse-json($command, $options)
-    
-    
-    let $result := mongodb:command($mongodbClientId, $support:database, $command)
+
+    let $cmdresult := mongodb:command($mongodbClientId, $support:database, $command)
+    let $result := parse-json($cmdresult, $options)
 
     return
-        $result
+        map:get($result, "result")?*?average
 
 };
