@@ -19,7 +19,6 @@
  */
 package org.exist.mongodb.xquery.mongodb.client;
 
-import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
@@ -49,9 +48,9 @@ public class Connect extends BasicFunction {
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
             new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Connect to GridFS server",
+            "Establish a connection to MongoDB. Returns a client id that identifies the opened connection.",
             new SequenceType[]{
-                new FunctionParameterSequenceType("url", Type.STRING, Cardinality.ONE, "URI to server")
+                new FunctionParameterSequenceType("uri", Type.STRING, Cardinality.ONE, "URI to server")
             },
             new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
         ),       
