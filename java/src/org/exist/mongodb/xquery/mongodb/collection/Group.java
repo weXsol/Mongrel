@@ -32,6 +32,7 @@ import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -111,11 +112,11 @@ public class Group extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = ConversionTools.convertJSon(args[3]);
+            BasicDBObject key = ConversionTools.convertJSonParameter(args[3]);
 
-            BasicDBObject condition = ConversionTools.convertJSon(args[4]);
+            BasicDBObject condition = ConversionTools.convertJSonParameter(args[4]);
 
-            BasicDBObject initial = ConversionTools.convertJSon(args[5]);
+            BasicDBObject initial = ConversionTools.convertJSonParameter(args[5]);
 
             String reduce = args[6].itemAt(0).getStringValue();
 
@@ -144,22 +145,9 @@ public class Group extends BasicFunction {
 
             return retVal;
             
-        } catch(JSONParseException ex){
-            LOG.error(ex.getMessage());
-            throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
-
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
-        } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
-        }
+        } catch (Throwable t) {
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
     }
 

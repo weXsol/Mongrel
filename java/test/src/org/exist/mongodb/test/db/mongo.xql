@@ -5,7 +5,7 @@ module namespace mongoMain="http://exist-db.org/mongodb/test/main";
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
-import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
+import module namespace mongodb = "http://expath.org/ns/mongo" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
 import module namespace support = "http://exist-db.org/mongrel/test/support"
@@ -31,4 +31,11 @@ declare
 function mongoMain:show_token() {
     let $token := support:getToken()
     return <test n='4'/>
+};
+
+declare 
+    %test:assertError("mongodb:id")
+function mongoMain:login_illegal_token() {
+    let $mongodbClientId := "aa"
+    return mongodb:drop($mongodbClientId, $support:database, $support:mongoCollection)
 };

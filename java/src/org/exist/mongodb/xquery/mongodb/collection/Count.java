@@ -31,6 +31,7 @@ import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -87,7 +88,7 @@ public class Count extends BasicFunction {
 
             // Get query when available
             BasicDBObject mongoQuery = (args.length == 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             // Get database and collection
@@ -99,23 +100,9 @@ public class Count extends BasicFunction {
 
             return new IntegerValue(nrOfDocuments);
 
-        } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
-
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
         } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
-            throw new XPathException(this, MongodbModule.MONG0003, t.getMessage());
-        }
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
     }
 

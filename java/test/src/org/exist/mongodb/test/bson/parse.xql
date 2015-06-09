@@ -26,15 +26,15 @@ declare variable $parse:serializeOptions := <output:serialization-parameters>
 
 declare 
     %test:assertEquals('{"x":1}')
-function parse:simple_json() {
-     let $data := bson:pa rse("{ x : 1 }")
+function parse:simple_map() {
+     let $data := bson:parse("{ x : 1 }")
      return
          serialize($data,$parse:serializeOptions)
 };
 
 declare 
     %test:assertEquals('{"x":1,"y":2,"z":3}')
-function parse:larger_json() {
+function parse:larger_map() {
      let $data := bson:parse("{ x : 1 , y : 2 , z : 3 }")
      return
          serialize($data, $parse:serializeOptions)
@@ -42,7 +42,7 @@ function parse:larger_json() {
 
 declare 
     %test:assertEquals('{"name":{"first":"John","last":"Backus"},"awards":[{"by":"IEEE Computer Society","year":1967,"award":"W.W. McDowell Award"},{"by":"National Academy of Engineering","year":1993,"award":"Draper Prize"}],"_id":1,"contribs":["Fortran","ALGOL","Backus-Naur Form","FP"]}')
-function parse:complex_json() {
+function parse:complex_map() {
      let $data := bson:parse('{
 "_id" : 1,
 "name" : { "first" : "John", "last" : "Backus" },
@@ -64,4 +64,27 @@ function parse:complex_json() {
          serialize($data, $parse:serializeOptions)
 };
 
+declare 
+    %test:assertEquals('[{"x":1},{"y":2}]')
+function parse:simple_array() {
+     let $data := bson:parse("[ { x : 1 }, { y : 2} ]")
+     return
+         serialize($data,$parse:serializeOptions)
+};
 
+declare 
+    %test:assertEquals('{"x":[{"a":1},{"b":2}]}')
+function parse:map_with_array() {
+     let $data := bson:parse('{"x":[{"a":1},{"b":2}]}')
+     return
+         serialize($data, $parse:serializeOptions)
+};
+
+
+declare 
+    %test:assertEquals('[{"x":{"a":1}},{"y":{"b":2}}]')
+function parse:array_with_maps() {
+     let $data := bson:parse('[ { x : {"a":1} }, { y : {"b":2}} ]')
+     return
+         serialize($data,$parse:serializeOptions)
+};

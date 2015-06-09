@@ -32,6 +32,7 @@ import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -95,35 +96,16 @@ public class Save extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
             
             // Get data
-            BasicDBObject data = ConversionTools.convertJSon(args[3]);
+            BasicDBObject data = ConversionTools.convertJSonParameter(args[3]);
     
             // Execute save
             WriteResult result = dbcol.save(data);
 
             return new StringValue(result.toString());
             
-        } catch (MongoCommandException ex){
-            // TODO return as value?
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0005, ex.getMessage());
-
-        } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
-
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
         } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
-            throw new XPathException(this, MongodbModule.MONG0003, t.getMessage());
-        }
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
     }
 

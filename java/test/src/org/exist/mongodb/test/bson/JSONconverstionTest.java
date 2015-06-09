@@ -1,6 +1,8 @@
 package org.exist.mongodb.test.bson;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,7 +50,11 @@ public class JSONconverstionTest {
 
     @Test
     public void simpleMap() {
-        BasicDBObject obj = (BasicDBObject) JSON.parse("{ 'aa' : { 'bb' : 'cc' , 'dd' : 'ee'} }");
+        DBObject dbo = (DBObject) JSON.parse("{ 'aa' : { 'bb' : 'cc' , 'dd' : 'ee'} }");
+
+        assertTrue(dbo instanceof BasicDBObject);
+
+        BasicDBObject obj = (BasicDBObject) dbo;
 
         // Verify first key
         assertEquals("aa", obj.keySet().toArray()[0]);
@@ -71,5 +77,14 @@ public class JSONconverstionTest {
         next = iterator.next();   
         assertEquals("dd", next.getKey());
         assertEquals("ee", next.getValue());
+    }
+
+    @Test
+    public void simpleArray() {
+        DBObject obj = (DBObject) JSON.parse("[{'firstName':'John', 'lastName':'Doe'},  {'firstName':'Anna', 'lastName':'Smith'}, {'firstName':'Peter','lastName': 'Jones'}]");
+
+        assertTrue(obj instanceof BasicDBList);
+
+        assertEquals( 3, ((BasicDBList) obj).size());
     }
 }

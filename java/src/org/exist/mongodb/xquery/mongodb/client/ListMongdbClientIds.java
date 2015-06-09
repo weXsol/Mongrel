@@ -24,6 +24,7 @@ import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -82,19 +83,9 @@ public class ListMongdbClientIds extends BasicFunction {
 
             return valueSequence;
 
-
-//        } catch (XPathException ex) {
-//            LOG.error(ex.getMessage(), ex);
-//            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
-        } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
-        }
+        } catch (Throwable t) {
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
 
     }

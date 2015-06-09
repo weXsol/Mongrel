@@ -7,7 +7,7 @@ import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
-import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
+import module namespace mongodb = "http://expath.org/ns/mongo" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
 import module namespace support = "http://exist-db.org/mongrel/test/support"
@@ -96,3 +96,53 @@ function aggregate:aggregate_simple_xq31() {
 
 };
 
+(: 
+ : Run same tests directly with command function
+ :)
+declare 
+    %test:assertEquals(5, 15, 74) 
+function aggregate:aggregate_command_xq31() {
+    let $mongodbClientId := support:getToken()
+    
+    let $options := map { "liberal": true(), "duplicates": "use-last" }
+    
+    
+    let $command := '{
+  aggregate: "mongodbTest",
+  pipeline: [
+    {
+        "$match": {
+            "type": "airfare"
+        }
+    },
+    {
+        "$project": {
+            "_id": 0,
+            "amount": 1,
+            "department": 1
+        }
+    },
+    {
+        "$group": {
+            "_id": "$department",
+            "average": {
+                "$avg": "$amount"
+            }
+        }
+    },
+    {
+        "$sort": {
+            "amount": -1
+        }
+    }
+]
+}'
+
+
+    let $cmdresult := mongodb:command($mongodbClientId, $support:database, $command)
+    let $result := parse-json($cmdresult, $options)
+
+    return
+        map:get($result, "result")?*?average
+
+};

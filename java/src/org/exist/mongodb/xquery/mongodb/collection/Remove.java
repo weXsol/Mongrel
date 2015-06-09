@@ -31,6 +31,7 @@ import org.exist.mongodb.shared.ConversionTools;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -91,7 +92,7 @@ public class Remove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
             
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSon(args[3])
+                    ? ConversionTools.convertJSonParameter(args[3])
                     : null;
 
             // Get collection in database
@@ -103,22 +104,9 @@ public class Remove extends BasicFunction {
             
             return new StringValue(result.toString());
             
-        } catch(JSONParseException ex){
-            LOG.error(ex.getMessage());
-            throw new XPathException(this, MongodbModule.MONG0004, ex.getMessage());
-
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
-        } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0003, ex.getMessage());
-        }
+        } catch (Throwable t) {
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
     }
     

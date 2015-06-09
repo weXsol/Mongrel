@@ -7,7 +7,7 @@ import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
-import module namespace mongodb = "http://exist-db.org/mongrel/mongodb" 
+import module namespace mongodb = "http://expath.org/ns/mongo" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 
 import module namespace support = "http://exist-db.org/mongrel/test/support"
@@ -85,7 +85,7 @@ function mongoMain:save_mixed() {
 
 (: collection#save()  empty document :)
 declare 
-    %test:assertError("mongodb:MONG0003")
+    %test:assertError("mongodb:json")
 function mongoMain:save_emptydocument() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:save($mongodbClientId, $support:database, $support:mongoCollection, 

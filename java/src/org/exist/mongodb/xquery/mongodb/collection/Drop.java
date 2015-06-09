@@ -22,12 +22,15 @@ package org.exist.mongodb.xquery.mongodb.collection;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientException;
 import com.mongodb.MongoException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
+import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.BasicFunction;
@@ -82,24 +85,10 @@ public class Drop extends BasicFunction {
             dbcol.drop();
 
             return Sequence.EMPTY_SEQUENCE;
-
-        } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
-            LOG.error(msg);
-            throw new XPathException(this, MongodbModule.MONG0004, msg);
-
-        } catch (XPathException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, ex.getMessage(), ex);
-
-        } catch (MongoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new XPathException(this, MongodbModule.MONG0002, ex.getMessage());
-
+        
         } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
-            throw new XPathException(this, MongodbModule.MONG0003, t.getMessage());
-        }
+            return GenericExceptionHandler.handleException(this, t);
+        } 
 
     }
 
