@@ -14,10 +14,10 @@ Downloads and release notes are on the GitHub [Releases](https://github.com/dizz
 ## Versions
 
 Version 0.6.1 requires eXist-db 3.0 (or newer). 
-The function namespaces are http://expath.org/ns/mongo and http://expath.org/ns/mongo/gridfs
+> The function namespaces are http://expath.org/ns/mongo and http://expath.org/ns/mongo/gridfs
 
-Version 0.3.5 is the last version compatible with eXist-db 2.2
-The function namespaces were http://exist-db.org/mongrel/mongodb and http://expath.org/ns/mongo/gridfs
+Version 0.3.5 is the last version compatible with eXist-db 2.2.
+> The function namespaces were http://exist-db.org/mongrel/mongodb and http://expath.org/ns/mongo/gridfs
 
 ## Requirements
 - eXist-db 2.2 / Java7
