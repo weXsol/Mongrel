@@ -28,6 +28,7 @@ The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON s
 
 > the implementation is Work in Progress : there are some specification issues to be solved.
 
+The extension is based on the 2.x version of the [official mongodb driver](http://mongodb.github.io/mongo-java-driver/)
 
 ## License
 The work is released AS-IS under the LGPL license.
