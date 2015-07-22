@@ -9,21 +9,23 @@ Extensive documentation can be found on the [Wiki](https://github.com/dizzzz/Mon
 
 Downloads and release notes are on the GitHub [Releases](https://github.com/dizzzz/Mongrel/releases) page.
 
-![MongoDB Logo](http://www.mongodb.com/sites/mongodb.com/files/media/mongodb-logo-rgb.jpeg)
+![MongoDB Logo](http://s3.amazonaws.com/info-mongodb-com/_com_assets/media/mongodb-logo-rgb.jpeg)
 
 ## Versions
 
-Due to changes in the eXist-db core (restructoring and xquery3.1 support) two versions of the extension are developed: 
+Version 0.6.1 requires eXist-db 3.0 (or newer). 
+The function namespaces are http://expath.org/ns/mongo and http://expath.org/ns/mongo/gridfs
 
-- For eXist-2.2 : [Master branch](https://github.com/dizzzz/Mongrel/tree/master)
-- For eXist-2.3+ : [Develop branch](https://github.com/dizzzz/Mongrel/tree/develop)
+Version 0.3.5 is the last version compatible with eXist-db 2.2
+The function namespaces were http://exist-db.org/mongrel/mongodb and http://expath.org/ns/mongo/gridfs
 
 ## Requirements
 - eXist-db 2.2 / Java7
 - eXist-db 2.3+ / Java8
 
 ## Notes
-The current released code serializes JSON (output) into a JSON `xs:string`. For [XQuery 3.1](http://www.w3.org/TR/xquery-31/) (supported by eXist-db 2.3) JSON is part of the XQuery specification, using Maps and Arrays. Migration to the new output will certainly break the API in the future.
+The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON structures, and is therefore not compatible with version 0.3.5 and older.
+
 
 ## License
 The work is released AS-IS under the LGPL license.
