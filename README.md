@@ -21,10 +21,12 @@ Version 0.3.5 is the last version compatible with eXist-db 2.2.
 
 ## Requirements
 - eXist-db 2.2 / Java7
-- eXist-db 2.3+ / Java8
+- eXist-db 3.0+ / Java8
 
 ## Notes
 The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON structures, and is therefore not compatible with version 0.3.5 and older.
+
+> the implementation is Work in Progress : there are some specification issues to be solved.
 
 
 ## License
