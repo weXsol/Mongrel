@@ -1,5 +1,6 @@
 Mongrel: the eXist-db MongoDB extension
 ========================================
+[![Java 8](https://img.shields.io/badge/java-8-blue.svg)](http://java.oracle.com) [![License](https://img.shields.io/badge/license-LGPL%202.1-blue.svg)](https://www.gnu.org/licenses/lgpl-2.1.html)
 
 The Mongrel eXist-db extension provides xquery extension functions to access MongoDB database functions.
 
