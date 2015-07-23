@@ -18,8 +18,8 @@ Version 0.3.5 is the last version compatible with eXist-db 2.2.
 > The function namespaces were http://exist-db.org/mongrel/mongodb and http://expath.org/ns/mongo/gridfs
 
 ## Requirements
-- eXist-db 2.2 / Java7
-- eXist-db 3.0+ / Java8
+- v0.3.5- / eXist-db 2.2- / Java7
+- v0.6.1+ / eXist-db 3.0+ / Java8
 
 ## Notes
 The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON structures and is therefore not XQuery compatible with code written for version 0.3.5 and older.
