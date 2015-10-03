@@ -24,8 +24,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
-import com.mongodb.util.JSONParseException;
 import java.util.List;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;

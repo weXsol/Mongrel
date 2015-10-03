@@ -50,7 +50,7 @@ public class ConversionTools {
             while (iterator.hasNext()) {
                 Item next = iterator.nextItem();
 
-                if(next instanceof Sequence){
+                if(next instanceof Sequence){ // Dead code
                     pipeline.add(convertJSon((Sequence) next));
                 } else {
                     String step = next.getStringValue();
@@ -100,7 +100,7 @@ public class ConversionTools {
      */
     public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException{
 
-        if(seq == null & seq.isEmpty()){
+        if(seq == null || seq.isEmpty()){
             throw new IllegalArgumentException("Sequence is NULL or is empty.");
         }
 

@@ -224,9 +224,9 @@ public class ContentSerializer {
 
         List<String> aliases = gfsFile.getAliases();
         if (aliases != null) {
-            for (String alias : gfsFile.getAliases()) {
+            gfsFile.getAliases().stream().forEach((alias) -> {
                 addElementValue(builder, "alias", alias);
-            }
+            });
         }
 
         // mimetype
@@ -249,10 +249,10 @@ public class ContentSerializer {
         if (metaData != null && !metaData.keySet().isEmpty()) {
             builder.startElement("", "metaData", "metaData", null);
 
-            for (String key : metaData.keySet()) {
+            metaData.keySet().stream().forEach((key) -> {
                 String value = metaData.get(key).toString();
                 addElementValue(builder, key, value);
-            }
+            });
 
             builder.endElement();
         }

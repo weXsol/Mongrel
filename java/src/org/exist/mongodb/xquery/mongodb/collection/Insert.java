@@ -24,10 +24,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCommandException;
-import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import com.mongodb.util.JSONParseException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -106,7 +103,7 @@ public class Insert extends BasicFunction {
 
                 Item nextItem = iterate.nextItem();
 
-                if(nextItem instanceof Sequence){
+                if(nextItem instanceof Sequence){ // Dead code
                     Sequence seq = (Sequence) nextItem;
                     BasicDBObject bsonContent = ConversionTools.convertJSonParameter(seq);
                     allContent.add(bsonContent);

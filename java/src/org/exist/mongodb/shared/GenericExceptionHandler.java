@@ -19,7 +19,6 @@
  */
 package org.exist.mongodb.shared;
 
-import com.mongodb.CommandFailureException;
 import com.mongodb.MongoClientException;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;

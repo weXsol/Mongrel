@@ -19,7 +19,6 @@
  */
 package org.exist.mongodb.xquery.mongodb.client;
 
-import com.mongodb.MongoException;
 import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
@@ -77,9 +76,9 @@ public class ListMongdbClientIds extends BasicFunction {
             
             ValueSequence valueSequence = new ValueSequence();
            
-            for (String mongodbClientId : clientIds) {
+            clientIds.stream().forEach((mongodbClientId) -> {
                 valueSequence.add(new StringValue(mongodbClientId));
-            }
+            });
 
             return valueSequence;
 

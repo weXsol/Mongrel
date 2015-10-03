@@ -20,7 +20,6 @@
 package org.exist.mongodb.xquery.mongodb.client;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.GenericExceptionHandler;
@@ -76,9 +75,9 @@ public class ListDatabases extends BasicFunction {
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
             
             ValueSequence seq = new ValueSequence();
-            for(String name : client.getDatabaseNames()){
+            client.getDatabaseNames().stream().forEach((name) -> {
                 seq.add(new StringValue(name));
-            }
+            });
             return seq;
 
         } catch (Throwable t) {

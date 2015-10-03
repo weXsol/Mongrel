@@ -21,7 +21,6 @@ package org.exist.mongodb.xquery.mongodb.db;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
 import java.util.Set;
 import org.exist.dom.QName;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
@@ -84,10 +83,10 @@ public class ListCollections extends BasicFunction {
             // Storage for results
             ValueSequence valueSequence = new ValueSequence();
            
-            // Iterate over collection names 
-            for (String collName : collectionNames) {
+            // Iterate over collection names
+            collectionNames.stream().forEach((collName) -> {
                 valueSequence.add(new StringValue(collName));
-            }
+            });
 
             return valueSequence;
 

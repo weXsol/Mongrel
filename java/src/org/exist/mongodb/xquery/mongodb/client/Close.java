@@ -20,7 +20,6 @@
 package org.exist.mongodb.xquery.mongodb.client;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
