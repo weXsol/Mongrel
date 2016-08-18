@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.Namespaces;
 import org.exist.dom.QName;
-import org.exist.dom.memtree.DocumentImpl;
 import org.exist.dom.memtree.SAXAdapter;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
@@ -129,9 +128,7 @@ public class Get extends BasicFunction {
                 throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
             }
 
-            Sequence retVal = get(gfsFile, forceBinary);
-
-            return retVal;
+            return get(gfsFile, forceBinary);
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);

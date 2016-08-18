@@ -129,11 +129,10 @@ public class FindOne extends BasicFunction {
             }
 
             // Execute query
-            Sequence retVal = (result == null)
+
+            return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
                     : new StringValue(result.toString());
-
-            return retVal;
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

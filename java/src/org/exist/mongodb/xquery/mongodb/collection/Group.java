@@ -139,9 +139,8 @@ public class Group extends BasicFunction {
             DBObject result = dbcol.group(command);
             
             // Execute query
-            Sequence retVal = new StringValue(result.toString());
 
-            return retVal;
+            return new StringValue(result.toString());
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

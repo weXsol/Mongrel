@@ -94,11 +94,10 @@ public class FindAndRemove extends BasicFunction {
             DBObject result = dbcol.findAndRemove(query);
             
             // Parse results
-            Sequence retVal = (result==null) 
-                    ? Sequence.EMPTY_SEQUENCE 
-                    : new StringValue(result.toString());
 
-            return retVal;
+            return (result==null)
+                    ? Sequence.EMPTY_SEQUENCE
+                    : new StringValue(result.toString());
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

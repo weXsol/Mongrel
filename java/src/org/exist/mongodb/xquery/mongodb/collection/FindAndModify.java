@@ -150,11 +150,10 @@ public class FindAndModify extends BasicFunction {
             
            
             // Execute query
-            Sequence retVal = (result==null) 
-                    ? Sequence.EMPTY_SEQUENCE 
-                    : new StringValue(result.toString());
 
-            return retVal;
+            return (result==null)
+                    ? Sequence.EMPTY_SEQUENCE
+                    : new StringValue(result.toString());
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
