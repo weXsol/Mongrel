@@ -51,7 +51,7 @@ public class GridfsModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);
 
-    public GridfsModule(Map<String, List<? extends Object>> parameters) throws XPathException {
+    public GridfsModule(Map<String, List<?>> parameters) throws XPathException {
         super(functions, parameters);
     }
 

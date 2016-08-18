@@ -81,7 +81,7 @@ public class MongodbClientStore {
         if (mongodbClientId == null || !isValid(mongodbClientId)) {
             try {
                 // introduce a delay
-                Thread.sleep(1000l);
+                Thread.sleep(1000L);
 
             } catch (InterruptedException ex) {
                 LOG.error(ex);

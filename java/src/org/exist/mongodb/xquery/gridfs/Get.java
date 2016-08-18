@@ -178,10 +178,11 @@ public class Get extends BasicFunction {
     }
 
     /**
-     * Parse an byte-array containing (compressed) XML data into an eXist-db
+     * Parse an byte-stream containing (compressed) XML data into an eXist-db
      * document.
      *
-     * @param data Byte array containing the XML data.
+     * @param xqueryContext Xquery context
+     * @param is Byte stream containing the XML data.
      * @return Sequence containing the XML as DocumentImpl
      *
      * @throws XPathException Something bad happened.
@@ -208,7 +209,7 @@ public class Get extends BasicFunction {
             IOUtils.closeQuietly(is);
 
             if (validationReport.isValid()) {
-                content = (DocumentImpl) adapter.getDocument();
+                content = adapter.getDocument();
             } else {
                 String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);
