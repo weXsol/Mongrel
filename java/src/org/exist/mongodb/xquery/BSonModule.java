@@ -36,7 +36,7 @@ public class BSonModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", BSonModule.NAMESPACE_URI, BSonModule.PREFIX);
 
-    public BSonModule(Map<String, List<? extends Object>> parameters) throws XPathException {
+    public BSonModule(Map<String, List<?>> parameters) throws XPathException {
         super(functions, parameters);
     }
 

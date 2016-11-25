@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.exist.Namespaces;
 import org.exist.dom.QName;
-import org.exist.dom.memtree.DocumentImpl;
 import org.exist.dom.memtree.SAXAdapter;
 import org.exist.mongodb.shared.Constants;
 import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
@@ -129,9 +128,7 @@ public class Get extends BasicFunction {
                 throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
             }
 
-            Sequence retVal = get(gfsFile, forceBinary);
-
-            return retVal;
+            return get(gfsFile, forceBinary);
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -178,10 +175,11 @@ public class Get extends BasicFunction {
     }
 
     /**
-     * Parse an byte-array containing (compressed) XML data into an eXist-db
+     * Parse an byte-stream containing (compressed) XML data into an eXist-db
      * document.
      *
-     * @param data Byte array containing the XML data.
+     * @param xqueryContext Xquery context
+     * @param is Byte stream containing the XML data.
      * @return Sequence containing the XML as DocumentImpl
      *
      * @throws XPathException Something bad happened.
@@ -208,7 +206,7 @@ public class Get extends BasicFunction {
             IOUtils.closeQuietly(is);
 
             if (validationReport.isValid()) {
-                content = (DocumentImpl) adapter.getDocument();
+                content = adapter.getDocument();
             } else {
                 String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);

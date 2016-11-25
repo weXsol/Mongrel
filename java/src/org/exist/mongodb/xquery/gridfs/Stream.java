@@ -275,9 +275,8 @@ public class Stream extends BasicFunction {
             throw new XPathException(this, signatures[1].toString()
                     + " can only be used within the EXistServlet or XQueryServlet");
         }
-        ResponseWrapper response = (ResponseWrapper) respValue.getObject();
 
-        return response;
+        return (ResponseWrapper) respValue.getObject();
     }
     
     /**
@@ -301,9 +300,8 @@ public class Stream extends BasicFunction {
             throw new XPathException(this, signatures[1].toString()
                     + " can only be used within the EXistServlet or XQueryServlet");
         }
-        RequestWrapper request = (RequestWrapper) respValue.getObject();
 
-        return request;
+        return (RequestWrapper) respValue.getObject();
     }
     
     /**

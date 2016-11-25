@@ -132,13 +132,11 @@ public class ConversionTools {
         switch (seq.getItemType()) {
             case Type.MAP:
                 MapType map = (MapType) seq;
-                BasicDBObject value = parseMap(map);
-                retVal = value;
+                retVal = parseMap(map);
                 break;
             case Type.ARRAY:
                 ArrayType array = (ArrayType) seq;
-                ArrayList values = parseArray(array);
-                retVal = values;
+                retVal = parseArray(array);
                 break;
             default:
                 retVal = ConversionTools.convertParameters(seq)[0];

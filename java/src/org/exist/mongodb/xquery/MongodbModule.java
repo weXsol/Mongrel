@@ -124,7 +124,7 @@ public class MongodbModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
 
-    public MongodbModule(Map<String, List<? extends Object>> parameters) throws XPathException {
+    public MongodbModule(Map<String, List<?>> parameters) throws XPathException {
         super(functions, parameters);
     }
 
