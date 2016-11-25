@@ -12,25 +12,20 @@ Extensive documentation can be found on the [Wiki](https://github.com/dizzzz/Mon
 
 ## Versions
 
-Version 0.6.1 requires eXist-db 3.0 (or newer). 
+Mongrel requires eXist-db 3.0 (or newer). 
 > The function namespaces are http://expath.org/ns/mongo and http://expath.org/ns/mongo/gridfs
 
-Version 0.3.5 is the last version compatible with eXist-db 2.2.
-> The function namespaces were http://exist-db.org/mongrel/mongodb and http://expath.org/ns/mongo/gridfs
 
 ## Requirements
-- v0.3.5- / eXist-db 2.2- / Java7
-- v0.6.1+ / eXist-db 3.0+ / Java8
+- eXist-db 3.0+
+- Java8
 
 ## Notes
-The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON structures and is therefore not XQuery compatible with code written for version 0.3.5 and older.
-
-> the implementation is Work in Progress : there are some specification issues to be solved.
-
+The version 0.6.1 supports [XQuery 3.1](http://www.w3.org/TR/xquery-31/)  JSON structures.
 The extension is based on the 2.x version of the [official mongodb driver](http://mongodb.github.io/mongo-java-driver/)
 
 ## License
 The work is released AS-IS under the LGPL license.
 
 ## Support
-Support on this extension is provided by [eXist Solutions GmbH](http://www.existsolutions.com)
+Support on this extension is provided by [weXsol](http://www.wexsol.nl) and [eXist Solutions GmbH](http://www.existsolutions.com)
