@@ -6,7 +6,7 @@ The Mongrel eXist-db extension provides xquery extension functions to access Mon
 
 In addition to "regular" [MongoDB](https://github.com/dizzzz/Mongrel/wiki/MongoDB) operations the extension also provides [GridFS](https://github.com/dizzzz/Mongrel/wiki/GridFS) functions to manage arbitrary sized documents that are stored in MongoDB.
 
-Extensive documentation can be found on the [Wiki](https://github.com/dizzzz/Mongrel/wiki). Downloads and release notes are on the GitHub [Releases](https://github.com/dizzzz/Mongrel/releases) page.
+Extensive documentation can be found on the [Wiki](https://github.com/weXsol/Mongrel/wiki). Downloads and release notes are on the GitHub [Releases](https://github.com/dizzzz/Mongrel/releases) page.
 
 ![MongoDB Logo](http://s3.amazonaws.com/info-mongodb-com/_com_assets/media/mongodb-logo-rgb.jpeg)
 
