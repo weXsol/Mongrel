@@ -134,6 +134,7 @@
 
         <!-- create library -->
         <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
+            <fileset dir="${web.dir}"/>
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
             <zipfileset dir="${java.libs}" prefix="content">
                 <include name="*.jar"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>@TITLE@ - Core</description>
+    <description>@TITLE@</description>
     <author>Dannes Wessels</author>
-    <website>https://github.com/dizzzz/Mongrel</website>
+    <website>https://github.com/weXsol/Mongrel</website>
     <status>beta</status>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
