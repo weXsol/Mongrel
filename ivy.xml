@@ -6,7 +6,9 @@
 
     <info organisation="org.exist" module="mongodb-gridfs"/>
     <dependencies>
-        <dependency org="org.mongodb" name="mongodb-driver" rev="3.4.2"/>
+        <dependency org="org.mongodb" name="mongodb-driver" rev="3.4.2" conf="*->*,!sources,!javadoc">
+            <exclude org="org.slf4j"/>
+        </dependency>
     </dependencies>
     
 </ivy-module>
