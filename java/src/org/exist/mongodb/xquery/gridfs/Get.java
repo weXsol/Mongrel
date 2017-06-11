@@ -186,7 +186,7 @@ public class Get extends BasicFunction {
      */
     private Sequence processXML(XQueryContext xqueryContext, InputStream is) throws XPathException {
 
-        Sequence content = null;
+        Sequence content;
         try {
             final ValidationReport validationReport = new ValidationReport();
             final SAXAdapter adapter = new SAXAdapter(xqueryContext);
