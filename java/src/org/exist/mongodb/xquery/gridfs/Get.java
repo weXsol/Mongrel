@@ -156,7 +156,7 @@ public class Get extends BasicFunction {
         // Decompress when needed
         String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
         boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
-        InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream();
+
         
         // Find what kind of data is stored
         int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get(EXIST_DATATYPE);
@@ -164,12 +164,16 @@ public class Get extends BasicFunction {
         boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
         
         // Convert input stream to eXist-db object
-        Sequence retVal;
-        if (forceBinary || !isXMLtype) {
-            retVal = Base64BinaryDocument.getInstance(context, is);
 
-        } else {
-            retVal = processXML(context, is);
+        Sequence retVal;
+
+        try(InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream()) {
+            if (forceBinary || !isXMLtype) {
+                retVal = Base64BinaryDocument.getInstance(context, is);
+
+            } else {
+                retVal = processXML(context, is);
+            }
         }
         return retVal;
     }
@@ -201,10 +205,7 @@ public class Get extends BasicFunction {
             xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
 
             xr.parse(src);
-
-            // Cleanup
-            IOUtils.closeQuietly(is);
-
+            
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
             } else {
@@ -217,6 +218,9 @@ public class Get extends BasicFunction {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(ex.getMessage());
 
+        } finally {
+            // Cleanup
+            IOUtils.closeQuietly(is);
         }
 
         return content;
