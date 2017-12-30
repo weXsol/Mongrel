@@ -43,7 +43,7 @@ public class ConversionTools {
      */
     public static List<DBObject> convertPipeline(Sequence args) throws XPathException, JSONParseException {
 
-        List<DBObject> pipeline = new ArrayList();
+        List<DBObject> pipeline = new ArrayList<>();
 
         if (args != null) {
             SequenceIterator iterator = args.iterate();
@@ -165,7 +165,7 @@ public class ConversionTools {
 
     private static ArrayList parseArray(ArrayType array) throws XPathException {
 
-        ArrayList<Object> retVal = new ArrayList();
+        ArrayList<Object> retVal = new ArrayList<>();
 
         for (Sequence sequence : array.toArray()) {
             // Recursively add value
@@ -213,7 +213,7 @@ public class ConversionTools {
         } else if (o instanceof BasicDBList) {
             BasicDBList list = (BasicDBList) o;
 
-            List<Sequence> collected = new ArrayList();
+            List<Sequence> collected = new ArrayList<>();
 
             for (Object item : list) {
                 collected.add(getValues(context, item));

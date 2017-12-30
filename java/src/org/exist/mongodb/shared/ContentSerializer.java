@@ -4,14 +4,8 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSFile;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+
+import java.io.*;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -22,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
+import org.exist.storage.DBBroker;
 import org.exist.storage.serializers.Serializer;
 import org.exist.util.serializer.SAXSerializer;
 import org.exist.util.serializer.SerializerPool;
@@ -94,43 +89,30 @@ public class ContentSerializer {
     private static void streamElement(XQueryContext context, Item item, OutputStream os) throws IOException {
         LOG.debug("Streaming element or document node");
 
-        final Serializer serializer = context.getBroker().newSerializer();
 
-        final NodeValue node = (NodeValue) item;
+        try(final DBBroker broker = context.getBroker() ){
+            final Serializer serializer = broker.newSerializer();
+            serializer.reset();
 
-        // Setup serialization options
-        // TODO: get global serialization options
-        final Properties outputProperties = new Properties();
-        outputProperties.setProperty(OutputKeys.INDENT, "yes");
-        outputProperties.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            final NodeValue node = (NodeValue) item;
 
-        SerializerPool serializerPool = SerializerPool.getInstance();
 
-        LOG.debug("Serializing started.");
-        final SAXSerializer sax = (SAXSerializer) serializerPool.borrowObject(SAXSerializer.class);
-        try {
-            final String encoding = "UTF-8";
-            try (Writer writer = new OutputStreamWriter(os, encoding)) {
-                sax.setOutput(writer, outputProperties);
+            LOG.debug("Serializing started.");
 
-                serializer.reset();
-                serializer.setProperties(outputProperties);
-                serializer.setSAXHandlers(sax, sax);
+            try {
+                final String encoding = "UTF-8";
+                try (Writer writer = new OutputStreamWriter(os, encoding)) {
+                    serializer.serialize(node,writer);
+                }
 
-                sax.startDocument();
-                serializer.toSAX(node);
+            } catch (final IOException | SAXException e) {
+                final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
+                LOG.debug(txt, e);
+                throw new IOException(txt, e);
 
-                sax.endDocument();
+            } finally {
+                LOG.debug("Serializing done.");
             }
-
-        } catch (final IOException | SAXException e) {
-            final String txt = "A problem occurred while serializing the node set: " + e.getMessage();
-            LOG.debug(txt, e);
-            throw new IOException(txt, e);
-
-        } finally {
-            LOG.debug("Serializing done.");
-            serializerPool.returnObject(sax);
         }
     }
 
@@ -145,9 +127,9 @@ public class ContentSerializer {
             url = "xmldb:exist://" + url;
         }
 
-        final InputStream is = new BufferedInputStream(new URL(url).openStream());
-        IOUtils.copyLarge(is, os);
-        IOUtils.closeQuietly(is);
+        try( InputStream is = new BufferedInputStream(new URL(url).openStream())){
+            IOUtils.copyLarge(is, os);
+        }
     }
 
     private static void streamJavaObject(Item item, OutputStream os) throws XPathException, IOException {
@@ -159,9 +141,9 @@ public class ContentSerializer {
         }
 
         final File inputFile = (File) obj;
-        final InputStream is = new BufferedInputStream(new FileInputStream(inputFile));
-        IOUtils.copyLarge(is, os);
-        IOUtils.closeQuietly(is);
+        try( InputStream is = new BufferedInputStream(new FileInputStream(inputFile))) {
+            IOUtils.copyLarge(is, os);
+        }
     }
 
     /**

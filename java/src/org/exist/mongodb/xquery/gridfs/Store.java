@@ -181,7 +181,7 @@ public class Store extends BasicFunction {
             gfsFile.setMetaData(info);
             
             LOG.info("original_md5:" + checksum);
-            LOG.info("compression ratio:" + ((100l * nrBytesGZ) / nrBytesRaw));
+            LOG.info("compression ratio:" + ((100L * nrBytesGZ) / nrBytesRaw));
             
         }
     }
