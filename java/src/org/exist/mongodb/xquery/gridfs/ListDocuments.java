@@ -25,20 +25,15 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ContentSerializer;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions list documents stored in GridFS
@@ -50,14 +45,14 @@ public class ListDocuments extends BasicFunction {
     private static final String LIST_DOCUMENTS = "list-documents";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "List documents",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET,
-            },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fregment containing information of documents")
-        ),
+            new FunctionSignature(
+                    new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "List documents",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET,
+                    },
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fregment containing information of documents")
+            ),
     };
 
     public ListDocuments(XQueryContext context, FunctionSignature signature) {
@@ -69,10 +64,10 @@ public class ListDocuments extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();

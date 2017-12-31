@@ -5,10 +5,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.xquery.XPathException;
@@ -16,16 +12,14 @@ import org.exist.xquery.XPathUtil;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.array.ArrayType;
 import org.exist.xquery.functions.map.MapType;
-import org.exist.xquery.value.AtomicValue;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.value.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
- *
  * @author wessels
  */
 public class ConversionTools {
@@ -37,8 +31,7 @@ public class ConversionTools {
      *
      * @param args The input sequence.
      * @return List of BSON objects.
-     *
-     * @throws XPathException exist data conversion failed.
+     * @throws XPathException     exist data conversion failed.
      * @throws JSONParseException A string could not be parsed.
      */
     public static List<DBObject> convertPipeline(Sequence args) throws XPathException, JSONParseException {
@@ -50,7 +43,7 @@ public class ConversionTools {
             while (iterator.hasNext()) {
                 Item next = iterator.nextItem();
 
-                if(next instanceof Sequence){ // Dead code
+                if (next instanceof Sequence) { // Dead code
                     pipeline.add(convertJSon((Sequence) next));
                 } else {
                     String step = next.getStringValue();
@@ -81,7 +74,7 @@ public class ConversionTools {
      * @param seq The sequence
      * @return the converted result, null if input is null.
      * @throws JSONParseException The string could not be parsed.
-     * @throws XPathException The string value could not be obtained
+     * @throws XPathException     The string value could not be obtained
      */
     public static DBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
 
@@ -91,35 +84,35 @@ public class ConversionTools {
     }
 
     /**
-     *  Get simple BasicDBObject from sequence
-     * 
+     * Get simple BasicDBObject from sequence
+     *
      * @param seq The input sequence
      * @return The JSON representation of the sequence
      * @throws JSONParseException The input could not be parsed
-     * @throws XPathException The conversion failed.
+     * @throws XPathException     The conversion failed.
      */
-    public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException{
+    public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException {
 
-        if(seq == null || seq.isEmpty()){
+        if (seq == null || seq.isEmpty()) {
             throw new IllegalArgumentException("Sequence is NULL or is empty.");
         }
 
         DBObject value = convertJSon(seq);
 
-        if(value == null){
+        if (value == null) {
             throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject (null value).");
         }
 
 
-        if(! (value instanceof BasicDBObject)){
+        if (!(value instanceof BasicDBObject)) {
             throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject.");
         }
 
-        return (BasicDBObject)value;
+        return (BasicDBObject) value;
     }
 
     /**
-     *  Convert a sequence into BSON type or Arraylist.
+     * Convert a sequence into BSON type or Arraylist.
      *
      * @param seq The sequence.
      * @return The conversion result.
@@ -176,7 +169,7 @@ public class ConversionTools {
     }
 
     /**
-     *  Convert an MongoDB BSON object into a sequence of xquery objects.
+     * Convert an MongoDB BSON object into a sequence of xquery objects.
      *
      * @param context XQUery context
      * @param bson    The BSON data
@@ -186,7 +179,7 @@ public class ConversionTools {
     public static Sequence convertBson(XQueryContext context, DBObject bson) throws XPathException {
 
         return getValues(context, bson);
-        
+
     }
 
     // BSONObject

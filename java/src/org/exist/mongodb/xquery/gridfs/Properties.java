@@ -27,21 +27,15 @@ import com.mongodb.gridfs.GridFSDBFile;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ContentSerializer;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
@@ -53,13 +47,13 @@ public class Properties extends BasicFunction {
     private static final String PROPS_BY_OBJECTID = "properties-by-objectid";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve properties and metadata of a document",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,},
-            new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
-        ),
+            new FunctionSignature(
+                    new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Retrieve properties and metadata of a document",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,},
+                    new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.ONE, "XML fragment with document properties")
+            ),
     };
 
     public Properties(XQueryContext context, FunctionSignature signature) {
@@ -71,10 +65,10 @@ public class Properties extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
@@ -94,7 +88,7 @@ public class Properties extends BasicFunction {
             if (gfsFile == null) {
                 throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
             }
-         
+
             return ContentSerializer.getReport(gfsFile);
 
         } catch (XPathException ex) {

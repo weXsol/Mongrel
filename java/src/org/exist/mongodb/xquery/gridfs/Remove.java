@@ -25,23 +25,12 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import org.bson.types.ObjectId;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to remove documents from GridFS
@@ -54,22 +43,22 @@ public class Remove extends BasicFunction {
     private static final String REMOVE_BY_FILENAME = "remove-by-filename";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Remove document from gridFS",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Filename of removed document")
-        ),
-        new FunctionSignature(
-            new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Remove document from gridFS",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "ObjectID of removed document.")
-        ),};
+            new FunctionSignature(
+                    new QName(REMOVE_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Remove document from gridFS",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "Filename of removed document")
+            ),
+            new FunctionSignature(
+                    new QName(REMOVE_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Remove document from gridFS",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID,
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "ObjectID of removed document.")
+            ),};
 
     public Remove(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -80,10 +69,10 @@ public class Remove extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
@@ -101,7 +90,7 @@ public class Remove extends BasicFunction {
             } else {
                 gfs.remove(documentId);
             }
-            
+
             return new StringValue(documentId);
 
         } catch (XPathException ex) {

@@ -19,37 +19,20 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import java.util.HashMap;
-import java.util.Map;
+import com.mongodb.*;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
-import org.exist.xquery.value.AtomicValue;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.value.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to modify documents in mongodb
@@ -58,38 +41,31 @@ import org.exist.xquery.value.Type;
  */
 public class FindAndModify extends BasicFunction {
 
-    private static final String FIND_AND_MODIFY = "findAndModify";
-
     public static final String PARAM_UPDATE = "update";
-    public static final String DESCR_UPDATE= "The modifications to apply, JSON formatted";
-
+    public static final String DESCR_UPDATE = "The modifications to apply, JSON formatted";
     public static final FunctionParameterSequenceType PARAMETER_UPDATE
             = new FunctionParameterSequenceType(PARAM_UPDATE, Type.ITEM, Cardinality.ONE, DESCR_UPDATE);
-
-
     public static final String PARAM_SORT = "sort";
-    public static final String DESCR_SORT= "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
-
+    public static final String DESCR_SORT = "Determines which document the operation will modify if the query selects multiple documents, JSON formatted";
     public static final FunctionParameterSequenceType PARAMETER_SORT
             = new FunctionParameterSequenceType(PARAM_SORT, Type.ITEM, Cardinality.ONE, DESCR_SORT);
-    
-  
+    private static final String FIND_AND_MODIFY = "findAndModify";
     public final static FunctionSignature signatures[] = {
-        
-        new FunctionSignature(
-        new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_UPDATE},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
-        ),
-        
-        new FunctionSignature(
-        new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY,PARAMETER_UPDATE, PARAMETER_SORT},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
-        ),
-        
+
+            new FunctionSignature(
+                    new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_UPDATE},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
+            ),
+
+            new FunctionSignature(
+                    new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_UPDATE, PARAMETER_SORT},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before the modifications, formatted as JSON")
+            ),
+
     };
 
     public FindAndModify(XQueryContext context, FunctionSignature signature) {
@@ -101,14 +77,14 @@ public class FindAndModify extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            
+
             BasicDBObject query = (args.length >= 4)
                     ? ConversionTools.convertJSonParameter(args[3])
                     : null;
@@ -128,17 +104,17 @@ public class FindAndModify extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-            
+
             //query update sort
-                    
+
             DBObject result;
             if (sort == null /* && options==null */) {
                 result = dbcol.findAndModify(query, update);
-                
+
             } else  /* if (options==null) */ {
                 result = dbcol.findAndModify(query, sort, update);
             }
-            
+
 //            else {
 //               options.putIfAbsent("remove", unordered);
 //               options.putIfAbsent("returnNew", unordered);
@@ -147,43 +123,43 @@ public class FindAndModify extends BasicFunction {
 //                
 //               dbcol.findAndModify(query, sort, update, unordered, result, unordered, unordered);
 //            }
-            
-           
+
+
             // Execute query
 
-            return (result==null)
+            return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
                     : new StringValue(result.toString());
-            
+
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
     }
-    
-    public Map<String,Boolean> convertOptions(AbstractMapType map) throws XPathException {
-        
-        Map<String,Boolean> retVal = new HashMap<>();
-        
+
+    public Map<String, Boolean> convertOptions(AbstractMapType map) throws XPathException {
+
+        Map<String, Boolean> retVal = new HashMap<>();
+
         // Get all keys
         Sequence keys = map.keys();
-        
+
         // Iterate over all keys
-        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
+        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext(); ) {
 
             // Get next item
             Item key = i.nextItem();
-            
+
             // Only use Strings as key, as required by JMS
             String keyValue = key.getStringValue();
-            
+
             // Get values
-            Sequence values = map.get((AtomicValue)key);
-            
+            Sequence values = map.get((AtomicValue) key);
+
             retVal.put(keyValue, Boolean.valueOf(values.getStringValue()));
-            
+
         }
-        
+
         return retVal;
     }
 

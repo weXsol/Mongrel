@@ -22,24 +22,17 @@ package org.exist.mongodb.xquery.gridfs;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import java.util.Set;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 
 /**
  * Function to list all GridFS buckets
@@ -51,14 +44,14 @@ public class ListBuckets extends BasicFunction {
     private static final String LIST_DOCUMENTS = "list-buckets";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "List names of available buckets",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
-        ),
+            new FunctionSignature(
+                    new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "List names of available buckets",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+            ),
     };
 
     public ListBuckets(XQueryContext context, FunctionSignature signature) {
@@ -70,10 +63,10 @@ public class ListBuckets extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
 
@@ -82,10 +75,10 @@ public class ListBuckets extends BasicFunction {
 
             // Retrieve collection names
             Set<String> collectionNames = db.getCollectionNames();
-            
+
             // Storage for results
             ValueSequence valueSequence = new ValueSequence();
-           
+
             // Iterate over collection names ; only pairs of collections
             // with names ending .chunks and .files are buckets
             for (String collName : collectionNames) {

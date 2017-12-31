@@ -21,21 +21,13 @@ package org.exist.mongodb.xquery.mongodb.client;
 
 import com.mongodb.MongoClient;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 
 /**
  * Functions to remove documents from GridFS
@@ -47,14 +39,14 @@ public class ListDatabases extends BasicFunction {
     private static final String LIST_DATABASES = "list-databases";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "List databases",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT,
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of names of databases")
-        ),
+            new FunctionSignature(
+                    new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+                    "List databases",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT,
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of names of databases")
+            ),
     };
 
     public ListDatabases(XQueryContext context, FunctionSignature signature) {
@@ -67,20 +59,20 @@ public class ListDatabases extends BasicFunction {
         try {
             // Stream parameters
             String mongodbClientId = args[0].itemAt(0).getStringValue();
-            
+
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
             // Stream appropriate Mongodb client
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             ValueSequence seq = new ValueSequence();
             client.getDatabaseNames().stream().forEach((name) -> seq.add(new StringValue(name)));
             return seq;
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
 
     }

@@ -22,20 +22,13 @@ package org.exist.mongodb.xquery.mongodb.client;
 import com.mongodb.MongoClient;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.EmptySequence;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 
 /**
  * Implementation of the gridfs:close() function
@@ -43,17 +36,17 @@ import org.exist.xquery.value.Type;
  * @author Dannes Wessels
  */
 public class Close extends BasicFunction {
-    
+
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Close MongoDB connector",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT
-            },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
-        ),
+            new FunctionSignature(
+                    new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+                    "Close MongoDB connector",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT
+                    },
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
+            ),
     };
 
     public Close(XQueryContext context, FunctionSignature signature) {
@@ -93,7 +86,7 @@ public class Close extends BasicFunction {
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
     }
 }

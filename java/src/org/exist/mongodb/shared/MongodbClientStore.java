@@ -2,28 +2,30 @@ package org.exist.mongodb.shared;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.exist.xquery.XPathException;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import static org.exist.mongodb.xquery.MongodbModule.MONGO_ID;
-import org.exist.xquery.XPathException;
 
 /**
- *
  * @author wessels
  */
 public class MongodbClientStore {
 
-   protected final static Logger LOG = LogManager.getLogger(MongodbClientStore.class);
+    protected final static Logger LOG = LogManager.getLogger(MongodbClientStore.class);
 
     private static MongodbClientStore instance = null;
+    private final Map<String, MongoClientWrapper> clients = new HashMap<>();
 
     public static synchronized MongodbClientStore getInstance() {
         if (instance == null) {
@@ -31,8 +33,6 @@ public class MongodbClientStore {
         }
         return instance;
     }
-
-    private final Map<String, MongoClientWrapper> clients = new HashMap<>();
 
     public void add(String id, MongoClient client, String username) {
         MongoClientWrapper wrapper = new MongoClientWrapper(id, client, username);
@@ -48,7 +48,7 @@ public class MongodbClientStore {
     }
 
     public MongoClient get(String mongodbClientId) {
-        
+
         MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
         if (clientwrapper != null) {
             return clientwrapper.getMongoClient();
@@ -61,7 +61,7 @@ public class MongodbClientStore {
     }
 
     public String create(String url, String username) throws UnknownHostException {
-        
+
         // Construct client
         MongoClientURI uri = new MongoClientURI(url);
         MongoClient client = new MongoClient(uri);
@@ -77,7 +77,7 @@ public class MongodbClientStore {
         return mongodbClientId;
     }
 
-    public  MongoClient validate(String mongodbClientId) throws XPathException {
+    public MongoClient validate(String mongodbClientId) throws XPathException {
         if (mongodbClientId == null || !isValid(mongodbClientId)) {
             try {
                 // introduce a delay
@@ -88,13 +88,13 @@ public class MongodbClientStore {
             }
             throw new XPathException(MONGO_ID, null);
         }
-        
+
         MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
         if (clientwrapper != null) {
             return clientwrapper.getMongoClient();
         }
         return null;
-        
+
     }
 
     class MongoClientWrapper {

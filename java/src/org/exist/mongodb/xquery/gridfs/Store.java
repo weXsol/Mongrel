@@ -25,41 +25,29 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.GZIP;
 import org.exist.mongodb.shared.ContentSerializer;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_CONTENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_CONTENT_TYPE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.zip.GZIPOutputStream;
+
+import static org.exist.mongodb.shared.Constants.GZIP;
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Implementation gridfs:store() functions
@@ -68,21 +56,20 @@ import org.exist.xquery.value.Type;
  */
 public class Store extends BasicFunction {
 
-    private final static CharSequence[] nonCompressables = {
-        ".zip", ".rar", ".gz", ".7z", ".bz", ".bz2", ".dmg", "gif", ".jpg", ".png", ".svgz",
-        ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv", ".wav", ".ogg", ".mov", ".flv", ".wmv"
-    };
-
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Store document into Gridfs",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
-                PARAMETER_CONTENT_TYPE, PARAMETER_CONTENT
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
-        ),
+            new FunctionSignature(
+                    new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Store document into Gridfs",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME,
+                            PARAMETER_CONTENT_TYPE, PARAMETER_CONTENT
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The document id of the stored document")
+            ),
+    };
+    private final static CharSequence[] nonCompressables = {
+            ".zip", ".rar", ".gz", ".7z", ".bz", ".bz2", ".dmg", "gif", ".jpg", ".png", ".svgz",
+            ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv", ".wav", ".ogg", ".mov", ".flv", ".wmv"
     };
 
     public Store(XQueryContext context, FunctionSignature signature) {
@@ -94,10 +81,10 @@ public class Store extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
@@ -131,7 +118,7 @@ public class Store extends BasicFunction {
                 int dataType = content.getType();
                 writeCompressed(gfsFile, stopWatch, content, dataType);
             }
-            
+
             LOG.info(String.format("serialization time: %s", stopWatch.getTime()));
 
             // Report identifier
@@ -160,29 +147,29 @@ public class Store extends BasicFunction {
             GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
             DigestOutputStream dos = new DigestOutputStream(gos, md);
             CountingOutputStream cosRaw = new CountingOutputStream(dos);
-            
+
             stopWatch.start();
             ContentSerializer.serialize(content, context, cosRaw);
             cosRaw.flush();
             cosRaw.close();
             stopWatch.stop();
-            
+
             long nrBytesRaw = cosRaw.getByteCount();
             long nrBytesGZ = cosGZ.getByteCount();
             String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
-            
+
             BasicDBObject info = new BasicDBObject();
             info.put(Constants.EXIST_COMPRESSION, GZIP);
             info.put(Constants.EXIST_ORIGINAL_SIZE, nrBytesRaw);
             info.put(Constants.EXIST_ORIGINAL_MD5, checksum);
             info.put(Constants.EXIST_DATATYPE, dataType);
             info.put(Constants.EXIST_DATATYPE_TEXT, Type.getTypeName(dataType));
-            
+
             gfsFile.setMetaData(info);
-            
+
             LOG.info("original_md5:" + checksum);
             LOG.info("compression ratio:" + ((100L * nrBytesGZ) / nrBytesRaw));
-            
+
         }
     }
 

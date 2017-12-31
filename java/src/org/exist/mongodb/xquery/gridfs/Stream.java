@@ -25,10 +25,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -36,33 +32,22 @@ import org.exist.dom.QName;
 import org.exist.http.servlets.RequestWrapper;
 import org.exist.http.servlets.ResponseWrapper;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.ACCEPT_ENCODING;
-import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
-import static org.exist.mongodb.shared.Constants.EXIST_ORIGINAL_SIZE;
-import static org.exist.mongodb.shared.Constants.GZIP;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_AS_ATTACHMENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.Variable;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.functions.request.RequestModule;
 import org.exist.xquery.functions.response.ResponseModule;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.JavaObjectValue;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.value.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+
+import static org.exist.mongodb.shared.Constants.*;
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
@@ -75,22 +60,22 @@ public class Stream extends BasicFunction {
     private static final String FIND_BY_FILENAME = "stream-by-filename";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve document by filename as stream",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_AS_ATTACHMENT
-            },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
-        ),
-        new FunctionSignature(
-            new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve document by objectid as stream",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_AS_ATTACHMENT
-            },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
-        ),
+            new FunctionSignature(
+                    new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Retrieve document by filename as stream",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_AS_ATTACHMENT
+                    },
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
+            ),
+            new FunctionSignature(
+                    new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Retrieve document by objectid as stream",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_AS_ATTACHMENT
+                    },
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, Constants.DESCR_OUTPUT_STREAM)
+            ),
     };
 
     public Stream(XQueryContext context, FunctionSignature signature) {
@@ -102,10 +87,10 @@ public class Stream extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
@@ -149,37 +134,37 @@ public class Stream extends BasicFunction {
         if (gfsFile == null) {
             throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
         }
-        
+
         DBObject metadata = gfsFile.getMetaData();
-        
+
         // Determine actual size
         String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
         Long originalSize = (metadata == null) ? null : (Long) metadata.get(EXIST_ORIGINAL_SIZE);
-        
+
         long length = gfsFile.getLength();
         if (originalSize != null) {
             length = originalSize;
         }
-        
+
         // Stream response stream
         ResponseWrapper rw = getResponseWrapper(context);
-        
+
         // Set HTTP Headers
         rw.addHeader(Constants.CONTENT_LENGTH, String.format("%s", length));
-        
+
         // Set filename when required
         String filename = determineFilename(documentId, gfsFile);
         if (setDisposition && StringUtils.isNotBlank(filename)) {
             rw.addHeader(Constants.CONTENT_DISPOSITION, String.format("attachment;filename=%s", filename));
         }
-        
+
         String contentType = getMimeType(gfsFile.getContentType(), filename);
         if (contentType != null) {
             rw.setContentType(contentType);
         }
-        
+
         boolean isGzipSupported = isGzipEncodingSupported(context);
-        
+
         // Stream data
         if ((StringUtils.isBlank(compression))) {
             // Write data as-is, no marker available that data is stored compressed
@@ -187,9 +172,9 @@ public class Stream extends BasicFunction {
                 gfsFile.writeTo(os);
                 os.flush();
             }
-            
+
         } else {
-            
+
             if (isGzipSupported && StringUtils.contains(compression, GZIP)) {
                 // Write compressend data as-is, since data is stored as gzipped data and
                 // the agent suports it.
@@ -198,7 +183,7 @@ public class Stream extends BasicFunction {
                     gfsFile.writeTo(os);
                     os.flush();
                 }
-     
+
             } else {
                 // Write data uncompressed
                 try (OutputStream os = rw.getOutputStream()) {
@@ -278,7 +263,7 @@ public class Stream extends BasicFunction {
 
         return (ResponseWrapper) respValue.getObject();
     }
-    
+
     /**
      * Get the Request wrapper which provides access to the servlet
      * outputstream.
@@ -303,25 +288,25 @@ public class Stream extends BasicFunction {
 
         return (RequestWrapper) respValue.getObject();
     }
-    
+
     /**
      * Verify if HTTP agent supports GZIP content encoding.
      */
     private boolean isGzipEncodingSupported(XQueryContext context) {
         try {
             RequestWrapper request = getRequestWrapper(context);
-            
+
             String content = request.getHeader(ACCEPT_ENCODING);
-            
+
             if (StringUtils.contains(content, GZIP)) {
                 return true;
             }
-            
+
         } catch (XPathException ex) {
-           LOG.error(ex.getMessage(), ex);
+            LOG.error(ex.getMessage(), ex);
         }
         return false;
     }
-    
-    
+
+
 }

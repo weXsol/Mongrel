@@ -38,30 +38,30 @@ import static org.exist.mongodb.shared.FunctionDefinitions.*;
 public class Find extends BasicFunction {
 
     private static final String FIND = "find";
-    
-  
+
+
     public final static FunctionSignature signatures[] = {
-        
-        new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for all documents in the collection",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The all document(s) in collection")
-        ),
-        
-        new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
-        ),
-        
-        new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection and get specified fields",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_KEYS},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
-        ),
+
+            new FunctionSignature(
+                    new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for all documents in the collection",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The all document(s) in collection")
+            ),
+
+            new FunctionSignature(
+                    new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
+            ),
+
+            new FunctionSignature(
+                    new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection and get specified fields",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_KEYS},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
+            ),
     };
 
     public Find(XQueryContext context, FunctionSignature signature) {
@@ -73,10 +73,10 @@ public class Find extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
@@ -84,11 +84,11 @@ public class Find extends BasicFunction {
             BasicDBObject mongoQuery = (args.length >= 4)
                     ? ConversionTools.convertJSonParameter(args[3])
                     : new BasicDBObject();
- 
+
             BasicDBObject mongoKeys = (args.length >= 5)
                     ? ConversionTools.convertJSonParameter(args[4])
                     : null;
- 
+
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
@@ -108,10 +108,10 @@ public class Find extends BasicFunction {
             }
 
             return retVal;
-            
+
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
     }
 

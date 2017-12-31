@@ -4,12 +4,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSFile;
-
-import java.io.*;
-import java.net.URL;
-import java.util.List;
-import java.util.Properties;
-import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -18,20 +12,16 @@ import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
 import org.exist.storage.DBBroker;
 import org.exist.storage.serializers.Serializer;
-import org.exist.util.serializer.SAXSerializer;
-import org.exist.util.serializer.SerializerPool;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.BinaryValue;
-import org.exist.xquery.value.DateTimeValue;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.JavaObjectValue;
-import org.exist.xquery.value.NodeValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.value.*;
 import org.xml.sax.SAXException;
 
+import java.io.*;
+import java.net.URL;
+import java.util.List;
+
 /**
- *
  * @author wessels
  */
 public class ContentSerializer {
@@ -41,11 +31,11 @@ public class ContentSerializer {
     /**
      * Stream content of item to output stream
      *
-     * @param item The Item
+     * @param item    The Item
      * @param context The XQUery context
-     * @param os The output stream
+     * @param os      The output stream
      * @throws XPathException Thrown when an something unexpected happened
-     * @throws IOException An error occurred during serialization
+     * @throws IOException    An error occurred during serialization
      */
     public static void serialize(Item item, XQueryContext context, OutputStream os) throws XPathException, IOException {
 
@@ -90,7 +80,7 @@ public class ContentSerializer {
         LOG.debug("Streaming element or document node");
 
 
-        try(final DBBroker broker = context.getBroker() ){
+        try (final DBBroker broker = context.getBroker()) {
             final Serializer serializer = broker.newSerializer();
             serializer.reset();
 
@@ -102,7 +92,7 @@ public class ContentSerializer {
             try {
                 final String encoding = "UTF-8";
                 try (Writer writer = new OutputStreamWriter(os, encoding)) {
-                    serializer.serialize(node,writer);
+                    serializer.serialize(node, writer);
                 }
 
             } catch (final IOException | SAXException e) {
@@ -127,7 +117,7 @@ public class ContentSerializer {
             url = "xmldb:exist://" + url;
         }
 
-        try( InputStream is = new BufferedInputStream(new URL(url).openStream())){
+        try (InputStream is = new BufferedInputStream(new URL(url).openStream())) {
             IOUtils.copyLarge(is, os);
         }
     }
@@ -141,7 +131,7 @@ public class ContentSerializer {
         }
 
         final File inputFile = (File) obj;
-        try( InputStream is = new BufferedInputStream(new FileInputStream(inputFile))) {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(inputFile))) {
             IOUtils.copyLarge(is, os);
         }
     }

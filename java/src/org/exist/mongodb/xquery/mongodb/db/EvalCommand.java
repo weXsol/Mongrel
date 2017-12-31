@@ -26,27 +26,13 @@ import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.BooleanValue;
-import org.exist.xquery.value.DoubleValue;
-import org.exist.xquery.value.FloatValue;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to access the command and eval methods of the API.
@@ -55,49 +41,42 @@ import org.exist.xquery.value.Type;
  */
 public class EvalCommand extends BasicFunction {
 
-    private static final String EVAL = "eval";
-    private static final String COMMAND = "command";
-
     public static final String PARAM_JS_QUERY = "javascript";
     public static final String DESCR_JS_QUERY = "Javascript Query";
-
     public static final FunctionParameterSequenceType PARAMETER_JS_QUERY
             = new FunctionParameterSequenceType(PARAM_JS_QUERY, Type.ITEM, Cardinality.ONE, DESCR_JS_QUERY);
-
     public static final String PARAM_JS_PARAMS = "parameters";
     public static final String DESCR_JS_PARAMS = "Parameters for script";
-
     public static final FunctionParameterSequenceType PARAMETER_JS_PARAMS
             = new FunctionParameterSequenceType(PARAM_JS_PARAMS, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JS_PARAMS);
-
-
-
+    private static final String EVAL = "eval";
+    private static final String COMMAND = "command";
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
+            new FunctionSignature(
+                    new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
                     + "functions on the database server. This is useful if you need to touch a lot of data lightly, "
                     + "in which case network transfer could be a bottleneck",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY,},
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
-        ),
-        
-        new FunctionSignature(
-            new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY,},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+            ),
+
+            new FunctionSignature(
+                    new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
                     + "functions on the database server with the provided parameters. This is useful "
                     + "if you need to touch a lot of data lightly, "
                     + "in which case network transfer could be a bottleneck",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY, PARAMETER_JS_PARAMS},
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
-        ),
-        
-        new FunctionSignature(
-            new QName(COMMAND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Executes a database command.",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_QUERY},
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
-        ),
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_JS_QUERY, PARAMETER_JS_PARAMS},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+            ),
+
+            new FunctionSignature(
+                    new QName(COMMAND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Executes a database command.",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_QUERY},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The result")
+            ),
     };
 
     public EvalCommand(XQueryContext context, FunctionSignature signature) {
@@ -109,23 +88,23 @@ public class EvalCommand extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Additional parameters
             String dbname = args[1].itemAt(0).getStringValue();
             Sequence query = args[2];
-           
+
             // Get and convert 4th parameter, when existent
             Object[] params = (args.length >= 4) ? ConversionTools.convertParameters(args[3]) : new Object[0];
 
             // Get database
             DB db = client.getDB(dbname);
-            
+
             Sequence retVal;
 
-            if(isCalledAs(EVAL)){
+            if (isCalledAs(EVAL)) {
                 /* eval */
 
                 // Just get string
@@ -133,21 +112,21 @@ public class EvalCommand extends BasicFunction {
 
                 // Execute query with additional parameter 
                 Object result = db.eval(queryString, params);
-                
+
                 retVal = convertResult(result);
 
-                
+
             } else {
                 /* command */
-               
+
                 // Convert query string
                 //BasicDBObject mongoQuery = (BasicDBObject) ConversionTools.convertJSonParameter(query);
                 BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query.getStringValue());
-                
+
                 // execute query
                 CommandResult result = db.command(mongoQuery);
-                
-                
+
+
                 // Convert result to string
                 retVal = new StringValue(result.toString());
             }
@@ -156,37 +135,37 @@ public class EvalCommand extends BasicFunction {
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
-        
+
     }
 
     private Sequence convertResult(Object result) throws XPathException {
         Sequence retVal;
         if (result instanceof BasicDBObject) {
             retVal = new StringValue(result.toString());
-            
+
         } else if (result instanceof String) {
             retVal = new StringValue((String) result);
-            
+
         } else if (result instanceof Boolean) {
             retVal = BooleanValue.valueOf(((Boolean) result));
-            
+
         } else if (result instanceof Float) {
             retVal = new FloatValue(((Float) result));
-            
+
         } else if (result instanceof Double) {
             retVal = new DoubleValue(((Double) result));
-            
+
         } else if (result instanceof Short) {
             retVal = new IntegerValue(((Short) result), Type.SHORT);
-            
+
         } else if (result instanceof Integer) {
             retVal = new IntegerValue(((Integer) result), Type.INT);
-            
+
         } else if (result instanceof Long) {
             retVal = new IntegerValue(((Long) result), Type.LONG);
-            
+
         } else {
             // Convert result to string
             retVal = new StringValue(result.toString());
@@ -194,6 +173,5 @@ public class EvalCommand extends BasicFunction {
         return retVal;
     }
 
-   
 
 }

@@ -21,24 +21,17 @@ package org.exist.mongodb.xquery.mongodb.db;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import java.util.Set;
 import org.exist.dom.QName;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import java.util.Set;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
+import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 
 /**
  * Function to list all GridFS collections
@@ -50,13 +43,13 @@ public class ListCollections extends BasicFunction {
     private static final String LIST_DOCUMENTS = "list-collections";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-        "List names of available collections",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
-        ),};
+            new FunctionSignature(
+                    new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+                    "List names of available collections",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+            ),};
 
     public ListCollections(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -67,10 +60,10 @@ public class ListCollections extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Additional parameter
             String dbname = args[1].itemAt(0).getStringValue();
 
@@ -79,10 +72,10 @@ public class ListCollections extends BasicFunction {
 
             // Retrieve collection names
             Set<String> collectionNames = db.getCollectionNames();
-            
+
             // Storage for results
             ValueSequence valueSequence = new ValueSequence();
-           
+
             // Iterate over collection names
             collectionNames.stream().forEach((collName) -> valueSequence.add(new StringValue(collName)));
 
@@ -90,7 +83,7 @@ public class ListCollections extends BasicFunction {
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
 
     }

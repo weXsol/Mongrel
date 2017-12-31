@@ -25,23 +25,13 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Count the number of documents in the collection
@@ -51,21 +41,21 @@ import org.exist.xquery.value.Type;
 public class Count extends BasicFunction {
 
     private static final String COUNT = "count";
-    
+
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
-        new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
-        ),
-        
-        new FunctionSignature(
-        new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query.",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
-        ),
+            new FunctionSignature(
+                    new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
+                    new FunctionReturnSequenceType(Type.LONG, Cardinality.ONE, "Number of documents")
+            ),
+
+            new FunctionSignature(
+                    new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection that match the query.",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
+                    new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ONE, "Number of documents")
+            ),
     };
 
     public Count(XQueryContext context, FunctionSignature signature) {
@@ -77,10 +67,10 @@ public class Count extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-                        
+
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
@@ -94,13 +84,13 @@ public class Count extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
 
             // Count documents
-            Long nrOfDocuments = (mongoQuery==null) ? dbcol.count() : dbcol.count(mongoQuery);
+            Long nrOfDocuments = (mongoQuery == null) ? dbcol.count() : dbcol.count(mongoQuery);
 
             return new IntegerValue(nrOfDocuments);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
     }
 

@@ -21,39 +21,31 @@ package org.exist.mongodb.xquery.mongodb.client;
 
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 
 /**
  * Implementation of the gridfs:connect() function
- * 
+ *
  * @author Dannes Wessels
  */
 
 public class Connect extends BasicFunction {
-    
+
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Establish a connection to MongoDB. Returns a client id that identifies the opened connection.",
-            new SequenceType[]{
-                new FunctionParameterSequenceType("uri", Type.STRING, Cardinality.ONE, "URI to server")
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
-        ),       
+            new FunctionSignature(
+                    new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+                    "Establish a connection to MongoDB. Returns a client id that identifies the opened connection.",
+                    new SequenceType[]{
+                            new FunctionParameterSequenceType("uri", Type.STRING, Cardinality.ONE, "URI to server")
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, DESCR_MONGODB_CLIENT_ID)
+            ),
     };
 
     public Connect(XQueryContext context, FunctionSignature signature) {
@@ -74,17 +66,17 @@ public class Connect extends BasicFunction {
         // Get connection URL
         String url = args[0].itemAt(0).getStringValue();
 
-        try {            
+        try {
             // Store Client
             String mongodbClientId = MongodbClientStore.getInstance().create(url, context.getSubject().getUsername());
-            
+
             // Report identifier
             return new StringValue(mongodbClientId);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
 
-    }    
+    }
 }

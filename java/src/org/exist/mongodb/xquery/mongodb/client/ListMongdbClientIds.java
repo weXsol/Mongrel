@@ -19,24 +19,17 @@
  */
 package org.exist.mongodb.xquery.mongodb.client;
 
-import java.util.Set;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import java.util.Set;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_ID;
 
 /**
  * Function to list all GridFS buckets
@@ -48,12 +41,12 @@ public class ListMongdbClientIds extends BasicFunction {
     private static final String LIST_CLIENT_IDS = "list-mongodb-clientids";
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-            "Get all MongoDB client ids",
-            new SequenceType[]{ /* No Parameters */ },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, String.format("Sequence of %ss", DESCR_MONGODB_CLIENT_ID))
-        ),
+            new FunctionSignature(
+                    new QName(LIST_CLIENT_IDS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
+                    "Get all MongoDB client ids",
+                    new SequenceType[]{ /* No Parameters */},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, String.format("Sequence of %ss", DESCR_MONGODB_CLIENT_ID))
+            ),
     };
 
     public ListMongdbClientIds(XQueryContext context, FunctionSignature signature) {
@@ -73,16 +66,16 @@ public class ListMongdbClientIds extends BasicFunction {
 
         try {
             Set<String> clientIds = MongodbClientStore.getInstance().list();
-            
+
             ValueSequence valueSequence = new ValueSequence();
-           
+
             clientIds.stream().forEach((mongodbClientId) -> valueSequence.add(new StringValue(mongodbClientId)));
 
             return valueSequence;
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
 
     }

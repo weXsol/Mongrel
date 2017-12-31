@@ -2,17 +2,17 @@
  *  eXist Open Source Native XML Database
  *  Copyright (C) 2001-2015 The eXist Project
  *  http://exist-db.org
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,11 +44,10 @@ public class GenericExceptionHandler {
     /**
      * Process the exception thrown by the Mongodb driver.
      *
-     * @param expr The current xpath expression
+     * @param expr      The current xpath expression
      * @param throwable The Exception
-     * @throws XPathException The translated eXistdb exception
-     *
      * @return Nothing, there will always be an exception thrown.
+     * @throws XPathException The translated eXistdb exception
      */
     public static Sequence handleException(Expression expr, Throwable throwable) throws XPathException {
 
@@ -71,8 +70,8 @@ public class GenericExceptionHandler {
 
         } else if (throwable instanceof MongoClientException) {
             throw new XPathException(expr, MongodbModule.MONG0007, throwable.getMessage());
-            
-        } else if (throwable instanceof MongoCommandException){
+
+        } else if (throwable instanceof MongoCommandException) {
             throw new XPathException(expr, MongodbModule.MONG0005, throwable.getMessage());
 
         } else if (throwable instanceof MongoException) {

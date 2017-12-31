@@ -1,8 +1,5 @@
-
 package org.exist.mongodb.xquery;
 
-import java.util.List;
-import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.mongodb.xquery.bson.Parse;
 import org.exist.xquery.AbstractInternalModule;
@@ -10,6 +7,8 @@ import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
+import java.util.List;
+import java.util.Map;
 
 
 public class BSonModule extends AbstractInternalModule {
@@ -19,11 +18,11 @@ public class BSonModule extends AbstractInternalModule {
     public final static String INCLUSION_DATE = "2015-02-08";
     public final static String RELEASED_IN_VERSION = "eXist-2.3";
 
-    public final static FunctionDef[] functions = { 
-        new FunctionDef(Parse.signatures[0], Parse.class),
-        new FunctionDef(Parse.signatures[1], Parse.class)
+    public final static FunctionDef[] functions = {
+            new FunctionDef(Parse.signatures[0], Parse.class),
+            new FunctionDef(Parse.signatures[1], Parse.class)
     };
-    
+
     public final static ErrorCode MONG0001 = new MongodbErrorCode("MONG0001", "Forbidden");
     public final static ErrorCode MONG0002 = new MongodbErrorCode("MONG0002", "Mongodb exception");
     public final static ErrorCode MONG0003 = new MongodbErrorCode("MONG0003", "Generic exception");
@@ -59,7 +58,7 @@ public class BSonModule extends AbstractInternalModule {
     public String getReleaseVersion() {
         return RELEASED_IN_VERSION;
     }
-    
+
     protected final static class MongodbErrorCode extends ErrorCode {
 
         public MongodbErrorCode(String code, String description) {

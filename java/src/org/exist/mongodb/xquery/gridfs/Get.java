@@ -25,12 +25,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -38,30 +32,25 @@ import org.exist.Namespaces;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.SAXAdapter;
 import org.exist.mongodb.shared.Constants;
-import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
-import static org.exist.mongodb.shared.Constants.EXIST_DATATYPE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_BUCKET;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_FILENAME;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_OBJECTID;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.GridfsModule;
 import org.exist.validation.ValidationReport;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.Base64BinaryDocument;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
+
+import static org.exist.mongodb.shared.Constants.EXIST_COMPRESSION;
+import static org.exist.mongodb.shared.Constants.EXIST_DATATYPE;
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
@@ -72,26 +61,26 @@ public class Get extends BasicFunction {
 
     private static final String FIND_BY_OBJECTID = "get-by-objectid";
     private static final String FIND_BY_FILENAME = "get-by-filename";
-    
-    private static final FunctionParameterSequenceType PARAMETER_FORCE_BINARY = 
+
+    private static final FunctionParameterSequenceType PARAMETER_FORCE_BINARY =
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data.");
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-            new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve document",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_FORCE_BINARY
-            },
-            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
-        ),     
-        new FunctionSignature(
-            new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
-            "Retrieve document",
-            new SequenceType[]{
-                PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_FORCE_BINARY,},
-            new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
-        ),
+            new FunctionSignature(
+                    new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Retrieve document",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_FILENAME, PARAMETER_FORCE_BINARY
+                    },
+                    new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
+            ),
+            new FunctionSignature(
+                    new QName(FIND_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
+                    "Retrieve document",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_BUCKET, PARAMETER_OBJECTID, PARAMETER_FORCE_BINARY,},
+                    new FunctionReturnSequenceType(Type.ITEM, Cardinality.ZERO_OR_ONE, "The GridFS document")
+            ),
     };
 
     public Get(XQueryContext context, FunctionSignature signature) {
@@ -103,10 +92,10 @@ public class Get extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String bucket = args[2].itemAt(0).getStringValue();
@@ -146,28 +135,28 @@ public class Get extends BasicFunction {
     }
 
     /**
-     *  Get document from GridFS
+     * Get document from GridFS
      */
     Sequence get(GridFSDBFile gfsFile, boolean forceBinary) throws IOException, XPathException {
-        
+
         // Obtain meta-data
         DBObject metadata = gfsFile.getMetaData();
-        
+
         // Decompress when needed
         String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
         boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
 
-        
+
         // Find what kind of data is stored
         int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get(EXIST_DATATYPE);
         boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
         boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
-        
+
         // Convert input stream to eXist-db object
 
         Sequence retVal;
 
-        try(InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream()) {
+        try (InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream()) {
             if (forceBinary || !isXMLtype) {
                 retVal = Base64BinaryDocument.getInstance(context, is);
 
@@ -183,9 +172,8 @@ public class Get extends BasicFunction {
      * document.
      *
      * @param xqueryContext Xquery context
-     * @param is Byte stream containing the XML data.
+     * @param is            Byte stream containing the XML data.
      * @return Sequence containing the XML as DocumentImpl
-     *
      * @throws XPathException Something bad happened.
      */
     private Sequence processXML(XQueryContext xqueryContext, InputStream is) throws XPathException {
@@ -205,7 +193,7 @@ public class Get extends BasicFunction {
             xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
 
             xr.parse(src);
-            
+
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
             } else {

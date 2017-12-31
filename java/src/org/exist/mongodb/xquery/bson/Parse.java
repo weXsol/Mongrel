@@ -26,17 +26,8 @@ import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.xquery.BSonModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
 
 /**
  * Functions to Parse JSON/BSON.
@@ -45,29 +36,26 @@ import org.exist.xquery.value.Type;
  */
 public class Parse extends BasicFunction {
 
-    private static final String PARSE_AS_STRING = "parse-as-string";
-    private static final String PARSE = "parse";
-    
     public static final String PARAM_JSONCONTENT = "content";
     public static final String DESCR_JSONCONTENT = "JSON formatted document or item";
-
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ONE, DESCR_JSONCONTENT);
-    
+    private static final String PARSE_AS_STRING = "parse-as-string";
+    private static final String PARSE = "parse";
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName(PARSE_AS_STRING, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data tthat needs to be parsed.",
-        new SequenceType[]{
-            PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The parse result, JSON formatted")
-        ),
-        new FunctionSignature(
-        new QName(PARSE, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data that needs to be parsed.",
-        new SequenceType[]{
-            PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "The parse result")
-        ),
-    
+            new FunctionSignature(
+                    new QName(PARSE_AS_STRING, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data tthat needs to be parsed.",
+                    new SequenceType[]{
+                            PARAMETER_JSONCONTENT},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The parse result, JSON formatted")
+            ),
+            new FunctionSignature(
+                    new QName(PARSE, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data that needs to be parsed.",
+                    new SequenceType[]{
+                            PARAMETER_JSONCONTENT},
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "The parse result")
+            ),
+
     };
 
     public Parse(XQueryContext context, FunctionSignature signature) {
@@ -80,14 +68,14 @@ public class Parse extends BasicFunction {
         try {
             DBObject data = ConversionTools.convertJSon(args[0]);
 
-            if(isCalledAs(PARSE)){
+            if (isCalledAs(PARSE)) {
                 return ConversionTools.convertBson(context, data);
-                
+
             } else {
                 return new StringValue(data.toString());
             }
-            
-        } catch (MongoCommandException ex){
+
+        } catch (MongoCommandException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, BSonModule.MONG0005, ex.getMessage());
 

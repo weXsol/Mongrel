@@ -42,22 +42,18 @@ import static org.exist.mongodb.shared.FunctionDefinitions.*;
  */
 public class Insert extends BasicFunction {
 
-    private static final String INSERT = "insert";
-
-
     public static final String PARAM_JSONCONTENT = "content";
     public static final String DESCR_JSONCONTENT = "Document content as JSON formatted document";
-
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
-    
+    private static final String INSERT = "insert";
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName(INSERT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
-        new SequenceType[]{
-            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The insert result")
-        ),};
+            new FunctionSignature(
+                    new QName(INSERT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
+                    new SequenceType[]{
+                            PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
+                    new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The insert result")
+            ),};
 
     public Insert(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
@@ -68,10 +64,10 @@ public class Insert extends BasicFunction {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();                  
+            String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
-            
+
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
@@ -79,23 +75,23 @@ public class Insert extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-            
+
             // Place holder for all results
             List<DBObject> allContent = new ArrayList<>();
-            
+
             SequenceIterator iterate = args[3].iterate();
-            while(iterate.hasNext()){
+            while (iterate.hasNext()) {
 
                 Item nextItem = iterate.nextItem();
 
-                if(nextItem instanceof Sequence){ // Dead code
+                if (nextItem instanceof Sequence) { // Dead code
                     Sequence seq = (Sequence) nextItem;
                     BasicDBObject bsonContent = ConversionTools.convertJSonParameter(seq);
                     allContent.add(bsonContent);
 
                 } else {
                     String value = iterate.nextItem().getStringValue();
-                    if(StringUtils.isEmpty(value)){
+                    if (StringUtils.isEmpty(value)) {
                         LOG.error("Skipping empty string");
                     } else {
                         DBObject bsonContent = ConversionTools.convertJSon(value);
@@ -103,7 +99,7 @@ public class Insert extends BasicFunction {
                     }
                 }
             }
-    
+
             WriteResult result = dbcol.insert(allContent);
 
 
@@ -118,10 +114,10 @@ public class Insert extends BasicFunction {
             }
 
             return map;
-            
+
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
-        } 
+        }
 
     }
 
