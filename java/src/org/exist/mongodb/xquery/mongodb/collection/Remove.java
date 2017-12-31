@@ -37,12 +37,8 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.functions.map.MapType;
+import org.exist.xquery.value.*;
 
 /**
  * Function to Remove document from mongodb
@@ -67,7 +63,7 @@ public class Remove extends BasicFunction {
         new QName(REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Remove documents from a collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_DELETE_CRITERIUM},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before it was removed formatted as JSON")
+        new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The remove result")
         ),
         
     };
@@ -99,8 +95,18 @@ public class Remove extends BasicFunction {
             
             // Execute query      
             WriteResult result = dbcol.remove(query);
-            
-            return new StringValue(result.toString());
+
+            // Wrap results into map
+            final MapType map = new MapType(context);
+            map.add(new StringValue("acknowledged"), new ValueSequence(new BooleanValue(result.wasAcknowledged())));
+
+            if (result.wasAcknowledged()) {
+                map.add(new StringValue("n"), new ValueSequence(new IntegerValue(result.getN())));
+                map.add(new StringValue("updateOfExisting"), new ValueSequence(new BooleanValue(result.isUpdateOfExisting())));
+                map.add(new StringValue("upsertedId"), new ValueSequence(new StringValue((String) result.getUpsertedId())));
+            }
+
+            return map;
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

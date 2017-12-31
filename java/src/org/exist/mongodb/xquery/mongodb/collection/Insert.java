@@ -19,36 +19,21 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.WriteResult;
-import java.util.ArrayList;
-import java.util.List;
+import com.mongodb.*;
 import org.apache.commons.lang3.StringUtils;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.*;
+import org.exist.xquery.functions.map.MapType;
+import org.exist.xquery.value.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
@@ -71,7 +56,7 @@ public class Insert extends BasicFunction {
         new QName(INSERT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_JSONCONTENT},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The write result, JSON formatted")
+        new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The insert result")
         ),};
 
     public Insert(XQueryContext context, FunctionSignature signature) {
@@ -121,7 +106,18 @@ public class Insert extends BasicFunction {
     
             WriteResult result = dbcol.insert(allContent);
 
-            return new StringValue(result.toString());
+
+            // Wrap results into map
+            final MapType map = new MapType(context);
+            map.add(new StringValue("acknowledged"), new ValueSequence(new BooleanValue(result.wasAcknowledged())));
+
+            if (result.wasAcknowledged()) {
+                map.add(new StringValue("n"), new ValueSequence(new IntegerValue(result.getN())));
+                map.add(new StringValue("updateOfExisting"), new ValueSequence(new BooleanValue(result.isUpdateOfExisting())));
+                map.add(new StringValue("upsertedId"), new ValueSequence(new StringValue((String) result.getUpsertedId())));
+            }
+
+            return map;
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

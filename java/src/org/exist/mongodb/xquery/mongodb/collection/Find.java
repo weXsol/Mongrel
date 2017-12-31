@@ -19,32 +19,16 @@
  */
 package org.exist.mongodb.xquery.mongodb.collection;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.MongoClient;
+import com.mongodb.*;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_COLLECTION;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_DATABASE;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_KEYS;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLIENT;
-import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_QUERY;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.*;
+import org.exist.xquery.value.*;
+
+import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
 /**
  * Functions to retrieve documents from GridFS as a stream.
@@ -59,24 +43,24 @@ public class Find extends BasicFunction {
     public final static FunctionSignature signatures[] = {
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for all documents in the collection",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The all document(s) in collection")
         ),
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection",
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
         ),
         
         new FunctionSignature(
-        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for an object in the collection, return specified fields",
+        new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for documents in the collection and get specified fields",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY, PARAMETER_KEYS},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The object formatted as JSON")
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "The selected document(s)")
         ),
     };
 
@@ -99,7 +83,7 @@ public class Find extends BasicFunction {
 
             BasicDBObject mongoQuery = (args.length >= 4)
                     ? ConversionTools.convertJSonParameter(args[3])
-                    : null;
+                    : new BasicDBObject();
  
             BasicDBObject mongoKeys = (args.length >= 5)
                     ? ConversionTools.convertJSonParameter(args[4])
@@ -108,33 +92,19 @@ public class Find extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
             DBCollection dbcol = db.getCollection(collection);
-            
-            // PLace holder result cursor
-            DBCursor cursor;
-            
-            if (mongoQuery == null) {
-                // No query
-                cursor = dbcol.find();
 
-            } else {
-                // Call correct method
-                cursor = (mongoKeys == null) 
-                        ? dbcol.find(mongoQuery)
-                        : dbcol.find(mongoQuery, mongoKeys);
-            }
-
-
-            
-            // Execute query
             Sequence retVal = new ValueSequence();
 
-            // Harvest results
-            try {
+            // Execute querys
+            try (
+                    DBCursor cursor = (mongoKeys == null)
+                            ? dbcol.find(mongoQuery)
+                            : dbcol.find(mongoQuery, mongoKeys);) {
+                // Harvest result
                 while (cursor.hasNext()) {
-                    retVal.add(new StringValue(cursor.next().toString()));
+                    DBObject getValues = cursor.next();
+                    retVal.addAll(ConversionTools.getValues(context, getValues));
                 }
-            } finally {
-                cursor.close();
             }
 
             return retVal;

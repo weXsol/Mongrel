@@ -37,12 +37,8 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionParameterSequenceType;
-import org.exist.xquery.value.FunctionReturnSequenceType;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceType;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.Type;
+import org.exist.xquery.functions.map.MapType;
+import org.exist.xquery.value.*;
 
 /**
  * Functions to save a document in mongodb
@@ -83,14 +79,14 @@ public class Update extends BasicFunction {
         new QName(UPDATE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Modify an existing document or documents in collection. By default the method updates a single document.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_CRITERIA, PARAMETER_MODIFICATION},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The write result, JSON formatted")
+        new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The update result")
         ),
         
         new FunctionSignature(
         new QName(UPDATE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Modify an existing document or documents in collection.",
         new SequenceType[]{
             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_CRITERIA, PARAMETER_MODIFICATION, PARAMETER_UPSERT, PARAMETER_MULTI},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ONE, "The write result, JSON formatted")
+        new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The update result")
         ),
     
     };
@@ -129,11 +125,21 @@ public class Update extends BasicFunction {
                     : null;
     
             // Execute update
-            WriteResult update = (upsert == null) 
+            WriteResult result = (upsert == null)
                     ? dbcol.update(criterium, modification)
                     : dbcol.update(criterium, modification, upsert, multi);
 
-            return new StringValue(update.toString());
+            final MapType map = new MapType(context);
+
+            map.add(new StringValue("acknowledged"), new ValueSequence(new BooleanValue(result.wasAcknowledged())));
+
+            if (result.wasAcknowledged()) {
+                map.add(new StringValue("n"), new ValueSequence(new IntegerValue(result.getN())));
+                map.add(new StringValue("updateOfExisting"), new ValueSequence(new BooleanValue(result.isUpdateOfExisting())));
+                map.add(new StringValue("upsertedId"), new ValueSequence(new StringValue((String) result.getUpsertedId())));
+            }
+
+            return map;
             
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
