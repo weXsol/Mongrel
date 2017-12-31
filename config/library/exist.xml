@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://exist-db.org/ns/expath-pkg">
     <jar>exist-mongrel-@VERSION@.jar</jar>
-    <jar>mongodb-driver-3.4.2.jar</jar>
-    <jar>mongodb-driver-core-3.4.2.jar</jar>
-    <jar>bson-3.4.2.jar</jar>
+    <jar>mongodb-driver-3.6.1.jar</jar>
+    <jar>mongodb-driver-core-3.6.1.jar</jar>
+    <jar>bson-3.6.1.jar</jar>
     <java>
         <namespace>http://expath.org/ns/mongo</namespace>
         <class>org.exist.mongodb.xquery.MongodbModule</class>
