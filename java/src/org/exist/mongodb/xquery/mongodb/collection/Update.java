@@ -89,9 +89,7 @@ public class Update extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+
 
             // Get data
             BasicDBObject criterium = ConversionTools.convertJSonParameter(args[3]);
@@ -104,6 +102,10 @@ public class Update extends BasicFunction {
             Boolean multi = (args.length >= 7)
                     ? args[6].itemAt(0).toJavaObject(Boolean.class)
                     : null;
+
+            // Get database
+            DB db = client.getDB(dbname);
+            DBCollection dbcol = db.getCollection(collection);
 
             // Execute update
             WriteResult result = (upsert == null)

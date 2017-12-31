@@ -77,7 +77,7 @@ public class ListCollections extends BasicFunction {
             ValueSequence valueSequence = new ValueSequence();
 
             // Iterate over collection names
-            collectionNames.stream().forEach((collName) -> valueSequence.add(new StringValue(collName)));
+            collectionNames.forEach((collName) -> valueSequence.add(new StringValue(collName)));
 
             return valueSequence;
 

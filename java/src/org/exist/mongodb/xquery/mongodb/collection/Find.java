@@ -99,7 +99,7 @@ public class Find extends BasicFunction {
             try (
                     DBCursor cursor = (mongoKeys == null)
                             ? dbcol.find(mongoQuery)
-                            : dbcol.find(mongoQuery, mongoKeys);) {
+                            : dbcol.find(mongoQuery, mongoKeys)) {
                 // Harvest result
                 while (cursor.hasNext()) {
                     DBObject getValues = cursor.next();

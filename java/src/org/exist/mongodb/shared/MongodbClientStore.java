@@ -60,7 +60,7 @@ public class MongodbClientStore {
         return get(mongodbClientId) != null;
     }
 
-    public String create(String url, String username) throws UnknownHostException {
+    public String create(String url, String username) {
 
         // Construct client
         MongoClientURI uri = new MongoClientURI(url);

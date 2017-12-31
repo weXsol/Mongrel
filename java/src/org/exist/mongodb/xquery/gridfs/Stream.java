@@ -221,7 +221,7 @@ public class Stream extends BasicFunction {
      * Get mime-type: from stored value or from file name. Value NULL has not
      * existent or blank.
      */
-    private String getMimeType(String storedType, String filename) throws XPathException {
+    private String getMimeType(String storedType, String filename) {
 
         String mimeType = storedType;
 

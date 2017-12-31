@@ -137,30 +137,30 @@ public class FindAndModify extends BasicFunction {
 
     }
 
-    public Map<String, Boolean> convertOptions(AbstractMapType map) throws XPathException {
-
-        Map<String, Boolean> retVal = new HashMap<>();
-
-        // Get all keys
-        Sequence keys = map.keys();
-
-        // Iterate over all keys
-        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext(); ) {
-
-            // Get next item
-            Item key = i.nextItem();
-
-            // Only use Strings as key, as required by JMS
-            String keyValue = key.getStringValue();
-
-            // Get values
-            Sequence values = map.get((AtomicValue) key);
-
-            retVal.put(keyValue, Boolean.valueOf(values.getStringValue()));
-
-        }
-
-        return retVal;
-    }
+//    public Map<String, Boolean> convertOptions(AbstractMapType map) throws XPathException {
+//
+//        Map<String, Boolean> retVal = new HashMap<>();
+//
+//        // Get all keys
+//        Sequence keys = map.keys();
+//
+//        // Iterate over all keys
+//        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext(); ) {
+//
+//            // Get next item
+//            Item key = i.nextItem();
+//
+//            // Only use Strings as key, as required by JMS
+//            String keyValue = key.getStringValue();
+//
+//            // Get values
+//            Sequence values = map.get((AtomicValue) key);
+//
+//            retVal.put(keyValue, Boolean.valueOf(values.getStringValue()));
+//
+//        }
+//
+//        return retVal;
+//    }
 
 }

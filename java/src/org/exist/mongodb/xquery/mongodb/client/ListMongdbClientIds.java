@@ -69,7 +69,7 @@ public class ListMongdbClientIds extends BasicFunction {
 
             ValueSequence valueSequence = new ValueSequence();
 
-            clientIds.stream().forEach((mongodbClientId) -> valueSequence.add(new StringValue(mongodbClientId)));
+            clientIds.forEach((mongodbClientId) -> valueSequence.add(new StringValue(mongodbClientId)));
 
             return valueSequence;
 

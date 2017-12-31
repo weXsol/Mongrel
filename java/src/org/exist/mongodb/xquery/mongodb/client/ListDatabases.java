@@ -67,7 +67,7 @@ public class ListDatabases extends BasicFunction {
             MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             ValueSequence seq = new ValueSequence();
-            client.getDatabaseNames().stream().forEach((name) -> seq.add(new StringValue(name)));
+            client.getDatabaseNames().forEach((name) -> seq.add(new StringValue(name)));
             return seq;
 
         } catch (Throwable t) {
