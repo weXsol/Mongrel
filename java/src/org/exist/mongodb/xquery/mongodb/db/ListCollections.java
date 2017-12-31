@@ -45,7 +45,9 @@ public class ListCollections extends BasicFunction {
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
                     new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "List names of available collections",
+                    "List the names of all collections contained in a databases. "+
+                            "The connection is identified by the supplied $mongodbClientId, and the name of the database " +
+                            "is supplied via $database.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
                     new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")

@@ -41,7 +41,9 @@ public class Close extends BasicFunction {
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
                     new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "Close MongoDB connector",
+                    "Close an open database connection. The connection to be closed is identified by the supplied $mongodbClientId. " +
+                            "When a database connection is closed, the associated id is discarded and invalidated. " +
+                            "As a consequence, each database can be closed once.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT
                     },

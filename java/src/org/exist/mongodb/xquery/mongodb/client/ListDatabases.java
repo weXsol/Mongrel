@@ -41,7 +41,7 @@ public class ListDatabases extends BasicFunction {
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
                     new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "List databases",
+                    "List the names of all databases on the connected server.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT,
                     },

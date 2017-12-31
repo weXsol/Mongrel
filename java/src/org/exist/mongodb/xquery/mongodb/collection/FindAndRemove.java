@@ -46,7 +46,7 @@ public class FindAndRemove extends BasicFunction {
                     new QName(FIND_AND_REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE, PARAMETER_COLLECTION, PARAMETER_QUERY},
-                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The document as it was before it was removed formatted as JSON")
+                    new FunctionReturnSequenceType(Type.MAP, Cardinality.ZERO_OR_ONE, "The document as it was before it was removed formatted as JSON")
             ),
 
     };
@@ -83,7 +83,7 @@ public class FindAndRemove extends BasicFunction {
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
-                    : new StringValue(result.toString());
+                    : ConversionTools.convertBson(context, result);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

@@ -98,7 +98,7 @@ public class Group extends BasicFunction {
             String reduce = args[6].itemAt(0).getStringValue();
 
             // The finalize can be null
-            String finalize = (args.length >= 8)
+            String finalize = (args.length > 7)
                     ? args[7].itemAt(0).getStringValue()
                     : null;
 
@@ -117,9 +117,10 @@ public class Group extends BasicFunction {
             // Execute, finalize can have value null
             DBObject result = dbcol.group(command);
 
-            // Execute query
+            return (result == null)
+                    ? Sequence.EMPTY_SEQUENCE
+                    : ConversionTools.convertBson(context, result);
 
-            return new StringValue(result.toString());
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

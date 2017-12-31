@@ -102,7 +102,7 @@ public class EvalCommand extends BasicFunction {
             // Get database
             DB db = client.getDB(dbname);
 
-            Sequence retVal;
+            Sequence retVal=new ValueSequence();
 
             if (isCalledAs(EVAL)) {
                 /* eval */
@@ -113,7 +113,7 @@ public class EvalCommand extends BasicFunction {
                 // Execute query with additional parameter 
                 Object result = db.eval(queryString, params);
 
-                retVal = convertResult(result);
+                retVal = convertResult(context, result);
 
 
             } else {
@@ -128,7 +128,12 @@ public class EvalCommand extends BasicFunction {
 
 
                 // Convert result to string
-                retVal = new StringValue(result.toString());
+                if(result.ok()){
+                    result.remove("ok");
+
+                    retVal = ConversionTools.convertBson(context, result);
+                }
+
             }
 
             return retVal;
@@ -140,10 +145,10 @@ public class EvalCommand extends BasicFunction {
 
     }
 
-    private Sequence convertResult(Object result) throws XPathException {
+    private Sequence convertResult(XQueryContext context, Object result) throws XPathException {
         Sequence retVal;
         if (result instanceof BasicDBObject) {
-            retVal = new StringValue(result.toString());
+            retVal = ConversionTools.convertBson(context, (BasicDBObject)result);
 
         } else if (result instanceof String) {
             retVal = new StringValue((String) result);

@@ -112,11 +112,10 @@ public class FindOne extends BasicFunction {
                 result = dbcol.findOne(query, fields, orderBy);
             }
 
-            // Execute query
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
-                    : new StringValue(result.toString());
+                    : ConversionTools.convertBson(context, result);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

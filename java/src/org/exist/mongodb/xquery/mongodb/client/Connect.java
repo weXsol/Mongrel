@@ -40,7 +40,7 @@ public class Connect extends BasicFunction {
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
                     new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "Establish a connection to MongoDB. Returns a client id that identifies the opened connection.",
+                    "Establishe a connection to MongoDB and return a client id as string that identifies the opened connection.",
                     new SequenceType[]{
                             new FunctionParameterSequenceType("uri", Type.STRING, Cardinality.ONE, "URI to server")
                     },
