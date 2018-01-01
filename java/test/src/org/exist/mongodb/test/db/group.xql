@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace groupa="http://exist-db.org/mongodb/test/group";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -24,10 +22,10 @@ declare %test:setUp function groupa:setup()
     let $mongodbClientId := support:getToken()
     
     return(mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection,
-                          ('{ cust_id : "A123" , amount : 500 , status : "A"  }',
-                          '{ cust_id : "A123" , amount : 250 , status : "A"  }',
-                          '{ cust_id : "B212" , amount : 200 , status : "A"  }',
-                          '{ cust_id : "A123" , amount : 300 , status : "D"  }')))
+                          ('{ cust_id : "A123" , amount : 500 , status : "A" , foo : "bar" }',
+                          '{ cust_id : "A123" , amount : 250 , status : "A" , foo : "bar" }',
+                          '{ cust_id : "B212" , amount : 200 , status : "A" , foo : "bar" }',
+                          '{ cust_id : "A123" , amount : 300 , status : "D" , foo : "bar" }')))
             
 };
 
@@ -47,7 +45,7 @@ declare %test:tearDown function groupa:cleanup()
  : collection#group()  simple
  :)
 declare 
-    (: %test:assertEquals("A123", "750.0", "B212", "200.0")  :)
+%test:assertEquals(3, "750.0", 3)  
 function groupa:group_simple() {
     let $mongodbClientId := support:getToken()
     
@@ -55,12 +53,11 @@ function groupa:group_simple() {
                 "{ cust_id : 1 , amount : 1 , status : 1}",
                 "{ status : 'A'}",
                 "{ total : 0 }",
-                "function ( curr, result ) {
-                     result.total += curr.amount;   }"
+                "function ( curr, result ) { result.total += curr.amount;   } ")
                 
-                    )
+                let $a := util:log-system-out($result)
 
-   return $result
+   return ( trace(count($result), "A" ) , $result?amount)
         
 };
 

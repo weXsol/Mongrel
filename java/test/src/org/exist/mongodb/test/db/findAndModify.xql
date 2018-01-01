@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace findAndModify="http://exist-db.org/mongodb/test/findAndModify";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -67,8 +65,8 @@ function findAndModify:findAndModify_simple() {
     let $result2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
                    "{ x : 2 }", "{ x : 2 ,  y : 30 , z : 200 }")
                    
-    let $y1 := xqjson:parse-json($result1)//pair[@name eq 'y']/text() 
-    let $y2 := xqjson:parse-json($result2)//pair[@name eq 'y']/text() 
+    let $y1 := $result1?y 
+    let $y2 := $result2?y
     
     return ($y1, $y2)
         
@@ -89,8 +87,8 @@ function findAndModify:findAndModify_sort() {
     let $result2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
                    "{ z : 300 }", "{ x : 2 ,  y : 30 , z : 400 }", "{ y : 1 }")
                    
-    let $y1 := xqjson:parse-json($result1)//pair[@name eq 'x']/text() 
-    let $y2 := xqjson:parse-json($result2)//pair[@name eq 'x']/text() 
+    let $y1 := $result1?x 
+    let $y2 := $result2?x
     
     return ($y1, $y2)
         
@@ -110,16 +108,16 @@ function findAndModify:findAndModify_sort_xq3() {
     let $result_1 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
                    $query_1, $update_1, $sort_1)
                    
-    let $parse_1 := parse-json($result_1, $options)   
+    
     
 
     let $result_2 := mongodb:findAndModify($mongodbClientId, $support:database, $support:mongoCollection,
                    $query_1, $update_1, $sort_1)
                    
-    let $parse_2 := parse-json($result_2, $options)  
+  
    
     return
-        ($parse_1?y , $parse_2?y)
+        ($result_1?y , $result_2?y)
         
 };
 

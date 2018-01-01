@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/count";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 

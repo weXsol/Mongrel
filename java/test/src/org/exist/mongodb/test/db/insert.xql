@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/insert";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -54,7 +52,7 @@ function mongoMain:insert_two() {
 
 (: collection#insert()  empty sequence :)
 declare 
-    %test:assertError("mongodb:MONG0005")
+    %test:assertError("mongodb:json")
 function mongoMain:insert_emptysequence() {
     let $mongodbClientId := support:getToken()
     let $result :=  mongodb:insert($mongodbClientId, $support:database, $support:mongoCollection, 

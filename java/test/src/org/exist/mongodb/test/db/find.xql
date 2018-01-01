@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/find";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -75,7 +73,7 @@ function mongoMain:find_query() {
 
 (: collection#find(query, keys) : only y-values are returned :)
 declare 
-    %test:assertEquals(2, 0, 2, 6, 4)
+    %test:assertEquals(2,0,6,4)
 function mongoMain:find_query_keys() {
 
     let $mongodbClientId := support:getToken()
@@ -84,19 +82,15 @@ function mongoMain:find_query_keys() {
 
     
     let $count := count($result)
+    let $countx := count($result?x)
     
-    let $xValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'x']/text()
-                    
-    let $yValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'y']/text()
-    return ($count, count($xValues), count($yValues), $yValues)
+    return ($count, $countx, $result?y)
 };
 
 
 (: collection#find(query, keys) : only y-values are returned :)
 declare 
-    %test:assertEquals(6, 4)
+    %test:assertEquals(2,6,4)
 function mongoMain:find_query_keys_xq31() {
     
     let $options := map { "liberal": true(), "duplicates": "use-last" }
@@ -108,9 +102,7 @@ function mongoMain:find_query_keys_xq31() {
     $query, $keys)
 
     return
-        for $one in $result
-        let $parse := parse-json($one)
-        return $parse?y
+        (count($result), $result?y)
 };
 
 

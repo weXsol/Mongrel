@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace eval="http://exist-db.org/mongodb/test/eval";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -67,15 +65,9 @@ function eval:eval_string() {
     return $eval
 };
 
-(: 
- : collection#eval() 
- : <json type="object">
- : <pair name="x" type="number">1.0</pair>
- : <pair name="y" type="number">2.0</pair>
- : </json>
- :)
+
 declare 
-    %test:assertEquals(2)
+    %test:assertEquals(1,2)
 function eval:eval_json() {
     let $mongodbClientId := support:getToken()
     let $eval:= mongodb:eval($mongodbClientId, $support:database, 
@@ -83,28 +75,5 @@ function eval:eval_json() {
     (: Javascript :)
     'function() { return { x : 1 ,  y : 2 } }' )
     
-    return count(xqjson:parse-json($eval)//pair)
-};
-
-(: 
- : collection#eval() 
- : <json type="object">
- : <pair name="x" type="number">1.0</pair>
- : <pair name="y" type="number">2.0</pair>
- : </json>
- :)
-declare 
-    %test:assertEquals(1,2)
-function eval:eval_json_xq31() {
-    let $mongodbClientId := support:getToken()
-    let $eval:= mongodb:eval($mongodbClientId, $support:database, 
-
-    (: Javascript :)
-    'function() { return { x : 1 ,  y : 2 } }' )
-    
-    let $options := map { "liberal": true(), "duplicates": "use-last" }
-    
-    let $result := parse-json($eval, $options)
-    
-    return ($result?x , $result?y) 
+    return ($eval?x, $eval?y)
 };

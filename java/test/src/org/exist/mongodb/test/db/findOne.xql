@@ -2,8 +2,6 @@ xquery version "3.1";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/findOne";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
@@ -54,7 +52,7 @@ function mongoMain:findOne() {
     let $mongodbClientId := support:getToken()
     let $result := mongodb:findOne($mongodbClientId, $support:database, $support:mongoCollection)
     return
-        ( count($result), xqjson:parse-json($result)//pair[@name eq 'y']/text() )
+        ( count($result), $result?y)
 };
 
 
@@ -65,7 +63,7 @@ function mongoMain:findOne_query() {
     let $mongodbClientId := support:getToken()
     let $result := mongodb:findOne($mongodbClientId, $support:database, $support:mongoCollection, "{ z : 64 }" )
     return
-        ( count($result), xqjson:parse-json($result)//pair[@name eq 'x']/text() )
+        ( count($result), $result?x )
 };
 
 (: collection#findOne(query, keys) : only y-values are returned :)
@@ -82,11 +80,11 @@ function mongoMain:findOne_query_fields() {
     
     (: no x values :)
     let $xValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'x']/text()
+                    return $one?x
     
     (: just one y value :)                
     let $yValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'y']/text()
+                    return $one?y
                     
     return ($count, count($xValues), count($yValues), $yValues)
 };
@@ -104,13 +102,13 @@ function mongoMain:findOne_query_fields_orderby() {
     let $count := count($result)
     
     let $xValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'x']/text()
+                    return $one?x
                     
     let $yValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'y']/text()
+                    return $one?y
                     
     let $zValues := for $one in $result 
-                    return xqjson:parse-json($one)//pair[@name eq 'z']/text()
+                    return $one?z
                     
     return ($count, count($xValues), count($yValues), $xValues)
 };
@@ -130,9 +128,8 @@ function mongoMain:findOne_query_fields_orderby_xq31() {
     let $result := mongodb:findOne($mongodbClientId, $support:database, $support:mongoCollection,
     $query, $fields, $orderBy)
     
-    let $parsed := parse-json($result, $options)
 
-    return ($parsed?x, $parsed?y)
+    return ($result?x, $result?y)
 };
 
 

@@ -1,8 +1,7 @@
-xquery version "3.0";
+xquery version "3.1";
 
 module namespace mapreduce="http://exist-db.org/mongodb/test/mapreduce";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
@@ -62,7 +61,7 @@ function mapreduce:mapreduce_simple() {
         
         
         let $formatted := <result>{for $one in $result
-    return xqjson:parse-json($one)}</result>
+    return parse-json($one)}</result>
     
     return data($formatted//pair)
         
@@ -86,7 +85,8 @@ function mapreduce:mapreduce_write_collection() {
     let $find := mongodb:find($mongodbClientId, $support:database, "newCollection")   
         
     let $formatted := <result>{for $one in $find
-    return xqjson:parse-json($one)}</result>
+    return 
+        parse-json($one)}</result>
     
     let $drop := mongodb:drop($mongodbClientId, $support:database, "newCollection")
     

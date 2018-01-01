@@ -2,7 +2,6 @@ xquery version "3.1";
 
 module namespace findAndRemove="http://exist-db.org/mongodb/test/findAndRemove";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
@@ -63,7 +62,7 @@ function findAndRemove:findAndRemove_simple() {
     let $result2 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
                    "{ x : 2 }")
                    
-    let $y1 := xqjson:parse-json($result1)//pair[@name eq 'y']/text() 
+    let $y1 := $result1?y
     
     return ($y1, count($result2))
         
@@ -84,7 +83,7 @@ function findAndRemove:findAndRemove_double() {
     let $result2 := mongodb:findAndRemove($mongodbClientId, $support:database, $support:mongoCollection,
                    "{ y : 20 , z : 300 }")
                    
-    let $y1 := xqjson:parse-json($result1)//pair[@name eq 'x']/text() 
+    let $y1 := $result1?x
 
     
     return ($y1, count($result2))
@@ -108,7 +107,7 @@ function findAndRemove:findAndRemove_xq31() {
                    $query)
 
                    
-    return parse-json($result, $options)?y
+    return $result?y
         
 };
 
