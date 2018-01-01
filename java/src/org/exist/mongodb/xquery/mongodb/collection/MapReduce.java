@@ -117,7 +117,7 @@ public class MapReduce extends BasicFunction {
             Sequence retVal = new ValueSequence();
 
             for (DBObject result : output.results()) {
-                retVal.add(new StringValue(result.toString()));
+                retVal.addAll(ConversionTools.convertBson(context, result));
             }
 
             return retVal;
