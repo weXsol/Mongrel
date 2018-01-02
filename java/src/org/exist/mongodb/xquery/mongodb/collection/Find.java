@@ -21,9 +21,7 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
-import org.exist.mongodb.shared.GenericExceptionHandler;
-import org.exist.mongodb.shared.MongodbClientStore;
+import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
@@ -82,11 +80,11 @@ public class Find extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject mongoQuery = (args.length >= 4)
-                    ? ConversionTools.convertJSonParameter(args[3])
+                    ? (BasicDBObject) MapToBSON.convert(args[3])
                     : new BasicDBObject();
 
             BasicDBObject mongoKeys = (args.length >= 5)
-                    ? ConversionTools.convertJSonParameter(args[4])
+                    ? (BasicDBObject) MapToBSON.convert(args[4])
                     : null;
 
             // Get database
@@ -103,7 +101,7 @@ public class Find extends BasicFunction {
                 // Harvest result
                 while (cursor.hasNext()) {
                     DBObject getValues = cursor.next();
-                    retVal.addAll(ConversionTools.getValues(context, getValues));
+                    retVal.addAll(BSONtoMap.convert(getValues,context));
                 }
             }
 

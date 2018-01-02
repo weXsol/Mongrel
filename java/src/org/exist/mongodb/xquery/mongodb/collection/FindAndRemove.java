@@ -21,9 +21,7 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
-import org.exist.mongodb.shared.GenericExceptionHandler;
-import org.exist.mongodb.shared.MongodbClientStore;
+import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
@@ -69,7 +67,7 @@ public class FindAndRemove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSonParameter(args[3])
+                    ? (BasicDBObject) MapToBSON.convert(args[3])
                     : null;
 
             // Get collection in database
@@ -83,7 +81,7 @@ public class FindAndRemove extends BasicFunction {
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
-                    : ConversionTools.convertBson(context, result);
+                    : BSONtoMap.convert(result, context);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

@@ -22,9 +22,7 @@ package org.exist.mongodb.xquery.mongodb.collection;
 import com.mongodb.*;
 import com.mongodb.MapReduceCommand.OutputType;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
-import org.exist.mongodb.shared.GenericExceptionHandler;
-import org.exist.mongodb.shared.MongodbClientStore;
+import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
@@ -104,7 +102,7 @@ public class MapReduce extends BasicFunction {
                     : OutputType.valueOf(args[6].itemAt(0).getStringValue().toUpperCase(Locale.US));
 
 
-            DBObject query = ConversionTools.convertJSon(args[7]);
+            DBObject query = (BasicDBObject) MapToBSON.convert(args[7]);
 
             // Get collection in database
             DB db = client.getDB(dbname);
@@ -117,7 +115,7 @@ public class MapReduce extends BasicFunction {
             Sequence retVal = new ValueSequence();
 
             for (DBObject result : output.results()) {
-                retVal.addAll(ConversionTools.convertBson(context, result));
+                retVal.addAll(BSONtoMap.convert(result,context));
             }
 
             return retVal;

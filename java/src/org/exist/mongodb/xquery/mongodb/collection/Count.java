@@ -26,6 +26,7 @@ import com.mongodb.MongoClient;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
+import org.exist.mongodb.shared.MapToBSON;
 import org.exist.mongodb.shared.MongodbClientStore;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
@@ -76,7 +77,7 @@ public class Count extends BasicFunction {
 
             // Get query when available
             BasicDBObject mongoQuery = (args.length == 4)
-                    ? ConversionTools.convertJSonParameter(args[3])
+                    ? (BasicDBObject) MapToBSON.convert(args[3])
                     : null;
 
             // Get database and collection

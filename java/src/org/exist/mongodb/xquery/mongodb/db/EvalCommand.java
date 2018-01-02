@@ -25,6 +25,7 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.BSONtoMap;
 import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -131,7 +132,7 @@ public class EvalCommand extends BasicFunction {
                 if(result.ok()){
                     result.remove("ok");
 
-                    retVal = ConversionTools.convertBson(context, result);
+                    retVal = BSONtoMap.convert(result,context);
                 }
 
             }
@@ -148,7 +149,7 @@ public class EvalCommand extends BasicFunction {
     private Sequence convertResult(XQueryContext context, Object result) throws XPathException {
         Sequence retVal;
         if (result instanceof BasicDBObject) {
-            retVal = ConversionTools.convertBson(context, (BasicDBObject)result);
+            retVal = BSONtoMap.convert((BasicDBObject)result, context);
 
         } else if (result instanceof String) {
             retVal = new StringValue((String) result);

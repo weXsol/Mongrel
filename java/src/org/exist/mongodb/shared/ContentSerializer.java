@@ -32,7 +32,7 @@ public class ContentSerializer {
      * Stream content of item to output stream
      *
      * @param item    The Item
-     * @param context The XQUery context
+     * @param context The XQuery context
      * @param os      The output stream
      * @throws XPathException Thrown when an something unexpected happened
      * @throws IOException    An error occurred during serialization

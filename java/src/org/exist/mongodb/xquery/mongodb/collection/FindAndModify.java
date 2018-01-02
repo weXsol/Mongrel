@@ -21,9 +21,7 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
-import org.exist.mongodb.shared.GenericExceptionHandler;
-import org.exist.mongodb.shared.MongodbClientStore;
+import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
@@ -86,15 +84,15 @@ public class FindAndModify extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? ConversionTools.convertJSonParameter(args[3])
+                    ? (BasicDBObject) MapToBSON.convert(args[3])
                     : null;
 
             BasicDBObject update = (args.length >= 5)
-                    ? ConversionTools.convertJSonParameter(args[4])
+                    ? (BasicDBObject) MapToBSON.convert(args[4])
                     : null;
 
             BasicDBObject sort = (args.length >= 6)
-                    ? ConversionTools.convertJSonParameter(args[5])
+                    ? (BasicDBObject) MapToBSON.convert(args[5])
                     : null;
 
 //             Map<String,Boolean> options = (args.length >= 7)
@@ -129,7 +127,7 @@ public class FindAndModify extends BasicFunction {
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
-                    : ConversionTools.convertBson(context, result);
+                    : BSONtoMap.convert(result, context);
 
         } catch (Throwable t) {
             return GenericExceptionHandler.handleException(this, t);

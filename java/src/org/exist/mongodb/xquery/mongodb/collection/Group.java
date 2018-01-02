@@ -21,9 +21,7 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
-import org.exist.mongodb.shared.GenericExceptionHandler;
-import org.exist.mongodb.shared.MongodbClientStore;
+import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
@@ -89,11 +87,11 @@ public class Group extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = ConversionTools.convertJSonParameter(args[3]);
+            BasicDBObject key = (BasicDBObject) MapToBSON.convert(args[3]);
 
-            BasicDBObject condition = ConversionTools.convertJSonParameter(args[4]);
+            BasicDBObject condition = (BasicDBObject) MapToBSON.convert(args[4]);
 
-            BasicDBObject initial = ConversionTools.convertJSonParameter(args[5]);
+            BasicDBObject initial = (BasicDBObject) MapToBSON.convert(args[5]);
 
             String reduce = args[6].itemAt(0).getStringValue();
 
@@ -114,12 +112,13 @@ public class Group extends BasicFunction {
                 LOG.debug(command.toDBObject().toString());
             }
 
+
             // Execute, finalize can have value null
             DBObject result = dbcol.group(command);
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
-                    : ConversionTools.convertBson(context, result);
+                    : BSONtoMap.convert(result,context);
 
 
         } catch (Throwable t) {

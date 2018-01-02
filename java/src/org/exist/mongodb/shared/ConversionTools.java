@@ -7,6 +7,7 @@ import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.BasicBSONObject;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XPathUtil;
 import org.exist.xquery.XQueryContext;
@@ -34,9 +35,9 @@ public class ConversionTools {
      * @throws XPathException     exist data conversion failed.
      * @throws JSONParseException A string could not be parsed.
      */
-    public static List<DBObject> convertPipeline(Sequence args) throws XPathException, JSONParseException {
+    public static List<BasicDBObject> convertPipeline(Sequence args) throws XPathException, JSONParseException {
 
-        List<DBObject> pipeline = new ArrayList<>();
+        List<BasicDBObject> pipeline = new ArrayList<>();
 
         if (args != null) {
             SequenceIterator iterator = args.iterate();
@@ -44,7 +45,7 @@ public class ConversionTools {
                 Item next = iterator.nextItem();
 
                 if (next instanceof Sequence) { // Dead code
-                    pipeline.add(convertJSon((Sequence) next));
+                    pipeline.add((BasicDBObject) MapToBSON.convert((Sequence)next));
                 } else {
                     String step = next.getStringValue();
                     pipeline.add((BasicDBObject) JSON.parse(step));
@@ -64,166 +65,170 @@ public class ConversionTools {
      * @return the converted result, null if input is null.
      * @throws JSONParseException The string could not be parsed.
      */
-    public static DBObject convertJSon(String json) throws JSONParseException {
-        return (json == null) ? null : (DBObject) JSON.parse(json);
+    public static BasicDBObject convertJSon(String json) throws JSONParseException {
+        return (json == null) ? null : (BasicDBObject) JSON.parse(json);
     }
 
-    /**
-     * Convert first mapEntry in sequence to BSON object
-     *
-     * @param seq The sequence
-     * @return the converted result, null if input is null.
-     * @throws JSONParseException The string could not be parsed.
-     * @throws XPathException     The string value could not be obtained
-     */
-    public static DBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
+//    /**
+//     * Convert first mapEntry in sequence to BSON object
+//     *
+//     * @param seq The sequence
+//     * @return the converted result, null if input is null.
+//     * @throws JSONParseException The string could not be parsed.
+//     * @throws XPathException     The string value could not be obtained
+//     */
+//    public static BasicDBObject convertJSon(Sequence seq) throws JSONParseException, XPathException {
+//
+//        return (seq.getItemType() == Type.STRING)
+//                ? convertJSon(seq.getStringValue())
+//                : (BasicDBObject) parseSequence(seq); // is this correct
+//    }
 
-        return (seq.getItemType() == Type.STRING)
-                ? convertJSon(seq.getStringValue())
-                : (BasicDBObject) parseSequence(seq); // is this correct
-    }
+//    /**
+//     * Get simple BasicDBObject from sequence
+//     *
+//     * @param seq The input sequence
+//     * @return The JSON representation of the sequence
+//     * @throws JSONParseException The input could not be parsed
+//     * @throws XPathException     The conversion failed.
+//     */
+//    public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException {
+//
+//        if (seq == null || seq.isEmpty()) {
+//            throw new IllegalArgumentException("Sequence is NULL or is empty.");
+//        }
+//
+//        BasicBSONObject value = convertJSon(seq);
+//
+//        if (value == null) {
+//            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject (null value).");
+//        }
+//
+//
+//        if (!(value instanceof BasicDBObject)) {
+//            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject.");
+//        }
+//
+//        return (BasicDBObject) value;
+//    }
 
-    /**
-     * Get simple BasicDBObject from sequence
-     *
-     * @param seq The input sequence
-     * @return The JSON representation of the sequence
-     * @throws JSONParseException The input could not be parsed
-     * @throws XPathException     The conversion failed.
-     */
-    public static BasicDBObject convertJSonParameter(Sequence seq) throws JSONParseException, XPathException {
+//    /**
+//     * Convert a sequence into BSON type or Arraylist.
+//     *
+//     * @param seq The sequence.
+//     * @return The conversion result.
+//     * @throws XPathException Thrown when a conversion fails.
+//     */
+//    public static Object parseSequence(Sequence seq) throws XPathException {
+//
+//        Object retVal;
+//
+//        switch (seq.getItemType()) {
+//            case Type.MAP:
+//                MapType map = (MapType) seq;
+//                retVal = parseMap(map);
+//                break;
+//            case Type.ARRAY:
+//                ArrayType array = (ArrayType) seq;
+//                retVal = parseArray(array);
+//                break;
+//            default:
+//                retVal = ConversionTools.convertParameters(seq);
+//        }
+//
+//        return retVal;
+//    }
 
-        if (seq == null || seq.isEmpty()) {
-            throw new IllegalArgumentException("Sequence is NULL or is empty.");
-        }
+//    private static BasicDBObject parseMap(MapType map) throws XPathException {
+//        BasicDBObject retVal = new BasicDBObject();
+//
+//        for (Map.Entry<AtomicValue, Sequence> mapEntry : map) {
+//
+//            // A key is always a string
+//            String key = mapEntry.getKey().getStringValue();
+//
+//            // The value is always a sequence
+//            Sequence sequence = mapEntry.getValue();
+//
+//            // Recurivele add value
+//            retVal.append(key, parseSequence(sequence));
+//        }
+//
+//        return retVal;
+//    }
 
-        DBObject value = convertJSon(seq);
+//    private static ArrayList parseArray(ArrayType array) throws XPathException {
+//
+//        ArrayList<Object> retVal = new ArrayList<>();
+//
+//        for (Sequence sequence : array.toArray()) {
+//            // Recursively add value
+//            retVal.add(parseSequence(sequence));
+//        }
+//
+//        return retVal;
+//    }
 
-        if (value == null) {
-            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject (null value).");
-        }
+//    /**
+//     * Convert an MongoDB BSON object into a sequence of xquery objects.
+//     *
+//     * @param context XQUery context
+//     * @param bson    The BSON data
+//     * @return The result of the conversion
+//     * @throws XPathException Thrown when an xpath variable operation failed.
+//     */
+//    public static Sequence convertBson(XQueryContext context, DBObject bson) throws XPathException {
+//
+//        return getValues(context, bson);
+//
+//    }
 
-
-        if (!(value instanceof BasicDBObject)) {
-            throw new IllegalArgumentException("Sequence cannot be converted to BasicDBObject.");
-        }
-
-        return (BasicDBObject) value;
-    }
-
-    /**
-     * Convert a sequence into BSON type or Arraylist.
-     *
-     * @param seq The sequence.
-     * @return The conversion result.
-     * @throws XPathException Thrown when a conversion fails.
-     */
-    public static Object parseSequence(Sequence seq) throws XPathException {
-
-        Object retVal;
-
-        switch (seq.getItemType()) {
-            case Type.MAP:
-                MapType map = (MapType) seq;
-                retVal = parseMap(map);
-                break;
-            case Type.ARRAY:
-                ArrayType array = (ArrayType) seq;
-                retVal = parseArray(array);
-                break;
-            default:
-                retVal = ConversionTools.convertParameters(seq)[0];
-        }
-
-        return retVal;
-    }
-
-    private static BasicDBObject parseMap(MapType map) throws XPathException {
-        BasicDBObject retVal = new BasicDBObject();
-
-        for (Map.Entry<AtomicValue, Sequence> mapEntry : map) {
-
-            // A key is always a string
-            String key = mapEntry.getKey().getStringValue();
-
-            // The value is always a sequence
-            Sequence sequence = mapEntry.getValue();
-
-            // Recurivele add value
-            retVal.append(key, parseSequence(sequence));
-        }
-
-        return retVal;
-    }
-
-    private static ArrayList parseArray(ArrayType array) throws XPathException {
-
-        ArrayList<Object> retVal = new ArrayList<>();
-
-        for (Sequence sequence : array.toArray()) {
-            // Recursively add value
-            retVal.add(parseSequence(sequence));
-        }
-
-        return retVal;
-    }
-
-    /**
-     * Convert an MongoDB BSON object into a sequence of xquery objects.
-     *
-     * @param context XQUery context
-     * @param bson    The BSON data
-     * @return The result of the conversion
-     * @throws XPathException Thrown when an xpath variable operation failed.
-     */
-    public static Sequence convertBson(XQueryContext context, DBObject bson) throws XPathException {
-
-        return getValues(context, bson);
-
-    }
-
-    // BSONObject
-
-    public static Sequence getValues(XQueryContext context, Object o) throws XPathException {
-
-        Sequence retVal = new ValueSequence();
-
-        if (o instanceof BasicDBObject) {
-
-            BasicDBObject bson = (BasicDBObject) o;
-            MapType mt = new MapType(context);
-
-            for (Map.Entry<String, Object> entry : bson.entrySet()) {
-
-                String key = entry.getKey();
-                Object value = entry.getValue();
-
-                mt.add(new StringValue(key), getValues(context, value));
-
-            }
-            retVal.add(mt);
-
-        } else if (o instanceof BasicDBList) {
-            BasicDBList list = (BasicDBList) o;
-
-            List<Sequence> collected = new ArrayList<>();
-
-            for (Object item : list) {
-                collected.add(getValues(context, item));
-            }
-
-            ArrayType at = new ArrayType(context, collected);
-            retVal.add(at);
-
-        } else {
-            // regular javaobject
-            // TODO : create actual objects
-            retVal = XPathUtil.javaObjectToXPath(o, context);
-        }
-
-        return retVal;
-
-    }
+//    // BSONObject
+//
+//    public static Sequence getValues(XQueryContext context, Object o) throws XPathException {
+//
+//        if(o==null){
+//            return Sequence.EMPTY_SEQUENCE;
+//        }
+//
+//        Sequence retVal = new ValueSequence();
+//
+//        if (o instanceof BasicDBObject) {
+//
+//            BasicDBObject bson = (BasicDBObject) o;
+//            MapType mt = new MapType(context);
+//
+//            for (Map.Entry<String, Object> entry : bson.entrySet()) {
+//
+//                String key = entry.getKey();
+//                Object value = entry.getValue();
+//
+//                mt.add(new StringValue(key), getValues(context, value));
+//
+//            }
+//            retVal.add(mt);
+//
+//        } else if (o instanceof BasicDBList) {
+//            BasicDBList list = (BasicDBList) o;
+//
+//            List<Sequence> collected = new ArrayList<>();
+//
+//            for (Object item : list) {
+//                collected.add(getValues(context, item));
+//            }
+//
+//            ArrayType at = new ArrayType(context, collected);
+//            retVal.add(at);
+//
+//        } else {
+//            // regular javaobject
+//            // TODO : create actual objects
+//            retVal = XPathUtil.javaObjectToXPath(o, context);
+//        }
+//
+//        return retVal;
+//
+//    }
 
     /**
      * Convert Sequence into array of Java objects

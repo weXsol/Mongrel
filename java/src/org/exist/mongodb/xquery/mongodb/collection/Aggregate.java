@@ -20,7 +20,9 @@
 package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
+import org.bson.BasicBSONObject;
 import org.exist.dom.QName;
+import org.exist.mongodb.shared.BSONtoMap;
 import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -71,7 +73,7 @@ public class Aggregate extends BasicFunction {
             // Get parameters
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
-            List<DBObject> pipeline = ConversionTools.convertPipeline(args[3]);
+            List<BasicDBObject> pipeline = ConversionTools.convertPipeline(args[3]);
 
             // Get collection in database
             DB db = client.getDB(dbname);
@@ -84,7 +86,7 @@ public class Aggregate extends BasicFunction {
             Sequence retVal = new ValueSequence();
 
             for (DBObject result : aggrOutput.results()) {
-                retVal.add(new StringValue(result.toString()));
+                retVal.add(BSONtoMap.convert(result, context));
             }
 
             return retVal;
