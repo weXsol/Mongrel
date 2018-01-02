@@ -23,7 +23,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.util.JSON;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.BSONtoMap;
 import org.exist.mongodb.shared.ConversionTools;
@@ -122,7 +121,7 @@ public class EvalCommand extends BasicFunction {
 
                 // Convert query string
                 //BasicDBObject mongoQuery = (BasicDBObject) ConversionTools.convertJSonParameter(query);
-                BasicDBObject mongoQuery = (BasicDBObject) JSON.parse(query.getStringValue());
+                BasicDBObject mongoQuery = BasicDBObject.parse(query.getStringValue());
 
                 // execute query
                 CommandResult result = db.command(mongoQuery);

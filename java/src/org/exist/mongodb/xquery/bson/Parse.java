@@ -25,7 +25,6 @@ import com.mongodb.MongoException;
 import com.mongodb.util.JSONParseException;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.BSONtoMap;
-import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.MapToBSON;
 import org.exist.mongodb.xquery.BSonModule;
 import org.exist.xquery.*;
@@ -68,7 +67,7 @@ public class Parse extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-            DBObject data = (DBObject) MapToBSON.convert(args[0]);
+            DBObject data = MapToBSON.convert(args[0]);
 
             if (isCalledAs(PARSE)) {
                 return BSONtoMap.convert(data, context);

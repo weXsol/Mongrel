@@ -21,7 +21,6 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MapToBSON;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -93,8 +92,8 @@ public class Update extends BasicFunction {
 
 
             // Get data
-            BasicDBObject criterium = (BasicDBObject) MapToBSON.convert(args[3]);
-            BasicDBObject modification = (BasicDBObject) MapToBSON.convert(args[4]);
+            BasicDBObject criterium = MapToBSON.convert(args[3]);
+            BasicDBObject modification = MapToBSON.convert(args[4]);
 
             Boolean upsert = (args.length >= 6)
                     ? args[5].itemAt(0).toJavaObject(Boolean.class)

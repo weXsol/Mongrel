@@ -1,24 +1,15 @@
 package org.exist.mongodb.shared;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.BasicBSONObject;
 import org.exist.xquery.XPathException;
-import org.exist.xquery.XPathUtil;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.functions.array.ArrayType;
-import org.exist.xquery.functions.map.MapType;
 import org.exist.xquery.value.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wessels
@@ -45,10 +36,10 @@ public class ConversionTools {
                 Item next = iterator.nextItem();
 
                 if (next instanceof Sequence) { // Dead code
-                    pipeline.add((BasicDBObject) MapToBSON.convert((Sequence)next));
+                    pipeline.add(MapToBSON.convert((Sequence)next));
                 } else {
                     String step = next.getStringValue();
-                    pipeline.add((BasicDBObject) JSON.parse(step));
+                    pipeline.add(BasicDBObject.parse(step));
                 }
 
             }
@@ -66,7 +57,7 @@ public class ConversionTools {
      * @throws JSONParseException The string could not be parsed.
      */
     public static BasicDBObject convertJSon(String json) throws JSONParseException {
-        return (json == null) ? null : (BasicDBObject) JSON.parse(json);
+        return (json == null) ? null : BasicDBObject.parse(json);
     }
 
 //    /**

@@ -80,11 +80,11 @@ public class Find extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject mongoQuery = (args.length >= 4)
-                    ? (BasicDBObject) MapToBSON.convert(args[3])
+                    ? MapToBSON.convert(args[3])
                     : new BasicDBObject();
 
             BasicDBObject mongoKeys = (args.length >= 5)
-                    ? (BasicDBObject) MapToBSON.convert(args[4])
+                    ? MapToBSON.convert(args[4])
                     : null;
 
             // Get database

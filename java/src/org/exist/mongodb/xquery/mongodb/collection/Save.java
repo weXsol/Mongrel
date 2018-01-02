@@ -21,7 +21,6 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MapToBSON;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -78,7 +77,7 @@ public class Save extends BasicFunction {
             DBCollection dbcol = db.getCollection(collection);
 
             // Get data
-            BasicDBObject data = (BasicDBObject) MapToBSON.convert(args[3]);
+            BasicDBObject data = MapToBSON.convert(args[3]);
 
             // Execute save
             WriteResult result = dbcol.save(data);

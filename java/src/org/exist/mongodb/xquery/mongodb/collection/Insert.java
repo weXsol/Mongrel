@@ -21,7 +21,6 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.BasicBSONObject;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
@@ -90,7 +89,7 @@ public class Insert extends BasicFunction {
 
                 if (nextItem instanceof MapType) {
                     Sequence seq = (Sequence) nextItem;
-                    DBObject bsonContent = (DBObject) MapToBSON.convert(seq);
+                    DBObject bsonContent = MapToBSON.convert(seq);
                     allContent.add(bsonContent);
 
                 } else {
@@ -98,7 +97,7 @@ public class Insert extends BasicFunction {
                     if (StringUtils.isEmpty(value)) {
                         LOG.error("Skipping empty string");
                     } else {
-                        DBObject bsonContent = (DBObject) ConversionTools.convertJSon(value);
+                        DBObject bsonContent = ConversionTools.convertJSon(value);
                         allContent.add(bsonContent);
                     }
                 }

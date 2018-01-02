@@ -67,7 +67,7 @@ public class FindAndRemove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) MapToBSON.convert(args[3])
+                    ? MapToBSON.convert(args[3])
                     : null;
 
             // Get collection in database

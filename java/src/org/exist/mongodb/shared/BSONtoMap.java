@@ -119,8 +119,8 @@ public class BSONtoMap {
                 sequence.add(convertJsonObject(jo, context));
 
             } else if (obj instanceof ArrayList) {
-                final Sequence tmpSequence = new ValueSequence();
                 final ArrayList<Object> al = (ArrayList) obj;
+                final Sequence tmpSequence = new ValueSequence();
 
                 for (final Object o : al.toArray()) {
                     tmpSequence.addAll(convertToSequence(o, context));
@@ -179,10 +179,10 @@ public class BSONtoMap {
 
 
         } else if (obj instanceof ArrayList) {
+            final ArrayList<Object> al = (ArrayList) obj;
+
             // Special case
             final Sequence sequence = new ValueSequence();
-
-            final ArrayList<Object> al = (ArrayList) obj;
 
             for (final Object o : al.toArray()) {
                 sequence.addAll(convertToSequence(o, context));

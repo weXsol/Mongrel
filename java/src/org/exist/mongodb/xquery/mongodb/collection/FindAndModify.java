@@ -24,11 +24,7 @@ import org.exist.dom.QName;
 import org.exist.mongodb.shared.*;
 import org.exist.mongodb.xquery.MongodbModule;
 import org.exist.xquery.*;
-import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.exist.mongodb.shared.FunctionDefinitions.*;
 
@@ -84,15 +80,15 @@ public class FindAndModify extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) MapToBSON.convert(args[3])
+                    ? MapToBSON.convert(args[3])
                     : null;
 
             BasicDBObject update = (args.length >= 5)
-                    ? (BasicDBObject) MapToBSON.convert(args[4])
+                    ? MapToBSON.convert(args[4])
                     : null;
 
             BasicDBObject sort = (args.length >= 6)
-                    ? (BasicDBObject) MapToBSON.convert(args[5])
+                    ? MapToBSON.convert(args[5])
                     : null;
 
 //             Map<String,Boolean> options = (args.length >= 7)

@@ -11,7 +11,6 @@ import org.exist.mongodb.xquery.mongodb.db.ListCollections;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.ErrorCodes.ErrorCode;
 import org.exist.xquery.FunctionDef;
-import org.exist.xquery.XPathException;
 
 import java.util.List;
 import java.util.Map;

@@ -87,11 +87,11 @@ public class Group extends BasicFunction {
             String dbname = args[1].itemAt(0).getStringValue();
             String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = (BasicDBObject) MapToBSON.convert(args[3]);
+            BasicDBObject key = MapToBSON.convert(args[3]);
 
-            BasicDBObject condition = (BasicDBObject) MapToBSON.convert(args[4]);
+            BasicDBObject condition = MapToBSON.convert(args[4]);
 
-            BasicDBObject initial = (BasicDBObject) MapToBSON.convert(args[5]);
+            BasicDBObject initial = MapToBSON.convert(args[5]);
 
             String reduce = args[6].itemAt(0).getStringValue();
 

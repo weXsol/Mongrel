@@ -21,7 +21,6 @@ package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
 import org.exist.dom.QName;
-import org.exist.mongodb.shared.ConversionTools;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MapToBSON;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -74,7 +73,7 @@ public class Remove extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) MapToBSON.convert(args[3])
+                    ? MapToBSON.convert(args[3])
                     : null;
 
             // Get collection in database

@@ -20,7 +20,6 @@
 package org.exist.mongodb.xquery.mongodb.collection;
 
 import com.mongodb.*;
-import org.bson.BasicBSONObject;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.BSONtoMap;
 import org.exist.mongodb.shared.ConversionTools;

@@ -81,15 +81,15 @@ public class FindOne extends BasicFunction {
             String collection = args[2].itemAt(0).getStringValue();
 
             BasicDBObject query = (args.length >= 4)
-                    ? (BasicDBObject) MapToBSON.convert(args[3])
+                    ? MapToBSON.convert(args[3])
                     : null;
 
             BasicDBObject fields = (args.length >= 5)
-                    ? (BasicDBObject) MapToBSON.convert(args[4])
+                    ? MapToBSON.convert(args[4])
                     : null;
 
             BasicDBObject orderBy = (args.length >= 6)
-                    ? (BasicDBObject) MapToBSON.convert(args[5])
+                    ? MapToBSON.convert(args[5])
                     : null;
 
             // Get database

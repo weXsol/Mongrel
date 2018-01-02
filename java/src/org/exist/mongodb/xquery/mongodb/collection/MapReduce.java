@@ -102,7 +102,7 @@ public class MapReduce extends BasicFunction {
                     : OutputType.valueOf(args[6].itemAt(0).getStringValue().toUpperCase(Locale.US));
 
 
-            DBObject query = (BasicDBObject) MapToBSON.convert(args[7]);
+            DBObject query = MapToBSON.convert(args[7]);
 
             // Get collection in database
             DB db = client.getDB(dbname);

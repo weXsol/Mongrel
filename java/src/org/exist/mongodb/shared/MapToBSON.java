@@ -24,8 +24,6 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.array.ArrayType;
 import org.exist.xquery.functions.map.MapType;
@@ -45,11 +43,11 @@ public class MapToBSON {
      *
      * @param seq JSON formatted text document
      * @return JSON Object representation
-     * @throws Exception When something bad happens during the JSON conversion.
+     * @throws XPathException When something bad happens during the JSON conversion.
      */
-    public static Object convert(final Sequence seq) throws XPathException {
+    public static BasicDBObject convert(final Sequence seq) throws XPathException {
 
-        final Object result;
+        final BasicDBObject result;
 
         switch (seq.getItemType()) {
             case Type.STRING:
