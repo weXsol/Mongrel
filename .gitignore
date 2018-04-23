@@ -3,3 +3,7 @@ build
 dist
 java/lib
 /nbproject/private/
+.idea/libraries/
+.idea/workspace.xml
+mongrel.iml
+target/
