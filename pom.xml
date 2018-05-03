@@ -11,8 +11,8 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.exist</groupId>
-    <artifactId>mongrel</artifactId>
+    <groupId>org.exist-db.xquery.extensions.expath</groupId>
+    <artifactId>expath-mongodb-module</artifactId>
     <version>0.6.4-SNAPSHOT</version>
 
     <name>Mongrel MongoDB and GridFS driver</name>
