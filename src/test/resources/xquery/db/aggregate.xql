@@ -2,7 +2,6 @@ xquery version "3.1";
 
 module namespace aggregate="http://exist-db.org/mongodb/test/aggregate";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 
 import module namespace test="http://exist-db.org/xquery/xqsuite" 
                 at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
@@ -69,7 +68,6 @@ function aggregate:aggregate_simple() {
                     )
 
     let $formatted := <result>{for $one in $result
-    return xqjson:parse-json($one)}</result>
     
     return $formatted//pair[@name eq 'average']/text()
         
