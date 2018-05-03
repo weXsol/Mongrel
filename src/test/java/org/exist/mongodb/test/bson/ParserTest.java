@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(XSuite.class)
 @XSuite.XSuiteFiles({
-        "src/test/resources/xquery/bson"
+        "src/test/resources/org/exist/mongodb/test/bson"
 })
 
 public class ParserTest {

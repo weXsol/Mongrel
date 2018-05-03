@@ -2,6 +2,7 @@ xquery version "3.1";
 
 module namespace support="http://exist-db.org/mongrel/test/support";
 
+
 import module namespace mongodb = "http://expath.org/ns/mongo" 
                 at "java:org.exist.mongodb.xquery.MongodbModule";
 

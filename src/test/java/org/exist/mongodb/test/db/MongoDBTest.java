@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(XSuite.class)
 @XSuite.XSuiteFiles({
-        "src/test/resources/xquery/db"
+        "src/test/resources/org/exist/mongodb/test/db"
 })
 
 public class MongoDBTest {

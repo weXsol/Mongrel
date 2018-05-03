@@ -2,14 +2,14 @@ xquery version "3.0";
 
 module namespace mongoMain="http://exist-db.org/mongodb/test/main";
 
-import module namespace test="http://exist-db.org/xquery/xqsuite" 
-                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
+
+declare namespace test="http://exist-db.org/org.exist.mongodb.test/xqsuite";
 
 import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.xquery.MongodbModule";
+                at "java:org.exist.mongodb.org.exist.mongodb.test.MongodbModule";
 
 import module namespace support = "http://exist-db.org/mongrel/test/support"
-                at "./support.xqm";
+                at "resource:org/exist/mongodb/test/db/support.xqm";
 
 (: Connect to mongodb, store token :)
 declare %test:setUp function mongoMain:setup()
