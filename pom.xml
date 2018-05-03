@@ -50,7 +50,7 @@
 
         <exist.version>4.1.0</exist.version>
 
-        <mongodb.driver.version>3.6.3</mongodb.driver.version>
+        <mongodb.driver.version>3.7.0</mongodb.driver.version>
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>http://exist-db.org/mongrel</package-name>
