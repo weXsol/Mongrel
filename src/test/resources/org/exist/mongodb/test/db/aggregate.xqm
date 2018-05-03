@@ -66,10 +66,9 @@ function aggregate:aggregate_simple() {
                         '{ "$sort" : { "amount" : -1}}'   )
                     )
 
-    let $formatted := <result>{for $one in $result
-    
-    return $formatted//pair[@name eq 'average']/text()
-        
+    for $one in $result
+    return
+        $formatted//pair[@name eq 'average']/text()
 };
 
 declare 
