@@ -3,9 +3,8 @@ xquery version "3.1";
 module namespace json = "http://exist-db.org/mongodb/test/json";
 
 
-declare namespace test = "http://exist-db.org/xquery/xqsuite";
-
 import module namespace bson = "http://exist-db.org/mongrel/bson";
+import module namespace test = "http://exist-db.org/xquery/xqsuite";
 
 
 (: ----------------------------

@@ -4,9 +4,9 @@ module namespace parse = "http://exist-db.org/mongodb/test/parse";
 
 
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
-declare namespace test = "http://exist-db.org/xquery/xqsuite";
 
 import module namespace bson = "http://exist-db.org/mongrel/bson";
+import module namespace test = "http://exist-db.org/xquery/xqsuite";
 
 declare variable $parse:serializeOptions := <output:serialization-parameters>
                           <output:method>json</output:method>

@@ -3,12 +3,10 @@ xquery version "3.1";
 module namespace eval = "http://exist-db.org/mongodb/test/eval";
 
 
-declare namespace test = "http://exist-db.org/xquery/xqsuite";
-
 import module namespace mongodb = "http://expath.org/ns/mongo";
-
 import module namespace support = "http://exist-db.org/mongrel/test/support"
                 at "resource:org/exist/mongodb/test/db/support.xqm";
+import module namespace test = "http://exist-db.org/xquery/xqsuite";
                 
 
 (: Connect to mongodb, store token :)

@@ -3,10 +3,10 @@ xquery version "3.1";
 module namespace json = "http://exist-db.org/mongodb/test/json";
 
 
-declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
-declare namespace test = "http://exist-db.org/xquery/xqsuite";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 
 import module namespace bson = "http://exist-db.org/mongrel/bson";
+import module namespace test = "http://exist-db.org/xquery/xqsuite";
 
 declare variable $json:serializeOptions := <output:serialization-parameters>
                           <output:method>json</output:method>
