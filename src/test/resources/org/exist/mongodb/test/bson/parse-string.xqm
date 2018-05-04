@@ -4,7 +4,8 @@ module namespace json = "http://exist-db.org/mongodb/test/json";
 
 
 import module namespace bson = "http://exist-db.org/mongrel/bson";
-import module namespace test = "http://exist-db.org/xquery/xqsuite";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
 
 (: ----------------------------

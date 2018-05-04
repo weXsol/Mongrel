@@ -2,11 +2,12 @@ xquery version "3.1";
 
 module namespace aggregate = "http://exist-db.org/mongodb/test/aggregate";
 
-
+import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
 import module namespace mongodb = "http://expath.org/ns/mongo";
 import module namespace support = "http://exist-db.org/mongrel/test/support"
                 at "resource:org/exist/mongodb/test/db/support.xqm";
-import module namespace test = "http://exist-db.org/xquery/xqsuite";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
  
 (: 
  :  Example test taken from http://docs.mongodb.org/ecosystem/tutorial/use-aggregation-framework-with-java-driver/ 

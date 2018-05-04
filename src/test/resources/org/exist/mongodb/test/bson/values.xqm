@@ -6,7 +6,8 @@ module namespace json = "http://exist-db.org/mongodb/test/json";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 
 import module namespace bson = "http://exist-db.org/mongrel/bson";
-import module namespace test = "http://exist-db.org/xquery/xqsuite";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
 declare variable $json:serializeOptions := <output:serialization-parameters>
                           <output:method>json</output:method>
