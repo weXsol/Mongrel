@@ -1,12 +1,11 @@
 xquery version "3.1";
 
-module namespace aggregate="http://exist-db.org/mongodb/test/aggregate";
+module namespace aggregate = "http://exist-db.org/mongodb/test/aggregate";
 
 
-declare namespace test="http://exist-db.org/org.exist.mongodb.test/xqsuite";
+declare namespace test = "http://exist-db.org/xquery/xqsuite";
 
-import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.org.exist.mongodb.test.MongodbModule";
+import module namespace mongodb = "http://expath.org/ns/mongo";
 
 import module namespace support = "http://exist-db.org/mongrel/test/support"
                 at "resource:org/exist/mongodb/test/db/support.xqm";

@@ -1,13 +1,12 @@
 xquery version "3.1";
 
-module namespace parse="http://exist-db.org/mongodb/test/parse";
+module namespace parse = "http://exist-db.org/mongodb/test/parse";
 
 
-declare namespace output="http://www.w3.org/2010/xslt-org.exist.mongodb.test-serialization";
-declare namespace test="http://exist-db.org/org.exist.mongodb.test/xqsuite";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace test = "http://exist-db.org/xquery/xqsuite";
 
-import module namespace bson = "http://exist-db.org/mongrel/bson" 
-                at "java:org.exist.mongodb.org.exist.mongodb.test.BSonModule";
+import module namespace bson = "http://exist-db.org/mongrel/bson";
 
 declare variable $parse:serializeOptions := <output:serialization-parameters>
                           <output:method>json</output:method>
