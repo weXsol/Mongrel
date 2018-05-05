@@ -26,4 +26,4 @@ The extension is based on the 2.x version of the [official mongodb driver](http:
 The work is released AS-IS under the LGPL license.
 
 ## Support
-Support on this extension is provided by [weXsol](http://www.wexsol.nl) and [eXist Solutions GmbH](http://www.existsolutions.com)
+Support on this extension is provided by [weXsol](http://www.wexsol.nl), [eXist Solutions GmbH](http://www.existsolutions.com), and [Evolved Binary] (https://www.evolvedbinary.com).
