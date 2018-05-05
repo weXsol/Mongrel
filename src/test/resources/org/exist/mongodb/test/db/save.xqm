@@ -1,18 +1,13 @@
 xquery version "3.0";
 
-module namespace mongoMain="http://exist-db.org/mongodb/test/save";
+module namespace mongoMain = "http://exist-db.org/mongodb/test/save";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
 
-import module namespace test="http://exist-db.org/xquery/xqsuite" 
-                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
-
-import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.xquery.MongodbModule";
-
+import module namespace mongodb = "http://expath.org/ns/mongo";
 import module namespace support = "http://exist-db.org/mongrel/test/support"
-                at "./support.xqm";
-                
+                at "resource:org/exist/mongodb/test/db/support.xqm";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
 
 (: Connect to mongodb, store token :)
 declare %test:setUp function mongoMain:setup()
@@ -104,7 +99,7 @@ function mongoMain:save_emptydocument() {
  : <pair name="updatedExisting" type="boolean">true</pair>
  : </json>
  : :)
-declare 
+(: )declare
     %test:assertEquals(4)
 function mongoMain:save_raw() {
     let $mongodbClientId := support:getToken()
@@ -112,3 +107,4 @@ function mongoMain:save_raw() {
                      "{ '_id' : '1', x : 3  ,  y : 2 , z : 3 }")
     return count( xqjson:parse-json($result)//pair )
 };
+:)

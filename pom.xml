@@ -50,6 +50,7 @@
 
         <exist.version>4.1.0</exist.version>
 
+        <mongodb.server.version>3.4.14</mongodb.server.version>
         <mongodb.driver.version>3.7.0</mongodb.driver.version>
 
         <!-- used in the EXPath Package Descriptor -->
@@ -151,6 +152,30 @@
         </resources>
 
         <plugins>
+            <plugin>
+                <groupId>com.github.joelittlejohn.embedmongo</groupId>
+                <artifactId>embedmongo-maven-plugin</artifactId>
+                <version>0.3.6-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <version>${mongodb.server.version}</version>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                        <version>2.4</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

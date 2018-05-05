@@ -1,17 +1,13 @@
 xquery version "3.1";
 
-module namespace aggregate="http://exist-db.org/mongodb/test/aggregate";
+module namespace aggregate = "http://exist-db.org/mongodb/test/aggregate";
 
-import module namespace xqjson = "http://xqilla.sourceforge.net/lib/xqjson";
-
-import module namespace test="http://exist-db.org/xquery/xqsuite" 
-                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
-
-import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.xquery.MongodbModule";
-
+import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
+import module namespace mongodb = "http://expath.org/ns/mongo";
 import module namespace support = "http://exist-db.org/mongrel/test/support"
-                at "./support.xqm";
+                at "resource:org/exist/mongodb/test/db/support.xqm";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
  
 (: 
  :  Example test taken from http://docs.mongodb.org/ecosystem/tutorial/use-aggregation-framework-with-java-driver/ 
@@ -68,11 +64,9 @@ function aggregate:aggregate_simple() {
                         '{ "$sort" : { "amount" : -1}}'   )
                     )
 
-    let $formatted := <result>{for $one in $result
-    return xqjson:parse-json($one)}</result>
-    
-    return $formatted//pair[@name eq 'average']/text()
-        
+    for $one in $result
+    return
+        $formatted//pair[@name eq 'average']/text()
 };
 
 declare 

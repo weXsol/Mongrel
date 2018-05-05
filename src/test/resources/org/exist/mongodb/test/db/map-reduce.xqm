@@ -1,16 +1,13 @@
 xquery version "3.1";
 
-module namespace mapreduce="http://exist-db.org/mongodb/test/mapreduce";
+module namespace mapreduce = "http://exist-db.org/mongodb/test/mapreduce";
 
 
-import module namespace test="http://exist-db.org/xquery/xqsuite" 
-                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
-
-import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.xquery.MongodbModule";
-
+import module namespace mongodb = "http://expath.org/ns/mongo";
 import module namespace support = "http://exist-db.org/mongrel/test/support"
-                at "./support.xqm";
+                at "resource:org/exist/mongodb/test/db/support.xqm";
+import module namespace test = "http://exist-db.org/xquery/xqsuite"
+                at "resource:org/exist/xquery/lib/xqsuite/xqsuite.xql";
  
 (: 
  :  example taken from http://docs.mongodb.org/manual/core/map-reduce/

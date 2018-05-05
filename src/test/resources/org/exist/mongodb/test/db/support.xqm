@@ -1,9 +1,10 @@
 xquery version "3.1";
 
-module namespace support="http://exist-db.org/mongrel/test/support";
+module namespace support = "http://exist-db.org/mongrel/test/support";
 
-import module namespace mongodb = "http://expath.org/ns/mongo" 
-                at "java:org.exist.mongodb.xquery.MongodbModule";
+
+import module namespace mongodb = "http://expath.org/ns/mongo";
+import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 
 declare variable $support:mongoUrl := "mongodb://localhost";
 declare variable $support:database := "mydatabase";
