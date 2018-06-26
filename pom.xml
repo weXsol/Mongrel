@@ -72,6 +72,11 @@
             <artifactId>exist-optional</artifactId>
             <version>${exist.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-expath</artifactId>
+            <version>${exist.version}</version>
+        </dependency>
         
         <!-- Mongodb -->
         <dependency>
