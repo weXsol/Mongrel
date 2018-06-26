@@ -48,7 +48,7 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <exist.version>4.1.0</exist.version>
+        <exist.version>4.2.1</exist.version>
 
         <mongodb.server.version>3.4.14</mongodb.server.version>
         <mongodb.driver.version>3.7.1</mongodb.driver.version>
@@ -70,6 +70,11 @@
         <dependency>
             <groupId>org.exist-db</groupId>
             <artifactId>exist-optional</artifactId>
+            <version>${exist.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-expath</artifactId>
             <version>${exist.version}</version>
         </dependency>
         
@@ -169,11 +174,11 @@
                     </execution>
                 </executions>
                 <dependencies>
-                    <dependency>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                        <version>2.6</version>
-                    </dependency>
+                    <!--<dependency>-->
+                        <!--<groupId>commons-io</groupId>-->
+                        <!--<artifactId>commons-io</artifactId>-->
+                        <!--<version>2.6</version>-->
+                    <!--</dependency>-->
                 </dependencies>
             </plugin>
             <plugin>
