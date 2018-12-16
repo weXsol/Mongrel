@@ -43,7 +43,7 @@ public class ListBuckets extends BasicFunction {
 
     private static final String LIST_DOCUMENTS = "list-buckets";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "List names of available buckets",
@@ -54,36 +54,36 @@ public class ListBuckets extends BasicFunction {
             ),
     };
 
-    public ListBuckets(XQueryContext context, FunctionSignature signature) {
+    public ListBuckets(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
 
             // Retrieve database          
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Retrieve collection names
-            Set<String> collectionNames = db.getCollectionNames();
+            final Set<String> collectionNames = db.getCollectionNames();
 
             // Storage for results
-            ValueSequence valueSequence = new ValueSequence();
+            final ValueSequence valueSequence = new ValueSequence();
 
             // Iterate over collection names ; only pairs of collections
             // with names ending .chunks and .files are buckets
-            for (String collName : collectionNames) {
+            for (final String collName : collectionNames) {
                 if (collName.endsWith(".chunks")) {
-                    String bucketName = StringUtils.removeEnd(collName, ".chunks");
+                    final String bucketName = StringUtils.removeEnd(collName, ".chunks");
                     if (collectionNames.contains(bucketName + ".files")) {
                         valueSequence.add(new StringValue(bucketName));
                     }
@@ -92,15 +92,15 @@ public class ListBuckets extends BasicFunction {
 
             return valueSequence;
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }

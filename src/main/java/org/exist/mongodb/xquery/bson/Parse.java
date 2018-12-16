@@ -43,7 +43,7 @@ public class Parse extends BasicFunction {
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ONE, DESCR_JSONCONTENT);
     private static final String PARSE_AS_STRING = "parse-as-string";
     private static final String PARSE = "parse";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(PARSE_AS_STRING, BSonModule.NAMESPACE_URI, BSonModule.PREFIX), "JSON data tthat needs to be parsed.",
                     new SequenceType[]{
@@ -59,15 +59,15 @@ public class Parse extends BasicFunction {
 
     };
 
-    public Parse(XQueryContext context, FunctionSignature signature) {
+    public Parse(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
-            DBObject data = MapToBSON.convert(args[0]);
+            final DBObject data = MapToBSON.convert(args[0]);
 
             if (isCalledAs(PARSE)) {
                 return BSONtoMap.convert(data, context);
@@ -76,24 +76,24 @@ public class Parse extends BasicFunction {
                 return new StringValue(data.toString());
             }
 
-        } catch (MongoCommandException ex) {
+        } catch (final MongoCommandException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, BSonModule.MONG0005, ex.getMessage());
 
-        } catch (JSONParseException ex) {
-            String msg = "Invalid JSON data: " + ex.getMessage();
+        } catch (final JSONParseException ex) {
+            final String msg = "Invalid JSON data: " + ex.getMessage();
             LOG.error(msg);
             throw new XPathException(this, BSonModule.MONG0004, msg);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, BSonModule.MONG0002, ex.getMessage());
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
             throw new XPathException(this, BSonModule.MONG0003, t.getMessage());
         }

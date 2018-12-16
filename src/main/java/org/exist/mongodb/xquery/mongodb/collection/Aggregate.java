@@ -45,7 +45,7 @@ public class Aggregate extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_PIPELINE
             = new FunctionParameterSequenceType(PARAM_PIPELINE, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_PIPELINE);
     private static final String AGGREGATE = "aggregate";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(AGGREGATE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",

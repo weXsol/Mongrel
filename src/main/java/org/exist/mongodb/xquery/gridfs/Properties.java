@@ -46,7 +46,7 @@ public class Properties extends BasicFunction {
 
     private static final String PROPS_BY_OBJECTID = "properties-by-objectid";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(PROPS_BY_OBJECTID, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "Retrieve properties and metadata of a document",
@@ -56,32 +56,32 @@ public class Properties extends BasicFunction {
             ),
     };
 
-    public Properties(XQueryContext context, FunctionSignature signature) {
+    public Properties(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
-            String documentId = args[3].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String bucket = args[2].itemAt(0).getStringValue();
+            final String documentId = args[3].itemAt(0).getStringValue();
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            final GridFS gfs = new GridFS(db, bucket);
 
             // Find one document by id or by filename
-            GridFSDBFile gfsFile = (isCalledAs(PROPS_BY_OBJECTID))
+            final GridFSDBFile gfsFile = (isCalledAs(PROPS_BY_OBJECTID))
                     ? gfs.findOne(new ObjectId(documentId))
                     : gfs.findOne(documentId);
 
@@ -91,15 +91,15 @@ public class Properties extends BasicFunction {
 
             return ContentSerializer.getReport(gfsFile);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }

@@ -37,7 +37,7 @@ public class ContentSerializer {
      * @throws XPathException Thrown when an something unexpected happened
      * @throws IOException    An error occurred during serialization
      */
-    public static void serialize(Item item, XQueryContext context, OutputStream os) throws XPathException, IOException {
+    public static void serialize(final Item item, final XQueryContext context, final OutputStream os) throws XPathException, IOException {
 
         switch (item.getType()) {
             case Type.JAVA_OBJECT:
@@ -65,18 +65,18 @@ public class ContentSerializer {
 
     }
 
-    private static void streamText(Item item, OutputStream os) throws IOException, XPathException {
+    private static void streamText(final Item item, final OutputStream os) throws IOException, XPathException {
         LOG.debug("Streaming text");
         IOUtils.write(item.getStringValue(), os, "UTF-8");
     }
 
-    private static void streamBase64Binary(Item item, OutputStream os) throws IOException {
+    private static void streamBase64Binary(final Item item, final OutputStream os) throws IOException {
         LOG.debug("Streaming base64 binary");
         final BinaryValue binary = (BinaryValue) item;
         binary.streamBinaryTo(os);
     }
 
-    private static void streamElement(XQueryContext context, Item item, OutputStream os) throws IOException {
+    private static void streamElement(final XQueryContext context, final Item item, final OutputStream os) throws IOException {
         LOG.debug("Streaming element or document node");
 
 
@@ -91,7 +91,7 @@ public class ContentSerializer {
 
             try {
                 final String encoding = "UTF-8";
-                try (Writer writer = new OutputStreamWriter(os, encoding)) {
+                try (final Writer writer = new OutputStreamWriter(os, encoding)) {
                     serializer.serialize(node, writer);
                 }
 
@@ -106,7 +106,7 @@ public class ContentSerializer {
         }
     }
 
-    private static void streamAnyURI(Item item, OutputStream os) throws IOException, XPathException {
+    private static void streamAnyURI(final Item item, final OutputStream os) throws IOException, XPathException {
         LOG.debug("Streaming xs:anyURI");
 
         // anyURI provided
@@ -117,12 +117,12 @@ public class ContentSerializer {
             url = "xmldb:exist://" + url;
         }
 
-        try (InputStream is = new BufferedInputStream(new URL(url).openStream())) {
+        try (final InputStream is = new BufferedInputStream(new URL(url).openStream())) {
             IOUtils.copyLarge(is, os);
         }
     }
 
-    private static void streamJavaObject(Item item, OutputStream os) throws XPathException, IOException {
+    private static void streamJavaObject(final Item item, final OutputStream os) throws XPathException, IOException {
         LOG.debug("Streaming Java object");
 
         final Object obj = ((JavaObjectValue) item).getObject();
@@ -131,7 +131,7 @@ public class ContentSerializer {
         }
 
         final File inputFile = (File) obj;
-        try (InputStream is = new BufferedInputStream(new FileInputStream(inputFile))) {
+        try (final InputStream is = new BufferedInputStream(new FileInputStream(inputFile))) {
             IOUtils.copyLarge(is, os);
         }
     }
@@ -142,12 +142,12 @@ public class ContentSerializer {
      * @param gfsFile The GridFS fle
      * @return in-memory structure describing the file
      */
-    public static NodeImpl getReport(GridFSFile gfsFile) {
+    public static NodeImpl getReport(final GridFSFile gfsFile) {
 
-        MemTreeBuilder builder = new MemTreeBuilder();
+        final MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
 
-        int nodeNr = addGridFSFileEntry(builder, gfsFile);
+        final int nodeNr = addGridFSFileEntry(builder, gfsFile);
 
         // return result
         return builder.getDocument().getNode(nodeNr);
@@ -159,17 +159,17 @@ public class ContentSerializer {
      * @param gfs GridFS object
      * @return in-memory structure describing all documents
      */
-    public static NodeImpl getDocuments(GridFS gfs) {
-        MemTreeBuilder builder = new MemTreeBuilder();
+    public static NodeImpl getDocuments(final GridFS gfs) {
+        final MemTreeBuilder builder = new MemTreeBuilder();
 
         // Start document
         builder.startDocument();
-        int nodeNr = builder.startElement("", "GridFSFiles", "GridFSFiles", null);
+        final int nodeNr = builder.startElement("", "GridFSFiles", "GridFSFiles", null);
 
         // Iterate over all files, write report
-        DBCursor cursor = gfs.getFileList();
+        final DBCursor cursor = gfs.getFileList();
         while (cursor.hasNext()) {
-            DBObject next = cursor.next();
+            final DBObject next = cursor.next();
             if (next instanceof GridFSFile) {
                 addGridFSFileEntry(builder, (GridFSFile) next);
             }
@@ -188,13 +188,13 @@ public class ContentSerializer {
      */
     static int addGridFSFileEntry(final MemTreeBuilder builder, final GridFSFile gfsFile) {
         // start root element
-        int nodeNr = builder.startElement("", "GridFSFile", "GridFSFile", null);
+        final int nodeNr = builder.startElement("", "GridFSFile", "GridFSFile", null);
 
         // Some identities
         addElementValue(builder, "id", "" + gfsFile.getId());
         addElementValue(builder, "filename", gfsFile.getFilename());
 
-        List<String> aliases = gfsFile.getAliases();
+        final List<String> aliases = gfsFile.getAliases();
         if (aliases != null) {
             gfsFile.getAliases().forEach((alias) -> addElementValue(builder, "alias", alias));
         }
@@ -210,17 +210,17 @@ public class ContentSerializer {
         // more meta data
         try {
             addElementValue(builder, "uploadDate", "" + (new DateTimeValue(gfsFile.getUploadDate()).getStringValue()));
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error("Error adding upload date. " + ex.getMessage());
         }
         addElementValue(builder, "md5", gfsFile.getMD5());
 
-        DBObject metaData = gfsFile.getMetaData();
+        final DBObject metaData = gfsFile.getMetaData();
         if (metaData != null && !metaData.keySet().isEmpty()) {
             builder.startElement("", "metaData", "metaData", null);
 
             metaData.keySet().forEach((key) -> {
-                String value = metaData.get(key).toString();
+                final String value = metaData.get(key).toString();
                 addElementValue(builder, key, value);
             });
 

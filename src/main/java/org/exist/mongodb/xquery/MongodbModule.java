@@ -126,7 +126,7 @@ public class MongodbModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX);
 
-    public MongodbModule(Map<String, List<?>> parameters) {
+    public MongodbModule(final Map<String, List<?>> parameters) {
         super(functions, parameters);
     }
 
@@ -152,7 +152,7 @@ public class MongodbModule extends AbstractInternalModule {
 
     protected final static class MongodbErrorCode extends ErrorCode {
 
-        public MongodbErrorCode(String code, String description) {
+        public MongodbErrorCode(final String code, final String description) {
             super(new QName(code, NAMESPACE_URI, PREFIX), description);
         }
 

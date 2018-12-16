@@ -34,7 +34,7 @@ public class BSonModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", BSonModule.NAMESPACE_URI, BSonModule.PREFIX);
 
-    public BSonModule(Map<String, List<?>> parameters) {
+    public BSonModule(final Map<String, List<?>> parameters) {
         super(functions, parameters);
     }
 
@@ -60,7 +60,7 @@ public class BSonModule extends AbstractInternalModule {
 
     protected final static class MongodbErrorCode extends ErrorCode {
 
-        public MongodbErrorCode(String code, String description) {
+        public MongodbErrorCode(final String code, final String description) {
             super(new QName(code, NAMESPACE_URI, PREFIX), description);
         }
 
