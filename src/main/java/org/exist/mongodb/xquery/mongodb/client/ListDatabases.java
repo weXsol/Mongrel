@@ -63,12 +63,13 @@ public class ListDatabases extends BasicFunction {
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
-            // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final ValueSequence returnSequence = new ValueSequence();
 
-            ValueSequence seq = new ValueSequence();
-            client.getDatabaseNames().forEach((name) -> seq.add(new StringValue(name)));
-            return seq;
+            // Stream appropriate Mongodb client
+            try( MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId)) {
+                client.listDatabaseNames().iterator().forEachRemaining(name -> returnSequence.add(new StringValue(name)));
+            }
+            return returnSequence;
 
         } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
