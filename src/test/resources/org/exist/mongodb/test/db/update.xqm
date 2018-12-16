@@ -27,7 +27,8 @@ declare %test:tearDown function mongoMain:cleanup()
  :)
 
 (: collection#update() add contents  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1,1)
 function mongoMain:update_overwrite() {
     let $mongodbClientId := support:getToken()
@@ -46,7 +47,8 @@ function mongoMain:update_overwrite() {
 
 
 (: collection#update() noupsert contents :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(0)
 function mongoMain:update_noupsert() {
     let $mongodbClientId := support:getToken()
@@ -58,7 +60,8 @@ function mongoMain:update_noupsert() {
         mongodb:count($mongodbClientId, $support:database, $support:mongoCollection, "{ qa : 4 }")
 };
 
-declare 
+declare
+    %test:pending
     %test:assertEquals(0)
 function mongoMain:update_noupsert_xq31() {
     let $mongodbClientId := support:getToken()
@@ -75,7 +78,8 @@ function mongoMain:update_noupsert_xq31() {
 
 
 (: collection#update() upsert contents :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1)
 function mongoMain:update_upsert() {
     let $mongodbClientId := support:getToken()
@@ -89,7 +93,8 @@ function mongoMain:update_upsert() {
 
 
 (: collection#update() multi, 2 documents  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2,2)
 function mongoMain:update_multi() {
     let $mongodbClientId := support:getToken()
@@ -109,7 +114,8 @@ function mongoMain:update_multi() {
 };
 
 (: collection#update() nomulti, 2 documents  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2,1)
 function mongoMain:update_nomulti() {
     let $mongodbClientId := support:getToken()

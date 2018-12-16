@@ -27,7 +27,8 @@ declare %test:tearDown function mongoMain:cleanup()
  :)
 
 (: collection#insert()  insert one document :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1)
 function mongoMain:insert() {
     let $mongodbClientId := support:getToken()
@@ -38,7 +39,8 @@ function mongoMain:insert() {
 };
 
 (: collection#insert()  insert two documents :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2)
 function mongoMain:insert_two() {
     let $mongodbClientId := support:getToken()
@@ -49,7 +51,8 @@ function mongoMain:insert_two() {
 };
 
 (: collection#insert()  empty sequence :)
-declare 
+declare
+    %test:pending
     %test:assertError("mongodb:json")
 function mongoMain:insert_emptysequence() {
     let $mongodbClientId := support:getToken()
@@ -60,7 +63,8 @@ function mongoMain:insert_emptysequence() {
 };
 
 (: collection#insert()  empty document :)
-declare 
+declare
+    %test:pending
     %test:assertError("mongodb:json")
 function mongoMain:insert_emptydocument() {
     let $mongodbClientId := support:getToken()
@@ -71,7 +75,8 @@ function mongoMain:insert_emptydocument() {
 };
 
 (: collection#insert()  insert one document :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1)
 function mongoMain:insert_xq31() {
     let $mongodbClientId := support:getToken()

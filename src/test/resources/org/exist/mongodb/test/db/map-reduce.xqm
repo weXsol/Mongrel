@@ -43,7 +43,8 @@ declare %test:tearDown function mapreduce:cleanup()
 (: 
  : collection#map-reduce()  simple
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals("A123", "750.0", "B212", "200.0") 
 function mapreduce:mapreduce_simple() {
     let $mongodbClientId := support:getToken()
@@ -67,7 +68,8 @@ function mapreduce:mapreduce_simple() {
 (: 
  : collection#map-reduce() write result in collection
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals("A123", "750.0", "B212", "200.0") 
 function mapreduce:mapreduce_write_collection() {
     let $mongodbClientId := support:getToken()

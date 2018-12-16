@@ -51,7 +51,8 @@ declare %test:tearDown function aggregate:cleanup()
  : { "_id" : "Engineering" , "average" : 15.0} 
  : { "_id" : "Sales" , "average" : 74.0}
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals("5.0", "15.0", "74.0") 
 function aggregate:aggregate_simple() {
     let $mongodbClientId := support:getToken()
@@ -69,7 +70,8 @@ function aggregate:aggregate_simple() {
         $formatted//pair[@name eq 'average']/text()
 };
 
-declare 
+declare
+    %test:pending
     %test:assertEquals(5, 15, 74) 
 function aggregate:aggregate_simple_xq31() {
     let $mongodbClientId := support:getToken()
@@ -93,7 +95,8 @@ function aggregate:aggregate_simple_xq31() {
 (: 
  : Run same tests directly with command function
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(5, 15, 74) 
 function aggregate:aggregate_command_xq31() {
     let $mongodbClientId := support:getToken()

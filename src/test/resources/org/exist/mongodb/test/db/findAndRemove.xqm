@@ -49,7 +49,8 @@ declare %test:tearDown function findAndRemove:cleanup()
  : 
  : Execute update twice, 1st time removed value is returned, 2nd time is empty sequence
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(20, 0)
 function findAndRemove:findAndRemove_simple() {
     let $mongodbClientId := support:getToken()
@@ -70,7 +71,8 @@ function findAndRemove:findAndRemove_simple() {
  : 
  : Similar test, more complex query
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(3, 0)
 function findAndRemove:findAndRemove_double() {
     let $mongodbClientId := support:getToken()

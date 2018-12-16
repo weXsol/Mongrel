@@ -53,7 +53,8 @@ declare %test:tearDown function findAndModify:cleanup()
  : 
  : Execute update twice, 1st time old value is returned, 2nd time the updated value
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(10, 20)
 function findAndModify:findAndModify_simple() {
     let $mongodbClientId := support:getToken()
@@ -75,7 +76,8 @@ function findAndModify:findAndModify_simple() {
  : 
 Similar test, reverse sorting
  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(5, 3)
 function findAndModify:findAndModify_sort() {
     let $mongodbClientId := support:getToken()
