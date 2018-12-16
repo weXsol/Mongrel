@@ -38,7 +38,7 @@ import static org.exist.mongodb.shared.FunctionDefinitions.PARAMETER_MONGODB_CLI
 public class Close extends BasicFunction {
 
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("close", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
                     "Close an open database connection. The connection to be closed is identified by the supplied $mongodbClientId. " +
@@ -51,27 +51,27 @@ public class Close extends BasicFunction {
             ),
     };
 
-    public Close(XQueryContext context, FunctionSignature signature) {
+    public Close(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+            final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.MONGODB_GROUP);
             LOG.error(txt);
             throw new XPathException(this, txt);
         }
 
         // Get connection URL
-        String mongodbClientId = args[0].itemAt(0).getStringValue();
+        final String mongodbClientId = args[0].itemAt(0).getStringValue();
 
         // Handle ()
         try {
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             if (client == null) {
                 throw new XPathException(this, String.format("Mongoclient %s could not be found.", mongodbClientId));
@@ -86,7 +86,7 @@ public class Close extends BasicFunction {
             // Report identifier
             return EmptySequence.EMPTY_SEQUENCE;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

@@ -56,41 +56,41 @@ public class Aggregate extends BasicFunction {
 
     };
 
-    public Aggregate(XQueryContext context, FunctionSignature signature) {
+    public Aggregate(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
-            List<BasicDBObject> pipeline = ConversionTools.convertPipeline(args[3]);
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
+            final List<BasicDBObject> pipeline = ConversionTools.convertPipeline(args[3]);
 
             // Get collection in database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Execute query      
-            AggregationOutput aggrOutput = dbcol.aggregate(pipeline);
+            final AggregationOutput aggrOutput = dbcol.aggregate(pipeline);
 
             // Bundle results
-            Sequence retVal = new ValueSequence();
+            final Sequence retVal = new ValueSequence();
 
-            for (DBObject result : aggrOutput.results()) {
+            for (final DBObject result : aggrOutput.results()) {
                 retVal.add(BSONtoMap.convert(result, context));
             }
 
             return retVal;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

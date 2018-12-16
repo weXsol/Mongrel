@@ -48,7 +48,7 @@ public class Insert extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ZERO_OR_MORE, DESCR_JSONCONTENT);
     private static final String INSERT = "insert";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(INSERT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Insert data",
                     new SequenceType[]{
@@ -56,54 +56,54 @@ public class Insert extends BasicFunction {
                     new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The insert result")
             ),};
 
-    public Insert(XQueryContext context, FunctionSignature signature) {
+    public Insert(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Place holder for all results
-            List<DBObject> allContent = new ArrayList<>();
+            final List<DBObject> allContent = new ArrayList<>();
 
 
-            SequenceIterator iterate = args[3].iterate();
+            final SequenceIterator iterate = args[3].iterate();
             while (iterate.hasNext()) {
 
-                Item nextItem = iterate.nextItem();
+                final Item nextItem = iterate.nextItem();
 
 
                 if (nextItem instanceof MapType) {
-                    Sequence seq = (Sequence) nextItem;
-                    DBObject bsonContent = MapToBSON.convert(seq);
+                    final Sequence seq = (Sequence) nextItem;
+                    final DBObject bsonContent = MapToBSON.convert(seq);
                     allContent.add(bsonContent);
 
                 } else {
-                    String value = nextItem.getStringValue();
+                    final String value = nextItem.getStringValue();
                     if (StringUtils.isEmpty(value)) {
                         LOG.error("Skipping empty string");
                     } else {
-                        DBObject bsonContent = ConversionTools.convertJSon(value);
+                        final DBObject bsonContent = ConversionTools.convertJSon(value);
                         allContent.add(bsonContent);
                     }
                 }
             }
 
-            WriteResult result = dbcol.insert(allContent);
+            final WriteResult result = dbcol.insert(allContent);
 
 
             // Wrap results into map
@@ -118,7 +118,7 @@ public class Insert extends BasicFunction {
 
             return map;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

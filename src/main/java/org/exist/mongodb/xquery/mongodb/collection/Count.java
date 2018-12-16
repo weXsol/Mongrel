@@ -42,7 +42,7 @@ public class Count extends BasicFunction {
 
     private static final String COUNT = "count";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(COUNT, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Count the number of documents in the collection.",
                     new SequenceType[]{
@@ -58,37 +58,37 @@ public class Count extends BasicFunction {
             ),
     };
 
-    public Count(XQueryContext context, FunctionSignature signature) {
+    public Count(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
             // Get query when available
-            BasicDBObject mongoQuery = (args.length == 4)
+            final BasicDBObject mongoQuery = (args.length == 4)
                     ? MapToBSON.convert(args[3])
                     : null;
 
             // Get database and collection
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Count documents
-            Long nrOfDocuments = (mongoQuery == null) ? dbcol.count() : dbcol.count(mongoQuery);
+            final Long nrOfDocuments = (mongoQuery == null) ? dbcol.count() : dbcol.count(mongoQuery);
 
             return new IntegerValue(nrOfDocuments);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

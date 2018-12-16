@@ -37,7 +37,7 @@ public class FindOne extends BasicFunction {
 
     private static final String FIND_ONE = "findOne";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(FIND_ONE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Retrieve a single object from this collection.",
                     new SequenceType[]{
@@ -63,40 +63,40 @@ public class FindOne extends BasicFunction {
                     new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "The object formatted as JSON")
             ),};
 
-    public FindOne(XQueryContext context, FunctionSignature signature) {
+    public FindOne(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject query = (args.length >= 4)
+            final BasicDBObject query = (args.length >= 4)
                     ? MapToBSON.convert(args[3])
                     : null;
 
-            BasicDBObject fields = (args.length >= 5)
+            final BasicDBObject fields = (args.length >= 5)
                     ? MapToBSON.convert(args[4])
                     : null;
 
-            BasicDBObject orderBy = (args.length >= 6)
+            final BasicDBObject orderBy = (args.length >= 6)
                     ? MapToBSON.convert(args[5])
                     : null;
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
-            DBObject result;
+            final DBObject result;
             if (fields == null && orderBy == null && query == null) {
                 result = dbcol.findOne();
 
@@ -115,7 +115,7 @@ public class FindOne extends BasicFunction {
                     ? Sequence.EMPTY_SEQUENCE
                     : BSONtoMap.convert(result,context);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

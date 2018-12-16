@@ -44,7 +44,7 @@ public class Remove extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_DELETE_CRITERIUM
             = new FunctionParameterSequenceType(PARAM_DELETE_CRITERIUM, Type.ITEM, Cardinality.ONE, DESCR_DELETE_CRITERIUM);
     private static final String REMOVE = "remove";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Remove documents from a collection.",
@@ -55,33 +55,33 @@ public class Remove extends BasicFunction {
 
     };
 
-    public Remove(XQueryContext context, FunctionSignature signature) {
+    public Remove(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject query = (args.length >= 4)
+            final BasicDBObject query = (args.length >= 4)
                     ? MapToBSON.convert(args[3])
                     : null;
 
             // Get collection in database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Execute query      
-            WriteResult result = dbcol.remove(query);
+            final WriteResult result = dbcol.remove(query);
 
             // Wrap results into map
             final MapType map = new MapType(context);
@@ -95,7 +95,7 @@ public class Remove extends BasicFunction {
 
             return map;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

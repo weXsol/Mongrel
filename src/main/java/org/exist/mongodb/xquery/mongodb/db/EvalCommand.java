@@ -51,7 +51,7 @@ public class EvalCommand extends BasicFunction {
     private static final String EVAL = "eval";
     private static final String COMMAND = "command";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(EVAL, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Evaluates JavaScript "
                     + "functions on the database server. This is useful if you need to touch a lot of data lightly, "
@@ -79,28 +79,28 @@ public class EvalCommand extends BasicFunction {
             ),
     };
 
-    public EvalCommand(XQueryContext context, FunctionSignature signature) {
+    public EvalCommand(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Additional parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            Sequence query = args[2];
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final Sequence query = args[2];
 
             // Get and convert 4th parameter, when existent
-            Object[] params = (args.length >= 4) ? ConversionTools.convertParameters(args[3]) : new Object[0];
+            final Object[] params = (args.length >= 4) ? ConversionTools.convertParameters(args[3]) : new Object[0];
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             Sequence retVal=new ValueSequence();
 
@@ -108,10 +108,10 @@ public class EvalCommand extends BasicFunction {
                 /* eval */
 
                 // Just get string
-                String queryString = query.itemAt(0).getStringValue();
+                final String queryString = query.itemAt(0).getStringValue();
 
                 // Execute query with additional parameter 
-                Object result = db.eval(queryString, params);
+                final Object result = db.eval(queryString, params);
 
                 retVal = convertResult(context, result);
 
@@ -120,10 +120,10 @@ public class EvalCommand extends BasicFunction {
                 /* command */
 
                 // Convert query string
-                BasicDBObject mongoQuery = MapToBSON.convert(query);
+                final BasicDBObject mongoQuery = MapToBSON.convert(query);
 
                 // execute query
-                CommandResult result = db.command(mongoQuery);
+                final CommandResult result = db.command(mongoQuery);
 
 
                 // Convert result to string
@@ -137,15 +137,15 @@ public class EvalCommand extends BasicFunction {
 
             return retVal;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 
 
     }
 
-    private Sequence convertResult(XQueryContext context, Object result) throws XPathException {
-        Sequence retVal;
+    private Sequence convertResult(final XQueryContext context, final Object result) throws XPathException {
+        final Sequence retVal;
         if (result instanceof BasicDBObject) {
             retVal = BSONtoMap.convert((BasicDBObject)result, context);
 

@@ -51,7 +51,7 @@ public class Group extends BasicFunction {
 
     private static final String RESULT = "A document with the grouped records as well as the command meta-data formatted as JSON";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(GROUP, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), DESCRIPTION,
@@ -70,43 +70,43 @@ public class Group extends BasicFunction {
 
     };
 
-    public Group(XQueryContext context, FunctionSignature signature) {
+    public Group(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject key = MapToBSON.convert(args[3]);
+            final BasicDBObject key = MapToBSON.convert(args[3]);
 
-            BasicDBObject condition = MapToBSON.convert(args[4]);
+            final BasicDBObject condition = MapToBSON.convert(args[4]);
 
-            BasicDBObject initial = MapToBSON.convert(args[5]);
+            final BasicDBObject initial = MapToBSON.convert(args[5]);
 
-            String reduce = args[6].itemAt(0).getStringValue();
+            final String reduce = args[6].itemAt(0).getStringValue();
 
             // The finalize can be null
-            String finalize = (args.length > 7)
+            final String finalize = (args.length > 7)
                     ? args[7].itemAt(0).getStringValue()
                     : null;
 
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Propare groupcommand
-            GroupCommand command = new GroupCommand(dbcol, key, condition, initial, reduce, finalize);
+            final GroupCommand command = new GroupCommand(dbcol, key, condition, initial, reduce, finalize);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug(command.toDBObject().toString());
@@ -114,14 +114,14 @@ public class Group extends BasicFunction {
 
 
             // Execute, finalize can have value null
-            DBObject result = dbcol.group(command);
+            final DBObject result = dbcol.group(command);
 
             return (result == null)
                     ? Sequence.EMPTY_SEQUENCE
                     : BSONtoMap.convert(result,context);
 
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

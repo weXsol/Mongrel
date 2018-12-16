@@ -44,7 +44,7 @@ public class FindAndModify extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_SORT
             = new FunctionParameterSequenceType(PARAM_SORT, Type.ITEM, Cardinality.ONE, DESCR_SORT);
     private static final String FIND_AND_MODIFY = "findAndModify";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(FIND_AND_MODIFY, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
@@ -62,32 +62,32 @@ public class FindAndModify extends BasicFunction {
 
     };
 
-    public FindAndModify(XQueryContext context, FunctionSignature signature) {
+    public FindAndModify(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject query = (args.length >= 4)
+            final BasicDBObject query = (args.length >= 4)
                     ? MapToBSON.convert(args[3])
                     : null;
 
-            BasicDBObject update = (args.length >= 5)
+            final BasicDBObject update = (args.length >= 5)
                     ? MapToBSON.convert(args[4])
                     : null;
 
-            BasicDBObject sort = (args.length >= 6)
+            final BasicDBObject sort = (args.length >= 6)
                     ? MapToBSON.convert(args[5])
                     : null;
 
@@ -96,12 +96,12 @@ public class FindAndModify extends BasicFunction {
 //                    : null;
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             //query update sort
 
-            DBObject result;
+            final DBObject result;
             if (sort == null /* && options==null */) {
                 result = dbcol.findAndModify(query, update);
 
@@ -125,7 +125,7 @@ public class FindAndModify extends BasicFunction {
                     ? Sequence.EMPTY_SEQUENCE
                     : BSONtoMap.convert(result, context);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 
