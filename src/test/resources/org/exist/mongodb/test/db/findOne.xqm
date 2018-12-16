@@ -55,7 +55,8 @@ function mongoMain:findOne() {
 
 
 (: collection#findOne(query) :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1, 8)
 function mongoMain:findOne_query() {
     let $mongodbClientId := support:getToken()
@@ -65,7 +66,8 @@ function mongoMain:findOne_query() {
 };
 
 (: collection#findOne(query, keys) : only y-values are returned :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1, 0, 1, 6)
 function mongoMain:findOne_query_fields() {
 
@@ -88,7 +90,8 @@ function mongoMain:findOne_query_fields() {
 };
 
 (: collection#findOne(query, keys, orderby) : only y-values are returned :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1, 1, 1, 7)
 function mongoMain:findOne_query_fields_orderby() {
 

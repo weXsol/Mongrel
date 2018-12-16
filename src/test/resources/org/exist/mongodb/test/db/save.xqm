@@ -26,7 +26,8 @@ declare %test:tearDown function mongoMain:cleanup()
  :)
 
 (: collection#save() save three documents  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(3)
 function mongoMain:save() {
     let $mongodbClientId := support:getToken()
@@ -43,7 +44,8 @@ function mongoMain:save() {
 };
 
 (: collection#save() save three time the same document  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(1)
 function mongoMain:save_samedoc() {
     let $mongodbClientId := support:getToken()
@@ -60,7 +62,8 @@ function mongoMain:save_samedoc() {
 };
 
 (: collection#save() mix  :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2)
 function mongoMain:save_mixed() {
     let $mongodbClientId := support:getToken()
@@ -79,7 +82,8 @@ function mongoMain:save_mixed() {
 
 
 (: collection#save()  empty document :)
-declare 
+declare
+    %test:pending
     %test:assertError("mongodb:json")
 function mongoMain:save_emptydocument() {
     let $mongodbClientId := support:getToken()

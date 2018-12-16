@@ -58,7 +58,8 @@ function mongoMain:find() {
 
 
 (: collection#find(query) :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2)
 function mongoMain:find_query() {
     let $mongodbClientId := support:getToken()
@@ -70,7 +71,8 @@ function mongoMain:find_query() {
 };
 
 (: collection#find(query, keys) : only y-values are returned :)
-declare 
+declare
+    %test:pending
     %test:assertEquals(2,0,6,4)
 function mongoMain:find_query_keys() {
 
