@@ -125,7 +125,6 @@ public class EvalCommand extends BasicFunction {
                 // execute query
                 final CommandResult result = db.command(mongoQuery);
 
-
                 // Convert result to string
                 if(result.ok()){
                     result.remove("ok");

@@ -69,9 +69,8 @@ public class Close extends BasicFunction {
         // Get connection URL
         final String mongodbClientId = args[0].itemAt(0).getStringValue();
 
-        // Handle ()
-        try {
-            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+        // Handle close()
+        try(MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);){
 
             if (client == null) {
                 throw new XPathException(this, String.format("Mongoclient %s could not be found.", mongodbClientId));

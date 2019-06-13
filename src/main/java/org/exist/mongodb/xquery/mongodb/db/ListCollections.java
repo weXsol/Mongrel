@@ -21,6 +21,7 @@ package org.exist.mongodb.xquery.mongodb.db;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -50,7 +51,7 @@ public class ListCollections extends BasicFunction {
                             "is supplied via $database.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
-                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of collection names")
             ),};
 
     public ListCollections(final XQueryContext context, final FunctionSignature signature) {
@@ -64,29 +65,28 @@ public class ListCollections extends BasicFunction {
             // Verify clientid and get client
             final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
+
             final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Additional parameter
             final String dbname = args[1].itemAt(0).getStringValue();
 
-            // Retrieve database          
-            final DB db = client.getDB(dbname);
-
-            // Retrieve collection names
-            final Set<String> collectionNames = db.getCollectionNames();
+            // Retrieve database
+            MongoDatabase database = client.getDatabase(dbname);
 
             // Storage for results
             final ValueSequence valueSequence = new ValueSequence();
 
-            // Iterate over collection names
-            collectionNames.forEach((collName) -> valueSequence.add(new StringValue(collName)));
+            // Retrieve and iterate over collection names
+            database.listCollectionNames()
+                    .iterator()
+                    .forEachRemaining(collectionName -> valueSequence.add(new StringValue(collectionName)));
 
             return valueSequence;
 
         } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
-
 
     }
 
