@@ -56,7 +56,7 @@ import static org.exist.mongodb.shared.FunctionDefinitions.*;
  */
 public class Store extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("store", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "Store document into Gridfs",
@@ -72,50 +72,50 @@ public class Store extends BasicFunction {
             ".mp3", ".mp4", ".mpg", ".mpeg", ".avi", ".mkv", ".wav", ".ogg", ".mov", ".flv", ".wmv"
     };
 
-    public Store(XQueryContext context, FunctionSignature signature) {
+    public Store(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
-            String documentName = args[3].itemAt(0).getStringValue();
-            String contentType = getMimeType(args[4], documentName);
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String bucket = args[2].itemAt(0).getStringValue();
+            final String documentName = args[3].itemAt(0).getStringValue();
+            final String contentType = getMimeType(args[4], documentName);
 
             LOG.info(String.format("Storing document %s (%s)", documentName, contentType));
 
             // Actual content: File object, doc() element, base64...
-            Item content = args[5].itemAt(0);
+            final Item content = args[5].itemAt(0);
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            final GridFS gfs = new GridFS(db, bucket);
 
             // Create file
-            GridFSInputFile gfsFile = gfs.createFile();
+            final GridFSInputFile gfsFile = gfs.createFile();
 
             // Set meta data
             gfsFile.setFilename(documentName);
             gfsFile.setContentType(contentType);
 
-            StopWatch stopWatch = new StopWatch();
+            final StopWatch stopWatch = new StopWatch();
 
             // Write data
             if (StringUtils.endsWithAny(documentName, nonCompressables)) {
                 writeRaw(gfsFile, stopWatch, content);
             } else {
-                int dataType = content.getType();
+                final int dataType = content.getType();
                 writeCompressed(gfsFile, stopWatch, content, dataType);
             }
 
@@ -124,29 +124,29 @@ public class Store extends BasicFunction {
             // Report identifier
             return new StringValue(gfsFile.getId().toString());
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
 
     }
 
-    void writeCompressed(GridFSInputFile gfsFile, StopWatch stopWatch, Item content, int dataType) throws NoSuchAlgorithmException, IOException, XPathException {
+    void writeCompressed(final GridFSInputFile gfsFile, final StopWatch stopWatch, final Item content, final int dataType) throws NoSuchAlgorithmException, IOException, XPathException {
         // Store data compressed, add statistics
-        try (OutputStream stream = gfsFile.getOutputStream()) {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            CountingOutputStream cosGZ = new CountingOutputStream(stream);
-            GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
-            DigestOutputStream dos = new DigestOutputStream(gos, md);
-            CountingOutputStream cosRaw = new CountingOutputStream(dos);
+        try (final OutputStream stream = gfsFile.getOutputStream()) {
+            final MessageDigest md = MessageDigest.getInstance("MD5");
+            final CountingOutputStream cosGZ = new CountingOutputStream(stream);
+            final GZIPOutputStream gos = new GZIPOutputStream(cosGZ);
+            final DigestOutputStream dos = new DigestOutputStream(gos, md);
+            final CountingOutputStream cosRaw = new CountingOutputStream(dos);
 
             stopWatch.start();
             ContentSerializer.serialize(content, context, cosRaw);
@@ -154,11 +154,11 @@ public class Store extends BasicFunction {
             cosRaw.close();
             stopWatch.stop();
 
-            long nrBytesRaw = cosRaw.getByteCount();
-            long nrBytesGZ = cosGZ.getByteCount();
-            String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
+            final long nrBytesRaw = cosRaw.getByteCount();
+            final long nrBytesGZ = cosGZ.getByteCount();
+            final String checksum = Hex.encodeHexString(dos.getMessageDigest().digest());
 
-            BasicDBObject info = new BasicDBObject();
+            final BasicDBObject info = new BasicDBObject();
             info.put(Constants.EXIST_COMPRESSION, GZIP);
             info.put(Constants.EXIST_ORIGINAL_SIZE, nrBytesRaw);
             info.put(Constants.EXIST_ORIGINAL_MD5, checksum);
@@ -173,9 +173,9 @@ public class Store extends BasicFunction {
         }
     }
 
-    void writeRaw(GridFSInputFile gfsFile, StopWatch stopWatch, Item content) throws XPathException, IOException {
+    void writeRaw(final GridFSInputFile gfsFile, final StopWatch stopWatch, final Item content) throws XPathException, IOException {
         // Write data as is
-        try (OutputStream stream = gfsFile.getOutputStream()) {
+        try (final OutputStream stream = gfsFile.getOutputStream()) {
             stopWatch.start();
             ContentSerializer.serialize(content, context, stream);
             stream.flush();
@@ -183,7 +183,7 @@ public class Store extends BasicFunction {
         }
     }
 
-    private String getMimeType(Sequence inputValue, String filename) throws XPathException {
+    private String getMimeType(final Sequence inputValue, final String filename) throws XPathException {
 
         String mimeType = null;
 
@@ -194,7 +194,7 @@ public class Store extends BasicFunction {
 
         // When no data is found  get from filename
         if (StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)) {
-            MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
+            final MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
             if (mime != null) {
                 mimeType = mime.getName();
             }

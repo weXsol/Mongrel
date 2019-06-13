@@ -37,10 +37,10 @@ import static org.exist.mongodb.shared.FunctionDefinitions.DESCR_MONGODB_CLIENT_
 
 public class Connect extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("connect", MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "Establishe a connection to MongoDB and return a client id as string that identifies the opened connection.",
+                    "Establish a connection to MongoDB and return a client id as string that identifies the opened connection.",
                     new SequenceType[]{
                             new FunctionParameterSequenceType("uri", Type.STRING, Cardinality.ONE, "URI to server")
                     },
@@ -48,32 +48,32 @@ public class Connect extends BasicFunction {
             ),
     };
 
-    public Connect(XQueryContext context, FunctionSignature signature) {
+    public Connect(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.MONGODB_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+            final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.MONGODB_GROUP);
             LOG.error(txt);
             throw new XPathException(this, txt);
         }
 
         // Get connection URL
-        String url = args[0].itemAt(0).getStringValue();
+        final String url = args[0].itemAt(0).getStringValue();
 
         try {
             // Store Client
-            String mongodbClientId = MongodbClientStore.getInstance().create(url, context.getSubject().getUsername());
+            final String mongodbClientId = MongodbClientStore.getInstance().create(url, context.getSubject().getUsername());
 
             // Report identifier
             return new StringValue(mongodbClientId);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

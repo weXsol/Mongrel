@@ -49,7 +49,7 @@ public class GenericExceptionHandler {
      * @return Nothing, there will always be an exception thrown.
      * @throws XPathException The translated eXistdb exception
      */
-    public static Sequence handleException(Expression expr, Throwable throwable) throws XPathException {
+    public static Sequence handleException(final Expression expr, final Throwable throwable) throws XPathException {
 
         if (LOG.isDebugEnabled()) {
             LOG.error(throwable.getMessage());

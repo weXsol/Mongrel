@@ -48,7 +48,7 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <exist.version>4.2.1</exist.version>
+        <exist.version>4.6.0</exist.version>
 
         <mongodb.server.version>3.4.14</mongodb.server.version>
         <mongodb.driver.version>3.10.2</mongodb.driver.version>

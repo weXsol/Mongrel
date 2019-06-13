@@ -38,7 +38,7 @@ public class Find extends BasicFunction {
     private static final String FIND = "find";
 
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(FIND, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Query for all documents in the collection",
@@ -62,52 +62,52 @@ public class Find extends BasicFunction {
             ),
     };
 
-    public Find(XQueryContext context, FunctionSignature signature) {
+    public Find(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject mongoQuery = (args.length >= 4)
+            final BasicDBObject mongoQuery = (args.length >= 4)
                     ? MapToBSON.convert(args[3])
                     : new BasicDBObject();
 
-            BasicDBObject mongoKeys = (args.length >= 5)
+            final BasicDBObject mongoKeys = (args.length >= 5)
                     ? MapToBSON.convert(args[4])
                     : null;
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
-            Sequence retVal = new ValueSequence();
+            final Sequence retVal = new ValueSequence();
 
             // Execute querys
             try (
-                    DBCursor cursor = (mongoKeys == null)
+                    final DBCursor cursor = (mongoKeys == null)
                             ? dbcol.find(mongoQuery)
                             : dbcol.find(mongoQuery, mongoKeys)) {
                 // Harvest result
                 while (cursor.hasNext()) {
-                    DBObject getValues = cursor.next();
+                    final DBObject getValues = cursor.next();
                     retVal.addAll(BSONtoMap.convert(getValues,context));
                 }
             }
 
             return retVal;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

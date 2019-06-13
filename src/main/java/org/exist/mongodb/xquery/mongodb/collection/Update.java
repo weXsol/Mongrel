@@ -55,7 +55,7 @@ public class Update extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_MULTI
             = new FunctionParameterSequenceType(PARAM_MULTI, Type.BOOLEAN, Cardinality.ONE, DESCR_MULTI);
     private static final String UPDATE = "update";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(UPDATE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Modify an existing document or documents in collection. By default the method updates a single document.",
                     new SequenceType[]{
@@ -72,43 +72,43 @@ public class Update extends BasicFunction {
 
     };
 
-    public Update(XQueryContext context, FunctionSignature signature) {
+    public Update(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
 
 
             // Get data
-            BasicDBObject criterium = MapToBSON.convert(args[3]);
-            BasicDBObject modification = MapToBSON.convert(args[4]);
+            final BasicDBObject criterium = MapToBSON.convert(args[3]);
+            final BasicDBObject modification = MapToBSON.convert(args[4]);
 
-            Boolean upsert = (args.length >= 6)
+            final Boolean upsert = (args.length >= 6)
                     ? args[5].itemAt(0).toJavaObject(Boolean.class)
                     : null;
 
-            Boolean multi = (args.length >= 7)
+            final Boolean multi = (args.length >= 7)
                     ? args[6].itemAt(0).toJavaObject(Boolean.class)
                     : null;
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Execute update
-            WriteResult result = (upsert == null)
+            final WriteResult result = (upsert == null)
                     ? dbcol.update(criterium, modification)
                     : dbcol.update(criterium, modification, upsert, multi);
 
@@ -124,7 +124,7 @@ public class Update extends BasicFunction {
 
             return map;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

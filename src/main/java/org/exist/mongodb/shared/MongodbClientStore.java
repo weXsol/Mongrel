@@ -33,12 +33,12 @@ public class MongodbClientStore {
         return instance;
     }
 
-    public void add(String id, MongoClient client, String username) {
-        MongoClientWrapper wrapper = new MongoClientWrapper(id, client, username);
+    public void add(final String id, final MongoClient client, final String username) {
+        final MongoClientWrapper wrapper = new MongoClientWrapper(id, client, username);
         clients.put(id, wrapper);
     }
 
-    public void remove(String mongodbClientId) {
+    public void remove(final String mongodbClientId) {
         clients.remove(mongodbClientId);
     }
 
@@ -46,29 +46,29 @@ public class MongodbClientStore {
         return clients.keySet();
     }
 
-    public MongoClient get(String mongodbClientId) {
+    public MongoClient get(final String mongodbClientId) {
 
-        MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
+        final MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
         if (clientwrapper != null) {
             return clientwrapper.getMongoClient();
         }
         return null;
     }
 
-    public boolean isValid(String mongodbClientId) {
+    public boolean isValid(final String mongodbClientId) {
         return get(mongodbClientId) != null;
     }
 
-    public String create(String url, String username) {
+    public String create(final String url, final String username) {
 
         // Construct client
-        MongoClientURI uri = new MongoClientURI(url);
-        MongoClient client = new MongoClient(uri);
+        final MongoClientURI uri = new MongoClientURI(url);
+        final MongoClient client = new MongoClient(uri);
 
         LOG.debug(String.format("client: %s", client));
 
         // Create unique identifier
-        String mongodbClientId = UUID.randomUUID().toString();
+        final String mongodbClientId = UUID.randomUUID().toString();
 
         // Register
         add(mongodbClientId, client, username);
@@ -76,19 +76,19 @@ public class MongodbClientStore {
         return mongodbClientId;
     }
 
-    public MongoClient validate(String mongodbClientId) throws XPathException {
+    public MongoClient validate(final String mongodbClientId) throws XPathException {
         if (mongodbClientId == null || !isValid(mongodbClientId)) {
             try {
                 // introduce a delay
                 Thread.sleep(1000L);
 
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 LOG.error(ex);
             }
             throw new XPathException(MONGO_ID, null);
         }
 
-        MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
+        final MongoClientWrapper clientwrapper = clients.get(mongodbClientId);
         if (clientwrapper != null) {
             return clientwrapper.getMongoClient();
         }
@@ -104,14 +104,14 @@ public class MongodbClientStore {
         private String username;
         private XMLGregorianCalendar calendar;
 
-        public MongoClientWrapper(String mongodbClientId, MongoClient client, String username) {
+        public MongoClientWrapper(final String mongodbClientId, final MongoClient client, final String username) {
             this.mongodbClientId = mongodbClientId;
             this.client = client;
             this.username = username;
 
             try {
                 calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-            } catch (DatatypeConfigurationException ex) {
+            } catch (final DatatypeConfigurationException ex) {
                 //
             }
         }
@@ -120,7 +120,7 @@ public class MongodbClientStore {
             return mongodbClientId;
         }
 
-        public void setMongodbClientId(String mongodbClientId) {
+        public void setMongodbClientId(final String mongodbClientId) {
             this.mongodbClientId = mongodbClientId;
         }
 
@@ -128,7 +128,7 @@ public class MongodbClientStore {
             return client;
         }
 
-        public void setMongoClient(MongoClient client) {
+        public void setMongoClient(final MongoClient client) {
             this.client = client;
         }
 
@@ -136,7 +136,7 @@ public class MongodbClientStore {
             return username;
         }
 
-        public void setUsername(String username) {
+        public void setUsername(final String username) {
             this.username = username;
         }
 
@@ -144,7 +144,7 @@ public class MongodbClientStore {
             return calendar;
         }
 
-        public void setCalendar(XMLGregorianCalendar calendar) {
+        public void setCalendar(final XMLGregorianCalendar calendar) {
             this.calendar = calendar;
         }
 

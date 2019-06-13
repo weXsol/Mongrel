@@ -44,7 +44,7 @@ public class ListDocuments extends BasicFunction {
 
     private static final String LIST_DOCUMENTS = "list-documents";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(LIST_DOCUMENTS, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "List documents",
@@ -55,40 +55,40 @@ public class ListDocuments extends BasicFunction {
             ),
     };
 
-    public ListDocuments(XQueryContext context, FunctionSignature signature) {
+    public ListDocuments(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String bucket = args[2].itemAt(0).getStringValue();
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            final GridFS gfs = new GridFS(db, bucket);
 
             return ContentSerializer.getDocuments(gfs);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }

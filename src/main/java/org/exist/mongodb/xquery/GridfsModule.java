@@ -45,7 +45,7 @@ public class GridfsModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME
             = new QName("exception-message", GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX);
 
-    public GridfsModule(Map<String, List<?>> parameters) {
+    public GridfsModule(final Map<String, List<?>> parameters) {
         super(functions, parameters);
     }
 
@@ -71,7 +71,7 @@ public class GridfsModule extends AbstractInternalModule {
 
     protected final static class GridfsErrorCode extends ErrorCode {
 
-        public GridfsErrorCode(String code, String description) {
+        public GridfsErrorCode(final String code, final String description) {
             super(new QName(code, NAMESPACE_URI, PREFIX), description);
         }
 

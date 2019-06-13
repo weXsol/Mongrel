@@ -65,7 +65,7 @@ public class MapReduce extends BasicFunction {
             = new FunctionParameterSequenceType(PARAM_MR_QUERY, Type.STRING, Cardinality.ZERO_OR_ONE, DESCR_MR_QUERY);
 
     private static final String MAP_REDUCE = "map-reduce";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(MAP_REDUCE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Allows you to run map-reduce aggregation operations "
@@ -77,55 +77,55 @@ public class MapReduce extends BasicFunction {
 
     };
 
-    public MapReduce(XQueryContext context, FunctionSignature signature) {
+    public MapReduce(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            String map = args[3].itemAt(0).getStringValue();
-            String reduce = args[4].itemAt(0).getStringValue();
+            final String map = args[3].itemAt(0).getStringValue();
+            final String reduce = args[4].itemAt(0).getStringValue();
 
             // output-target can have value null
-            String outputTarget = args[5].isEmpty()
+            final String outputTarget = args[5].isEmpty()
                     ? null
                     : args[5].itemAt(0).getStringValue();
 
-            OutputType outputType = args[6].isEmpty()
+            final OutputType outputType = args[6].isEmpty()
                     ? OutputType.INLINE
                     : OutputType.valueOf(args[6].itemAt(0).getStringValue().toUpperCase(Locale.US));
 
 
-            DBObject query = MapToBSON.convert(args[7]);
+            final DBObject query = MapToBSON.convert(args[7]);
 
             // Get collection in database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Execute query      
-            MapReduceOutput output = dbcol.mapReduce(map, reduce, outputTarget, outputType, query);
+            final MapReduceOutput output = dbcol.mapReduce(map, reduce, outputTarget, outputType, query);
 
             // Parse results
-            Sequence retVal = new ValueSequence();
+            final Sequence retVal = new ValueSequence();
 
-            for (DBObject result : output.results()) {
+            for (final DBObject result : output.results()) {
                 retVal.addAll(BSONtoMap.convert(result,context));
             }
 
             return retVal;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

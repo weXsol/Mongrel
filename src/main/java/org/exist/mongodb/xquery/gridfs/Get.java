@@ -65,7 +65,7 @@ public class Get extends BasicFunction {
     private static final FunctionParameterSequenceType PARAMETER_FORCE_BINARY =
             new FunctionParameterSequenceType("forceBinary", Type.BOOLEAN, Cardinality.ONE, "Set true() to force binary datatype for XML data.");
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "Retrieve document",
@@ -83,33 +83,33 @@ public class Get extends BasicFunction {
             ),
     };
 
-    public Get(XQueryContext context, FunctionSignature signature) {
+    public Get(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
-            String documentId = args[3].itemAt(0).getStringValue();
-            boolean forceBinary = args[4].itemAt(0).toJavaObject(Boolean.class);
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String bucket = args[2].itemAt(0).getStringValue();
+            final String documentId = args[3].itemAt(0).getStringValue();
+            final boolean forceBinary = args[4].itemAt(0).toJavaObject(Boolean.class);
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            final GridFS gfs = new GridFS(db, bucket);
 
             // Find one document by id or by filename
-            GridFSDBFile gfsFile = (isCalledAs(FIND_BY_OBJECTID))
+            final GridFSDBFile gfsFile = (isCalledAs(FIND_BY_OBJECTID))
                     ? gfs.findOne(new ObjectId(documentId))
                     : gfs.findOne(documentId); // TODO: find latest
 
@@ -119,15 +119,15 @@ public class Get extends BasicFunction {
 
             return get(gfsFile, forceBinary);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
@@ -137,26 +137,26 @@ public class Get extends BasicFunction {
     /**
      * Get document from GridFS
      */
-    Sequence get(GridFSDBFile gfsFile, boolean forceBinary) throws IOException, XPathException {
+    Sequence get(final GridFSDBFile gfsFile, final boolean forceBinary) throws IOException, XPathException {
 
         // Obtain meta-data
-        DBObject metadata = gfsFile.getMetaData();
+        final DBObject metadata = gfsFile.getMetaData();
 
         // Decompress when needed
-        String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
-        boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
+        final String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
+        final boolean isGzipped = StringUtils.equals(compression, Constants.GZIP);
 
 
         // Find what kind of data is stored
-        int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get(EXIST_DATATYPE);
-        boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
-        boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
+        final int datatype = (metadata == null) ? Type.UNTYPED : (int) metadata.get(EXIST_DATATYPE);
+        final boolean hasXMLContentType = StringUtils.contains(gfsFile.getContentType(), "xml");
+        final boolean isXMLtype = (Type.DOCUMENT == datatype || Type.ELEMENT == datatype || hasXMLContentType);
 
         // Convert input stream to eXist-db object
 
-        Sequence retVal;
+        final Sequence retVal;
 
-        try (InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream()) {
+        try (final InputStream is = isGzipped ? new GZIPInputStream(gfsFile.getInputStream()) : gfsFile.getInputStream()) {
             if (forceBinary || !isXMLtype) {
                 retVal = Base64BinaryDocument.getInstance(context, is);
 
@@ -176,7 +176,7 @@ public class Get extends BasicFunction {
      * @return Sequence containing the XML as DocumentImpl
      * @throws XPathException Something bad happened.
      */
-    private Sequence processXML(XQueryContext xqueryContext, InputStream is) throws XPathException {
+    private Sequence processXML(final XQueryContext xqueryContext, final InputStream is) throws XPathException {
 
         Sequence content;
         try {
@@ -186,7 +186,7 @@ public class Get extends BasicFunction {
             factory.setNamespaceAware(true);
             final InputSource src = new InputSource(is);
             final SAXParser parser = factory.newSAXParser();
-            XMLReader xr = parser.getXMLReader();
+            final XMLReader xr = parser.getXMLReader();
 
             xr.setErrorHandler(validationReport);
             xr.setContentHandler(adapter);
@@ -197,12 +197,12 @@ public class Get extends BasicFunction {
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
             } else {
-                String txt = String.format("Received document is not valid: %s", validationReport.toString());
+                final String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }
 
-        } catch (SAXException | ParserConfigurationException | IOException ex) {
+        } catch (final SAXException | ParserConfigurationException | IOException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(ex.getMessage());
 

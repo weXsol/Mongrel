@@ -59,7 +59,7 @@ public class Stream extends BasicFunction {
     private static final String FIND_BY_OBJECTID = "stream-by-objectid";
     private static final String FIND_BY_FILENAME = "stream-by-filename";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(FIND_BY_FILENAME, GridfsModule.NAMESPACE_URI, GridfsModule.PREFIX),
                     "Retrieve document by filename as stream",
@@ -78,47 +78,47 @@ public class Stream extends BasicFunction {
             ),
     };
 
-    public Stream(XQueryContext context, FunctionSignature signature) {
+    public Stream(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String bucket = args[2].itemAt(0).getStringValue();
-            String documentId = args[3].itemAt(0).getStringValue();
-            Boolean setDisposition = args[4].itemAt(0).toJavaObject(Boolean.class);
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String bucket = args[2].itemAt(0).getStringValue();
+            final String documentId = args[3].itemAt(0).getStringValue();
+            final Boolean setDisposition = args[4].itemAt(0).toJavaObject(Boolean.class);
 
             // Get database
-            DB db = client.getDB(dbname);
+            final DB db = client.getDB(dbname);
 
             // Creates a GridFS instance for the specified bucket
-            GridFS gfs = new GridFS(db, bucket);
+            final GridFS gfs = new GridFS(db, bucket);
 
             // Find one document by id or by filename
-            GridFSDBFile gfsFile = (isCalledAs(FIND_BY_OBJECTID))
+            final GridFSDBFile gfsFile = (isCalledAs(FIND_BY_OBJECTID))
                     ? gfs.findOne(new ObjectId(documentId))
                     : gfs.findOne(documentId);
 
             stream(gfsFile, documentId, setDisposition);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, ex.getMessage(), ex);
 
-        } catch (MongoException ex) {
+        } catch (final MongoException ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0002, ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(this, GridfsModule.GRFS0003, ex.getMessage());
         }
@@ -130,16 +130,16 @@ public class Stream extends BasicFunction {
     /**
      * Stream document to HTTP agent
      */
-    void stream(GridFSDBFile gfsFile, String documentId, Boolean setDisposition) throws IOException, XPathException {
+    void stream(final GridFSDBFile gfsFile, final String documentId, final Boolean setDisposition) throws IOException, XPathException {
         if (gfsFile == null) {
             throw new XPathException(this, GridfsModule.GRFS0004, String.format("Document '%s' could not be found.", documentId));
         }
 
-        DBObject metadata = gfsFile.getMetaData();
+        final DBObject metadata = gfsFile.getMetaData();
 
         // Determine actual size
-        String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
-        Long originalSize = (metadata == null) ? null : (Long) metadata.get(EXIST_ORIGINAL_SIZE);
+        final String compression = (metadata == null) ? null : (String) metadata.get(EXIST_COMPRESSION);
+        final Long originalSize = (metadata == null) ? null : (Long) metadata.get(EXIST_ORIGINAL_SIZE);
 
         long length = gfsFile.getLength();
         if (originalSize != null) {
@@ -147,28 +147,28 @@ public class Stream extends BasicFunction {
         }
 
         // Stream response stream
-        ResponseWrapper rw = getResponseWrapper(context);
+        final ResponseWrapper rw = getResponseWrapper(context);
 
         // Set HTTP Headers
         rw.addHeader(Constants.CONTENT_LENGTH, String.format("%s", length));
 
         // Set filename when required
-        String filename = determineFilename(documentId, gfsFile);
+        final String filename = determineFilename(documentId, gfsFile);
         if (setDisposition && StringUtils.isNotBlank(filename)) {
             rw.addHeader(Constants.CONTENT_DISPOSITION, String.format("attachment;filename=%s", filename));
         }
 
-        String contentType = getMimeType(gfsFile.getContentType(), filename);
+        final String contentType = getMimeType(gfsFile.getContentType(), filename);
         if (contentType != null) {
             rw.setContentType(contentType);
         }
 
-        boolean isGzipSupported = isGzipEncodingSupported(context);
+        final boolean isGzipSupported = isGzipEncodingSupported(context);
 
         // Stream data
         if ((StringUtils.isBlank(compression))) {
             // Write data as-is, no marker available that data is stored compressed
-            try (OutputStream os = rw.getOutputStream()) {
+            try (final OutputStream os = rw.getOutputStream()) {
                 gfsFile.writeTo(os);
                 os.flush();
             }
@@ -179,16 +179,16 @@ public class Stream extends BasicFunction {
                 // Write compressend data as-is, since data is stored as gzipped data and
                 // the agent suports it.
                 rw.addHeader(Constants.CONTENT_ENCODING, GZIP);
-                try (OutputStream os = rw.getOutputStream()) {
+                try (final OutputStream os = rw.getOutputStream()) {
                     gfsFile.writeTo(os);
                     os.flush();
                 }
 
             } else {
                 // Write data uncompressed
-                try (OutputStream os = rw.getOutputStream()) {
-                    InputStream is = gfsFile.getInputStream();
-                    try (GZIPInputStream gzis = new GZIPInputStream(is)) {
+                try (final OutputStream os = rw.getOutputStream()) {
+                    final InputStream is = gfsFile.getInputStream();
+                    try (final GZIPInputStream gzis = new GZIPInputStream(is)) {
                         IOUtils.copyLarge(gzis, os);
                         os.flush();
                     }
@@ -201,7 +201,7 @@ public class Stream extends BasicFunction {
      * Get filename from the provided filename, or as stored in the database
      * when blank e.g because document is referenced by documentID
      */
-    private String determineFilename(String documentId, GridFSDBFile gfsFile) {
+    private String determineFilename(final String documentId, final GridFSDBFile gfsFile) {
         String documentName = null;
 
         // Use filename when it is passed to method
@@ -221,13 +221,13 @@ public class Stream extends BasicFunction {
      * Get mime-type: from stored value or from file name. Value NULL has not
      * existent or blank.
      */
-    private String getMimeType(String storedType, String filename) {
+    private String getMimeType(final String storedType, final String filename) {
 
         String mimeType = storedType;
 
         // When no data is found  get from filename
         if (StringUtils.isBlank(mimeType) && StringUtils.isNotBlank(filename)) {
-            MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
+            final MimeType mime = MimeTable.getInstance().getContentTypeFor(filename);
             mimeType = mime.getName();
         }
 
@@ -245,17 +245,17 @@ public class Stream extends BasicFunction {
      *
      * @throws XPathException Thrown when something bad happens.
      */
-    private ResponseWrapper getResponseWrapper(XQueryContext context) throws XPathException {
-        ResponseModule myModule = (ResponseModule) context.getModule(ResponseModule.NAMESPACE_URI);
+    private ResponseWrapper getResponseWrapper(final XQueryContext context) throws XPathException {
+        final ResponseModule myModule = (ResponseModule) context.getModule(ResponseModule.NAMESPACE_URI);
         // response object is read from global variable $response
-        Variable respVar = myModule.resolveVariable(ResponseModule.RESPONSE_VAR);
+        final Variable respVar = myModule.resolveVariable(ResponseModule.RESPONSE_VAR);
         if (respVar == null) {
             throw new XPathException(this, "No response object found in the current XQuery context.");
         }
         if (respVar.getValue().getItemType() != Type.JAVA_OBJECT) {
             throw new XPathException(this, "Variable $response is not bound to an Java object.");
         }
-        JavaObjectValue respValue = (JavaObjectValue) respVar.getValue().itemAt(0);
+        final JavaObjectValue respValue = (JavaObjectValue) respVar.getValue().itemAt(0);
         if (!"org.exist.http.servlets.HttpResponseWrapper".equals(respValue.getObject().getClass().getName())) {
             throw new XPathException(this, signatures[1].toString()
                     + " can only be used within the EXistServlet or XQueryServlet");
@@ -270,17 +270,17 @@ public class Stream extends BasicFunction {
      *
      * @throws XPathException Thrown when something bad happens.
      */
-    private RequestWrapper getRequestWrapper(XQueryContext context) throws XPathException {
-        RequestModule myModule = (RequestModule) context.getModule(RequestModule.NAMESPACE_URI);
+    private RequestWrapper getRequestWrapper(final XQueryContext context) throws XPathException {
+        final RequestModule myModule = (RequestModule) context.getModule(RequestModule.NAMESPACE_URI);
         // request object is read from global variable $request
-        Variable respVar = myModule.resolveVariable(RequestModule.REQUEST_VAR);
+        final Variable respVar = myModule.resolveVariable(RequestModule.REQUEST_VAR);
         if (respVar == null) {
             throw new XPathException(this, "No request object found in the current XQuery context.");
         }
         if (respVar.getValue().getItemType() != Type.JAVA_OBJECT) {
             throw new XPathException(this, "Variable $request is not bound to an Java object.");
         }
-        JavaObjectValue respValue = (JavaObjectValue) respVar.getValue().itemAt(0);
+        final JavaObjectValue respValue = (JavaObjectValue) respVar.getValue().itemAt(0);
         if (!"org.exist.http.servlets.HttpRequestWrapper".equals(respValue.getObject().getClass().getName())) {
             throw new XPathException(this, signatures[1].toString()
                     + " can only be used within the EXistServlet or XQueryServlet");
@@ -292,17 +292,17 @@ public class Stream extends BasicFunction {
     /**
      * Verify if HTTP agent supports GZIP content encoding.
      */
-    private boolean isGzipEncodingSupported(XQueryContext context) {
+    private boolean isGzipEncodingSupported(final XQueryContext context) {
         try {
-            RequestWrapper request = getRequestWrapper(context);
+            final RequestWrapper request = getRequestWrapper(context);
 
-            String content = request.getHeader(ACCEPT_ENCODING);
+            final String content = request.getHeader(ACCEPT_ENCODING);
 
             if (StringUtils.contains(content, GZIP)) {
                 return true;
             }
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage(), ex);
         }
         return false;

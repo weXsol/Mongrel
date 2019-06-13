@@ -43,7 +43,7 @@ public class Save extends BasicFunction {
     public static final FunctionParameterSequenceType PARAMETER_JSONCONTENT
             = new FunctionParameterSequenceType(PARAM_JSONCONTENT, Type.ITEM, Cardinality.ONE, DESCR_JSONCONTENT);
     private static final String SAVE = "save";
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(SAVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Update an existing document or insert a document depending on the parameter. "
                     + "If the document does not contain an '_id' field, then the method performs an insert with the specified fields in the document as well "
@@ -55,32 +55,32 @@ public class Save extends BasicFunction {
                     new FunctionReturnSequenceType(Type.MAP, Cardinality.ONE, "The save result")
             ),};
 
-    public Save(XQueryContext context, FunctionSignature signature) {
+    public Save(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
             // Get database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Get data
-            BasicDBObject data = MapToBSON.convert(args[3]);
+            final BasicDBObject data = MapToBSON.convert(args[3]);
 
             // Execute save
-            WriteResult result = dbcol.save(data);
+            final WriteResult result = dbcol.save(data);
 
             // Wrap results into map
             final MapType map = new MapType(context);
@@ -94,7 +94,7 @@ public class Save extends BasicFunction {
 
             return map;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

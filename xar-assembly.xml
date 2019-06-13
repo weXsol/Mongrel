@@ -103,7 +103,7 @@
             <file>urn:java:class:org.exist.mongodb.xquery.GridfsModule</file>
         </resource>
         <resource>
-            <public-uri> http://exist-db.org/mongrel/bson</public-uri>
+            <public-uri>http://exist-db.org/mongrel/bson</public-uri>
             <file>urn:java:class:org.exist.mongodb.xquery.BSonModule</file>
         </resource>
        

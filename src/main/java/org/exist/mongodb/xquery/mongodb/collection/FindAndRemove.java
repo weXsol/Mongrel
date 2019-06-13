@@ -38,7 +38,7 @@ public class FindAndRemove extends BasicFunction {
     private static final String FIND_AND_REMOVE = "findAndRemove";
 
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName(FIND_AND_REMOVE, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX), "Atomically modify and return a single document.",
@@ -49,33 +49,33 @@ public class FindAndRemove extends BasicFunction {
 
     };
 
-    public FindAndRemove(XQueryContext context, FunctionSignature signature) {
+    public FindAndRemove(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Get parameters
-            String dbname = args[1].itemAt(0).getStringValue();
-            String collection = args[2].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
+            final String collection = args[2].itemAt(0).getStringValue();
 
-            BasicDBObject query = (args.length >= 4)
+            final BasicDBObject query = (args.length >= 4)
                     ? MapToBSON.convert(args[3])
                     : null;
 
             // Get collection in database
-            DB db = client.getDB(dbname);
-            DBCollection dbcol = db.getCollection(collection);
+            final DB db = client.getDB(dbname);
+            final DBCollection dbcol = db.getCollection(collection);
 
             // Execute query      
-            DBObject result = dbcol.findAndRemove(query);
+            final DBObject result = dbcol.findAndRemove(query);
 
             // Parse results
 
@@ -83,7 +83,7 @@ public class FindAndRemove extends BasicFunction {
                     ? Sequence.EMPTY_SEQUENCE
                     : BSONtoMap.convert(result, context);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 

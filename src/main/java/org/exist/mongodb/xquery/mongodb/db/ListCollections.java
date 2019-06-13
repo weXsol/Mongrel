@@ -21,6 +21,7 @@ package org.exist.mongodb.xquery.mongodb.db;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import org.exist.dom.QName;
 import org.exist.mongodb.shared.GenericExceptionHandler;
 import org.exist.mongodb.shared.MongodbClientStore;
@@ -42,51 +43,50 @@ public class ListCollections extends BasicFunction {
 
     private static final String LIST_DOCUMENTS = "list-collections";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(LIST_DOCUMENTS, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
-                    "List the names of all collections contained in a databases. "+
+                    "List the names of all collections contained in a databases. " +
                             "The connection is identified by the supplied $mongodbClientId, and the name of the database " +
                             "is supplied via $database.",
                     new SequenceType[]{
                             PARAMETER_MONGODB_CLIENT, PARAMETER_DATABASE,},
-                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of bucket names")
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of collection names")
             ),};
 
-    public ListCollections(XQueryContext context, FunctionSignature signature) {
+    public ListCollections(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Verify clientid and get client
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
             MongodbClientStore.getInstance().validate(mongodbClientId);
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+
+            final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
 
             // Additional parameter
-            String dbname = args[1].itemAt(0).getStringValue();
+            final String dbname = args[1].itemAt(0).getStringValue();
 
-            // Retrieve database          
-            DB db = client.getDB(dbname);
-
-            // Retrieve collection names
-            Set<String> collectionNames = db.getCollectionNames();
+            // Retrieve database
+            MongoDatabase database = client.getDatabase(dbname);
 
             // Storage for results
-            ValueSequence valueSequence = new ValueSequence();
+            final ValueSequence valueSequence = new ValueSequence();
 
-            // Iterate over collection names
-            collectionNames.forEach((collName) -> valueSequence.add(new StringValue(collName)));
+            // Retrieve and iterate over collection names
+            database.listCollectionNames()
+                    .iterator()
+                    .forEachRemaining(collectionName -> valueSequence.add(new StringValue(collectionName)));
 
             return valueSequence;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
-
 
     }
 

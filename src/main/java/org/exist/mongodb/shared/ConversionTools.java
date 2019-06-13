@@ -26,19 +26,19 @@ public class ConversionTools {
      * @throws XPathException     exist data conversion failed.
      * @throws JSONParseException A string could not be parsed.
      */
-    public static List<BasicDBObject> convertPipeline(Sequence args) throws XPathException, JSONParseException {
+    public static List<BasicDBObject> convertPipeline(final Sequence args) throws XPathException, JSONParseException {
 
-        List<BasicDBObject> pipeline = new ArrayList<>();
+        final List<BasicDBObject> pipeline = new ArrayList<>();
 
         if (args != null) {
-            SequenceIterator iterator = args.iterate();
+            final SequenceIterator iterator = args.iterate();
             while (iterator.hasNext()) {
-                Item next = iterator.nextItem();
+                final Item next = iterator.nextItem();
 
                 if (next instanceof Sequence) { // Dead code
                     pipeline.add(MapToBSON.convert((Sequence)next));
                 } else {
-                    String step = next.getStringValue();
+                    final String step = next.getStringValue();
                     pipeline.add(BasicDBObject.parse(step));
                 }
 
@@ -56,7 +56,7 @@ public class ConversionTools {
      * @return the converted result, null if input is null.
      * @throws JSONParseException The string could not be parsed.
      */
-    public static BasicDBObject convertJSon(String json) throws JSONParseException {
+    public static BasicDBObject convertJSon(final String json) throws JSONParseException {
         return (json == null) ? null : BasicDBObject.parse(json);
     }
 
@@ -224,12 +224,12 @@ public class ConversionTools {
     /**
      * Convert Sequence into array of Java objects
      */
-    public static Object[] convertParameters(Sequence args) throws XPathException {
-        List<Object> params = new ArrayList<>();
-        SequenceIterator iterate = args.iterate();
+    public static Object[] convertParameters(final Sequence args) throws XPathException {
+        final List<Object> params = new ArrayList<>();
+        final SequenceIterator iterate = args.iterate();
         while (iterate.hasNext()) {
 
-            Item item = iterate.nextItem();
+            final Item item = iterate.nextItem();
 
             switch (item.getType()) {
                 case Type.STRING:

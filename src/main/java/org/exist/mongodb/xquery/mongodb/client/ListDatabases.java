@@ -38,7 +38,7 @@ public class ListDatabases extends BasicFunction {
 
     private static final String LIST_DATABASES = "list-databases";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(LIST_DATABASES, MongodbModule.NAMESPACE_URI, MongodbModule.PREFIX),
                     "List the names of all databases on the connected server.",
@@ -49,28 +49,29 @@ public class ListDatabases extends BasicFunction {
             ),
     };
 
-    public ListDatabases(XQueryContext context, FunctionSignature signature) {
+    public ListDatabases(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         try {
             // Stream parameters
-            String mongodbClientId = args[0].itemAt(0).getStringValue();
+            final String mongodbClientId = args[0].itemAt(0).getStringValue();
 
             // Check id
             MongodbClientStore.getInstance().validate(mongodbClientId);
 
+            final ValueSequence returnSequence = new ValueSequence();
+
             // Stream appropriate Mongodb client
-            MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId);
+            try(final MongoClient client = MongodbClientStore.getInstance().get(mongodbClientId)) {
+                client.listDatabaseNames().iterator().forEachRemaining(name -> returnSequence.add(new StringValue(name)));
+            }
+            return returnSequence;
 
-            ValueSequence seq = new ValueSequence();
-            client.getDatabaseNames().forEach((name) -> seq.add(new StringValue(name)));
-            return seq;
-
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             return GenericExceptionHandler.handleException(this, t);
         }
 
